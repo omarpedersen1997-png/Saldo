@@ -1,4 +1,3 @@
-
 name: Build Saldo Android APK
 
 on:
@@ -30,12 +29,10 @@ jobs:
         shell: bash
         run: |
           set -e
-
-          ZIP_FILE="Saldo-Android-startpakke-ny-download.zip"
+          ZIP_FILE="Saldo-3.0.0-arbejdsversion.zip"
 
           if [ ! -f "$ZIP_FILE" ]; then
-            echo "FEJL: Fandt ikke $ZIP_FILE i repositoryets rodmappe."
-            echo "Kontrollér, at ZIP-filen er uploadet til GitHub."
+            echo "FEJL: ZIP-filen blev ikke fundet: $ZIP_FILE"
             exit 1
           fi
 
@@ -45,19 +42,12 @@ jobs:
           SETTINGS_FILE=$(find extracted -type f -name "settings.gradle.kts" -print -quit)
 
           if [ -z "$SETTINGS_FILE" ]; then
-            echo "FEJL: Fandt ikke settings.gradle.kts i ZIP-filen."
+            echo "FEJL: settings.gradle.kts blev ikke fundet."
             exit 1
           fi
 
           PROJECT_DIR=$(dirname "$SETTINGS_FILE")
-
-          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "FEJL: Fandt ikke app/build.gradle.kts."
-            exit 1
-          fi
-
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Saldo-projekt fundet i: $PROJECT_DIR"
 
       - name: Byg Android APK
         run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon

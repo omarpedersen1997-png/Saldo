@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,43 +28,45 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Find og udpak Saldo-projektet
+      - name: Kontroller og udpak Saldo ZIP
         shell: bash
         run: |
           set -euo pipefail
 
-          ZIP_FILE="Saldo-3.1.0-arbejdsversion.zip"
+          ZIP_FILE="Saldo-download.zip"
 
           if [ ! -f "$ZIP_FILE" ]; then
-            echo "FEJL: $ZIP_FILE mangler i repositoryets rodmappe."
+            echo "::error::Filen $ZIP_FILE mangler i repositoryets rodmappe."
             exit 1
           fi
 
+          unzip -t "$ZIP_FILE"
           mkdir -p extracted
           unzip -q "$ZIP_FILE" -d extracted
 
-          SETTINGS_FILE=$(find extracted -type f -name "settings.gradle.kts" -print -quit)
+          SETTINGS_FILE="$(find extracted -type f -name settings.gradle.kts -print -quit)"
 
           if [ -z "$SETTINGS_FILE" ]; then
-            echo "FEJL: settings.gradle.kts blev ikke fundet i ZIP-filen."
+            echo "::error::settings.gradle.kts blev ikke fundet i ZIP-filen."
             exit 1
           fi
 
           PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
 
           if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "FEJL: app/build.gradle.kts mangler."
+            echo "::error::app/build.gradle.kts blev ikke fundet."
             exit 1
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      - name: Byg Android APK
+      - name: Byg debug APK
         run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
 
-      - name: Upload APK som artefakt
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-Android-debug-APK
-          path: extracted/**/build/outputs/apk/debug/*.apk
+          path: ${{ env.PROJECT_DIR }}/build/outputs/apk/debug/*.apk
           if-no-files-found: error
+          retention-days: 14

@@ -28,23 +28,42 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Kontroller projektmapper
+      - name: Find Android-projektet
         shell: bash
         run: |
-          echo "Filer i repositoryets rod:"
+          echo "=== REPOSITORYETS ROD ==="
+          pwd
           ls -la
 
-          echo "Finder Android-projektet..."
-          find . -name settings.gradle.kts -o -name settings.gradle
+          echo "=== FINDER GRADLE-PROJEKT ==="
+          SETTINGS=$(find . -type f \( \
+            -name settings.gradle.kts -o \
+            -name settings.gradle \
+          \) -not -path '*/.gradle/*' | head -n 1)
+
+          if [ -z "$SETTINGS" ]; then
+            echo "FEJL: Ingen settings.gradle-fil blev fundet."
+            echo "Kontroller, at Android-projektets filer er uploadet."
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$SETTINGS")
+          echo "Android-projekt fundet: $PROJECT_DIR"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+          echo "=== PROJEKTETS GRADLE-FILER ==="
+          find "$PROJECT_DIR" -maxdepth 3 -type f \
+            \( -name build.gradle.kts -o -name build.gradle \) -print
 
       - name: Byg Saldo APK
-        run: gradle -p app assembleDebug --no-daemon
+        run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
 
       - name: Gem APK
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-Android-debug-APK
-          path: app/build/outputs/apk/debug/*.apk
+          path: |
+            **/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14

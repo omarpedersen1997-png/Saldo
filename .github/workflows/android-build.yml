@@ -1,3 +1,4 @@
+
 name: Build Saldo Android APK
 
 on:
@@ -12,71 +13,51 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Hent repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Opsæt Java
-        uses: actions/setup-java@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Opsæt Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.14.3'
 
-      - name: Kontroller ZIP-fil
+      - name: Udpak Saldo-projekt
         shell: bash
         run: |
           set -euo pipefail
-          ZIP_FILE="Saldo-3.9.0-moderne-funktioner.zip"
-          if [ ! -f "$ZIP_FILE" ]; then
-            echo "FEJL: $ZIP_FILE findes ikke i repositoryets rod."
-            echo "Filer i repository:"
-            ls -la
-            exit 1
-          fi
+          ZIP_FILE="Saldo-3.9.1-rettet-build.zip"
+          test -f "$ZIP_FILE" || { echo "ZIP-filen mangler"; ls -la; exit 1; }
           unzip -t "$ZIP_FILE"
+          mkdir -p extracted
+          unzip -oq "$ZIP_FILE" -d extracted
+          SETTINGS="$(find extracted -type f -name settings.gradle.kts -print -quit)"
+          test -n "$SETTINGS" || { echo "settings.gradle.kts mangler"; exit 1; }
+          PROJECT_DIR="$(dirname "$SETTINGS")"
+          test -f "$PROJECT_DIR/app/build.gradle.kts"
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
-      - name: Pak projekt ud
-        shell: bash
-        run: |
-          set -euo pipefail
-          unzip -o "Saldo-3.9.0-moderne-funktioner.zip" -d .
-          echo "Projektfiler:"
-          find . -maxdepth 4 -type f | head -200
-
-      - name: Find Android-projekt
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -f "saldo_online_work/settings.gradle.kts" ]; then
-            echo "PROJECT_DIR=saldo_online_work" >> "$GITHUB_ENV"
-          elif [ -f "settings.gradle.kts" ]; then
-            echo "PROJECT_DIR=." >> "$GITHUB_ENV"
-          else
-            echo "FEJL: Fandt ikke settings.gradle.kts."
-            find . -name settings.gradle.kts -print
-            exit 1
-          fi
-
-      - name: Byg Android APK
-        shell: bash
+      - name: Byg APK
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon --stacktrace
+
+      - name: Klargør APK
+        shell: bash
         run: |
           set -euo pipefail
-          gradle -p "$PROJECT_DIR" assembleDebug --no-daemon --stacktrace
+          APK="$(find "$PROJECT_DIR" -type f -path '*/build/outputs/apk/debug/*.apk' -print -quit)"
+          test -n "$APK" || { echo "APK blev ikke oprettet"; exit 1; }
+          mkdir -p release
+          cp "$APK" release/Saldo.apk
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Saldo-Android-debug-APK
-          path: |
-            **/build/outputs/apk/debug/*.apk
+          path: release/Saldo.apk
           if-no-files-found: error
           retention-days: 14

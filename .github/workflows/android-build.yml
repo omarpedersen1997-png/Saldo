@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**'
 
 permissions:
   contents: read
@@ -30,8 +28,17 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
+      - name: Kontroller projektmapper
+        shell: bash
+        run: |
+          echo "Filer i repositoryets rod:"
+          ls -la
+
+          echo "Finder Android-projektet..."
+          find . -name settings.gradle.kts -o -name settings.gradle
+
       - name: Byg Saldo APK
-        run: gradle assembleDebug --no-daemon
+        run: gradle -p app assembleDebug --no-daemon
 
       - name: Gem APK
         if: success()

@@ -1,26 +1,21 @@
-name: Build Saldo
+
+name: Build Saldo Android APK
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - 'Saldo-Android-startpakke.zip'
-      - '.github/workflows/android-build.yml'
-
-permissions:
-  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Hent kildekoden
+      - name: Hent repository
         uses: actions/checkout@v4
 
-      - name: Konfigurer Java 17
+      - name: Installer Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -31,47 +26,45 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Pak Android-projektet ud
+      - name: Find og udpak Saldo-projektet
         shell: bash
         run: |
-          ZIP="Saldo-Android-startpakke.zip"
+          set -e
 
-          if [ ! -f "$ZIP" ]; then
-            echo "FEJL: ZIP-filen blev ikke fundet i repositoryets rod."
-            ls -la
+          ZIP_FILE="Saldo-Android-startpakke-ny-download.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "FEJL: Fandt ikke $ZIP_FILE i repositoryets rodmappe."
+            echo "Kontrollér, at ZIP-filen er uploadet til GitHub."
             exit 1
           fi
 
           mkdir -p extracted
-          unzip -oq "$ZIP" -d extracted
+          unzip -o "$ZIP_FILE" -d extracted
 
-          SETTINGS=$(find extracted -type f \
-            -name settings.gradle.kts -print -quit)
+          SETTINGS_FILE=$(find extracted -type f -name "settings.gradle.kts" -print -quit)
 
-          if [ -z "$SETTINGS" ]; then
-            echo "FEJL: settings.gradle.kts blev ikke fundet."
-            find extracted -maxdepth 4 -type f
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "FEJL: Fandt ikke settings.gradle.kts i ZIP-filen."
             exit 1
           fi
 
-          PROJECT_DIR=$(dirname "$SETTINGS")
+          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
 
           if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "FEJL: Android-modulet app blev ikke fundet."
+            echo "FEJL: Fandt ikke app/build.gradle.kts."
             exit 1
           fi
 
-          echo "Projektmappe: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Saldo-projekt fundet i: $PROJECT_DIR"
 
       - name: Byg Android APK
         run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
 
-      - name: Upload Saldo APK
-        if: success()
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-Android-debug-APK
-          path: extracted/**/app/build/outputs/apk/debug/*.apk
+          path: extracted/**/build/outputs/apk/debug/*.apk
           if-no-files-found: error
-          retention-days: 14

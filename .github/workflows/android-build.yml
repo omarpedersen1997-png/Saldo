@@ -3,7 +3,8 @@ name: Build Saldo Android APK
 on:
 workflow_dispatch:
 push:
-branches: [main]
+branches:
+- main
 
 permissions:
 contents: read
@@ -11,10 +12,9 @@ contents: read
 jobs:
 build:
 runs-on: ubuntu-latest
-
 steps:
-  - name: Hent repository
-    uses: actions/checkout@v4
+- name: Hent repository
+uses: actions/checkout@v4
 
   - name: Opsæt Java
     uses: actions/setup-java@v5
@@ -22,37 +22,30 @@ steps:
       distribution: temurin
       java-version: '17'
 
-  - name: Opsæt Gradle
-    uses: gradle/actions/setup-gradle@v4
-
-  - name: Pak projektet ud
+  - name: Find og pak projektet ud
     shell: bash
     run: |
       set -euo pipefail
+      ZIP_FILE="Saldo-professionel.zip"
 
-      if [ ! -f "Saldo-professionel.zip" ]; then
-        echo "FEJL: Saldo-professionel.zip findes ikke i repositoryets rod."
+      if [ ! -f "$ZIP_FILE" ]; then
+        echo "ZIP-filen findes ikke i roden af repository."
         ls -la
         exit 1
       fi
 
       mkdir -p extracted
-      unzip -oq Saldo-professionel.zip -d extracted
+      unzip -oq "$ZIP_FILE" -d extracted
 
-      PROJECT_DIR="$(find extracted -type f -name settings.gradle.kts -print -quit | xargs -r dirname)"
-
-      if [ -z "$PROJECT_DIR" ]; then
-        PROJECT_DIR="$(find extracted -type f -name settings.gradle -print -quit | xargs -r dirname)"
-      fi
+      PROJECT_DIR="$(find extracted -type f \( -name settings.gradle.kts -o -name settings.gradle \) -print -quit | xargs -r dirname)"
 
       if [ -z "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-        echo "FEJL: Android-projektet kunne ikke findes i ZIP-filen."
+        echo "Android-projektet blev ikke fundet i ZIP-filen."
         find extracted -maxdepth 4 -type f | head -100
         exit 1
       fi
 
       echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-      echo "Projekt fundet: $PROJECT_DIR"
 
   - name: Byg APK
     shell: bash
@@ -62,14 +55,8 @@ steps:
     run: |
       set -euo pipefail
       cd "$PROJECT_DIR"
-
-      if [ ! -f gradlew ]; then
-        echo "FEJL: Gradle-wrapperen gradlew mangler."
-        exit 1
-      fi
-
       chmod +x gradlew
-      ./gradlew assembleDebug --no-daemon --stacktrace
+      ./gradlew assembleDebug --no-daemon
 
   - name: Upload APK
     uses: actions/upload-artifact@v4

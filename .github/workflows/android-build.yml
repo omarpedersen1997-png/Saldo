@@ -60,14 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$PROJECT_DIR"
-
-          if [ ! -f gradlew ]; then
-            echo "ERROR: gradlew not found."
-            exit 1
-          fi
-
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

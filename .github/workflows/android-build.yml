@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Installer Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -28,45 +28,66 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Kontroller og udpak Saldo ZIP
+      - name: Udpak og find Saldo-projektet
         shell: bash
         run: |
           set -euo pipefail
 
           ZIP_FILE="Saldo-download.zip"
-
-          if [ ! -f "$ZIP_FILE" ]; then
-            echo "::error::Filen $ZIP_FILE mangler i repositoryets rodmappe."
+          test -f "$ZIP_FILE" || {
+            echo "::error::ZIP-filen mangler: $ZIP_FILE"
             exit 1
-          fi
+          }
 
           unzip -t "$ZIP_FILE"
           mkdir -p extracted
           unzip -q "$ZIP_FILE" -d extracted
 
-          SETTINGS_FILE="$(find extracted -type f -name settings.gradle.kts -print -quit)"
+          SETTINGS_FILE="$(find extracted -type f \
+            \( -name settings.gradle.kts -o -name settings.gradle \) \
+            -print -quit)"
 
-          if [ -z "$SETTINGS_FILE" ]; then
-            echo "::error::settings.gradle.kts blev ikke fundet i ZIP-filen."
+          test -n "$SETTINGS_FILE" || {
+            echo "::error::Gradle settings-fil blev ikke fundet"
             exit 1
-          fi
+          }
 
           PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
 
-          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "::error::app/build.gradle.kts blev ikke fundet."
+          test -f "$PROJECT_DIR/app/build.gradle.kts" -o \
+               -f "$PROJECT_DIR/app/build.gradle" || {
+            echo "::error::Appens Gradle-fil blev ikke fundet"
+            exit 1
+          }
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Saldo-projekt: $PROJECT_DIR"
+
+      - name: Byg APK
+        run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
+
+      - name: Find den byggede APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find "$PROJECT_DIR" -type f \
+            -path '*/build/outputs/apk/debug/*.apk' \
+            -print -quit)"
+
+          if [ -z "$APK" ]; then
+            echo "::error::APK blev ikke oprettet. Se build-trinnets log."
+            find "$PROJECT_DIR" -type d -path '*/build/outputs/*' -print
             exit 1
           fi
 
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
-      - name: Byg debug APK
-        run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
+          mkdir -p release
+          cp "$APK" release/Saldo.apk
+          echo "APK klar: release/Saldo.apk"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-Android-debug-APK
-          path: ${{ env.PROJECT_DIR }}/build/outputs/apk/debug/*.apk
+          path: release/Saldo.apk
           if-no-files-found: error
           retention-days: 14

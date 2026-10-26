@@ -28,31 +28,38 @@ jobs:
       - name: Find og udpak Saldo-projektet
         shell: bash
         run: |
-          set -e
-          ZIP_FILE="Saldo-3.0.0-arbejdsversion.zip"
+          set -euo pipefail
+
+          ZIP_FILE="Saldo-3.1.0-arbejdsversion.zip"
 
           if [ ! -f "$ZIP_FILE" ]; then
-            echo "FEJL: ZIP-filen blev ikke fundet: $ZIP_FILE"
+            echo "FEJL: $ZIP_FILE mangler i repositoryets rodmappe."
             exit 1
           fi
 
           mkdir -p extracted
-          unzip -o "$ZIP_FILE" -d extracted
+          unzip -q "$ZIP_FILE" -d extracted
 
           SETTINGS_FILE=$(find extracted -type f -name "settings.gradle.kts" -print -quit)
 
           if [ -z "$SETTINGS_FILE" ]; then
-            echo "FEJL: settings.gradle.kts blev ikke fundet."
+            echo "FEJL: settings.gradle.kts blev ikke fundet i ZIP-filen."
             exit 1
           fi
 
-          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
+
+          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
+            echo "FEJL: app/build.gradle.kts mangler."
+            exit 1
+          fi
+
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Byg Android APK
         run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload APK som artefakt
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-Android-debug-APK

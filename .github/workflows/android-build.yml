@@ -28,48 +28,63 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Udpak Saldo-projekt
+      - name: Kontroller og udpak ZIP
         shell: bash
         run: |
-          set -euo pipefail
+          set -euxo pipefail
 
-          unzip -t Saldo-projekt-ny.zip
+          ZIP_FILE="Saldo-projekt-ny.zip"
+          test -f "$ZIP_FILE" || {
+            echo "::error::Mangler $ZIP_FILE i repositoryets rodmappe"
+            ls -la
+            exit 1
+          }
+
+          unzip -t "$ZIP_FILE"
           mkdir -p extracted
-          unzip -q Saldo-projekt-ny.zip -d extracted
+          unzip -q "$ZIP_FILE" -d extracted
 
           SETTINGS="$(find extracted -type f \
             -name settings.gradle.kts -print -quit)"
 
-          if [ -z "$SETTINGS" ]; then
-            echo "::error::settings.gradle.kts blev ikke fundet."
+          test -n "$SETTINGS" || {
+            echo "::error::settings.gradle.kts blev ikke fundet"
+            find extracted -maxdepth 4 -type f
             exit 1
-          fi
+          }
 
           PROJECT_DIR="$(dirname "$SETTINGS")"
 
-          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
-            echo "::error::app/build.gradle.kts blev ikke fundet."
+          test -f "$PROJECT_DIR/app/build.gradle.kts" || {
+            echo "::error::app/build.gradle.kts blev ikke fundet"
             exit 1
-          fi
+          }
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Projektmappe: $PROJECT_DIR"
 
       - name: Byg Android APK
-        run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle -p "$PROJECT_DIR" assembleDebug \
+            --no-daemon --stacktrace --info
 
-      - name: Find og klargør APK
+      - name: Find APK
         shell: bash
         run: |
           set -euo pipefail
+
+          find "$PROJECT_DIR" -type f -name '*.apk' -print
 
           APK="$(find "$PROJECT_DIR" -type f \
             -path '*/build/outputs/apk/debug/*.apk' \
             -print -quit)"
 
-          if [ -z "$APK" ]; then
-            echo "::error::APK blev ikke fundet efter bygningen."
+          test -n "$APK" || {
+            echo "::error::Ingen APK blev oprettet. Se trinnet Byg Android APK."
             exit 1
-          fi
+          }
 
           mkdir -p release
           cp "$APK" release/Saldo.apk

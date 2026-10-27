@@ -1,0 +1,616 @@
+--- a/.github/workflows/android-build.yml
++++ b/.github/workflows/android-build.yml
+@@ -20,6 +20,15 @@
+         with:
+           distribution: temurin
+           java-version: '17'
++
++      - name: Setup Android SDK
++        uses: android-actions/setup-android@v4
++
++      - name: Install required Android SDK packages
++        shell: bash
++        run: |
++          set -euo pipefail
++          sdkmanager --install "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+ 
+       - name: Install Gradle
+         shell: bash
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -1,11 +1,12 @@
+ # Changelog
+ 
+-## 4.2.0 — Saldo Premium Refresh
+-- New emerald/graphite visual identity with higher contrast and consistent accent colors.
+-- Refined dashboard hierarchy, headings, card geometry, and selected navigation treatment.
+-- Animated balance and progress components retained.
+-- GitHub Actions now locates the Android project from either repository root or a nested project directory.
+-- Existing data model, Supabase authentication/sync, PIN/biometric lock, reminders, and exports retained.
++## 4.2.0 — Saldo 2026 Redesign
++- Replaced the dark green interface with a light, premium fintech visual system: soft canvas, ink typography, violet and emerald accents, white cards, subtle borders and elevation.
++- Updated system bars and bottom navigation for the light interface; the Saldo logo image remains byte-for-byte unchanged.
++- Reworked the cash-flow component to show monthly net balance and separate animated income/expense comparison bars.
++- Refined quick actions, budget status, transaction/bill rows, and card hierarchy across the main screens.
++- Kept the existing data model, Partner naming (with migration of older local records), Supabase authentication/sync, PIN/biometric lock, reminders, and PDF/backup exports.
++- Retained the GitHub Actions build workflow; APK compilation still needs to be confirmed by a real Android SDK build.
+ 
+ 
+ ## 4.1.0 — Saldo 2026 UI-redesign
+--- a/README.md
++++ b/README.md
+@@ -2,8 +2,8 @@
+ 
+ Saldo er en privatøkonomi-app til Android bygget med Kotlin og Jetpack Compose.
+ 
+-## Version 4.1.0 — 2026-redesign
+-Denne version opdaterer centrale dele af brugeroplevelsen: dashboard, budgetter, poster, regninger og værktøjsmenu. Designet bruger et mørkt fintech-udtryk med lilla/cyan-accenter, animerede budgetindikatorer, hurtige handlinger og mere kompakte kort. Saldo-logoet er bevaret uændret.
++## Version 4.2.0 — Saldo 2026 Redesign
++Brugerfladen er omlagt til et lyst, moderne fintech-design med blød baggrund, tydelig typografi, lilla og smaragdgrønne accenter, hvide kort og en ny bundnavigation. Dashboardets pengestrøm viser månedens netto samt separate animerede bjælker for indtægter og udgifter. Poster, regninger, budgetter og værktøjer har fået et mere konsekvent visuelt hierarki. Saldo-logoets billedfil er bevaret byte-for-byte uændret.
+ 
+ ## Byg appen
+ - JDK 17
+@@ -11,14 +11,14 @@
+ - Gradle 8.14.3 eller en kompatibel Gradle-installation
+ - Byg debug-APK med `gradle assembleDebug` fra projektroden.
+ 
+-GitHub Actions-workflowet i `.github/workflows/android-build.yml` forventer, at projektets ZIP-fil (`Saldo-2026-redesign.zip`) ligger i roden af repositoryet. GitHub Secrets `SUPABASE_URL` og `SUPABASE_ANON_KEY` bruges ved build. Brug kun en Supabase publishable/anon key i mobilappen — aldrig en secret/service-role key.
++GitHub Actions-workflowet i `.github/workflows/android-build.yml` bygger projektet direkte fra repositoryets rod (hvor `settings.gradle.kts` og `app/build.gradle.kts` ligger) og installerer eksplicit Android SDK Platform 36 samt Build Tools 36.0.0. Det bruger ikke den forældede SDK-pakke `tools`. GitHub Secrets `SUPABASE_URL` og `SUPABASE_ANON_KEY` bruges ved build. Brug kun en Supabase publishable/anon key i mobilappen — aldrig en secret/service-role key.
+ 
+ Online-login og cloud-backup kræver opsætningen beskrevet i `ONLINE-LOGIN.md` og SQL-skemaet i `SUPABASE-SCHEMA.sql`.
+ 
+ 
+ ## Saldo 4.2.0 — Premium Refresh
+ 
+-This source package includes the updated emerald/graphite interface, revised dashboard hierarchy and navigation styling. Existing local data structure and app workflows are retained.
++This source package includes the 2026 light interface, revised dashboard/cash-flow hierarchy and navigation styling. Existing local data structure and app workflows are retained.
+ 
+ ### Build APK with GitHub Actions
+ 1. Upload the contents of this project folder to the root of a GitHub repository (including `.github/workflows/android-build.yml`).
+--- /dev/null
++++ b/REDESIGN-2026.md
+@@ -0,0 +1,17 @@
++# Saldo 4.2.0 — UI-redesign 2026
++
++## Hvad er ændret i brugerfladen?
++- Nyt lyst designsystem med lys canvas, mørk tekst, lilla hovedaccent og smaragdgrøn for positive beløb.
++- Opdateret top- og bundnavigation, herunder aktivt faneblad, kortkanter, afrundinger og skygger.
++- Rådighedsbeløbet er fortsat det vigtigste fokuspunkt, men får nu en dyb lilla kontrastflade, så saldoen står tydeligt frem.
++- Månedens pengestrøm er bygget om til et nettobeløb samt separate animerede bjælker for indtægter og udgifter, skaleret mod månedens største værdi.
++- Post- og regningsrækker bruger tydeligere ikoner, bedre beløbsfarver og kompakte ikonhandlinger.
++- Budgetkort, hurtige handlinger og indstillingskort bruger samme visuelle system.
++
++## Bevarede funktioner
++Dataformatet, lokal lagring, ejerfelter med migrering fra `Kæreste` til `Partner`, Supabase-login/synkronisering, PIN, biometrisk oplåsning, regningspåmindelser, PDF-rapport, backup/restore og andre værktøjer er ikke tilsigtet ændret.
++
++## Kontrolstatus
++- Saldo-logoets billedfiler er hash-kontrolleret mod udgangspunktet og er byte-for-byte identiske.
++- Appens Gradle-konfiguration, manifest, Supabase SQL og filprovider-konfiguration er uændrede. Build-workflowet installerer nu eksplicit Android SDK Platform 36, Build Tools 36.0.0 og Platform Tools.
++- Kotlin-kilden er kontrolleret for parserfejl; en fuld Android-build er ikke udført, fordi dette miljø ikke har Android SDK eller Gradle-cache installeret.
+--- a/app/src/main/java/dk/saldo/app/MainActivity.kt
++++ b/app/src/main/java/dk/saldo/app/MainActivity.kt
+@@ -6,6 +6,7 @@
+ import android.app.NotificationChannel
+ import android.app.NotificationManager
+ import android.os.Build
++import android.view.View
+ import android.content.pm.PackageManager
+ import androidx.core.app.NotificationCompat
+ import androidx.core.app.NotificationManagerCompat
+@@ -81,15 +82,16 @@
+ import kotlin.math.ceil
+ import kotlin.math.ln
+ 
+-private val Night = Color(0xFF0A100F)
+-private val Panel = Color(0xFF121B19)
+-private val PanelRaised = Color(0xFF1B2925)
+-private val Violet = Color(0xFFB6F36A)
+-private val Blue = Color(0xFF75E0B7)
+-private val Mint = Color(0xFF9BEA83)
+-private val Muted = Color(0xFFA0B3AB)
+-private val White = Color(0xFFF3F8F4)
+-private val BorderSubtle = Color(0x20FFFFFF)
++// Saldo 4.2.0 — 2026 UI system: airy surfaces, ink typography and violet/emerald accents.
++private val Night = Color(0xFFF6F6FB)
++private val Panel = Color(0xFFFFFFFF)
++private val PanelRaised = Color(0xFFF0EEFF)
++private val Violet = Color(0xFF7357F6)
++private val Blue = Color(0xFF5B55D9)
++private val Mint = Color(0xFF138B68)
++private val Muted = Color(0xFF777B90)
++private val White = Color(0xFF1B1B2C)
++private val BorderSubtle = Color(0x181B1B2C)
+ private fun money(v: Double) = NumberFormat.getNumberInstance(Locale("da", "DK")).apply { maximumFractionDigits = 2 }.format(v) + " kr."
+ private fun JSONObject.s(k: String, d: String = "") = optString(k, d).let { if (it == "null") d else it }
+ private fun JSONObject.n(k: String, d: Double = 0.0) = optDouble(k, d)
+@@ -99,8 +101,9 @@
+ class MainActivity : FragmentActivity() {
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+-        window.statusBarColor = android.graphics.Color.rgb(10, 16, 15)
+-        window.navigationBarColor = android.graphics.Color.rgb(10, 16, 15)
++        window.statusBarColor = android.graphics.Color.rgb(246, 246, 251)
++        window.navigationBarColor = android.graphics.Color.rgb(246, 246, 251)
++        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+         WorkManager.getInstance(this).enqueueUniquePeriodicWork("saldo-bill-reminders", ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<BillReminderWorker>(24, TimeUnit.HOURS).build())
+         setContent { SaldoApp() }
+     }
+@@ -174,12 +177,12 @@
+         if (additions.isNotEmpty()) { val arr = JSONArray(); (existing + additions).forEach { arr.put(it) }; store("bills", arr) }
+     }
+     MaterialTheme(
+-        colorScheme = darkColorScheme(
+-            primary = PanelRaised,
+-            onPrimary = White,
+-            secondary = Blue,
+-            onSecondary = Color(0xFF081A20),
+-            tertiary = Mint,
++        colorScheme = lightColorScheme(
++            primary = Violet,
++            onPrimary = Color.White,
++            secondary = Mint,
++            onSecondary = Color.White,
++            tertiary = Blue,
+             background = Night,
+             surface = Panel,
+             surfaceVariant = PanelRaised,
+@@ -194,7 +197,7 @@
+         )
+     ) {
+         if (splash) {
+-            Box(Modifier.fillMaxSize().background(Color(0xFF080B20)), contentAlignment = Alignment.Center) {
++            Box(Modifier.fillMaxSize().background(Color(0xFFF6F6FB)), contentAlignment = Alignment.Center) {
+                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                     Image(painterResource(R.drawable.ic_saldo_logo), "Saldo-logo", Modifier.size(145.dp))
+                     Spacer(Modifier.height(22.dp)); Text("SALDO", fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, color = White, letterSpacing = 4.sp)
+@@ -212,7 +215,7 @@
+                 Field("E-mail", loginEmail, { loginEmail = it }, password = false)
+                 Field("Adgangskode", loginPassword, { loginPassword = it }, password = true)
+                 if (loginMode) Field("Gentag adgangskode", loginConfirm, { loginConfirm = it }, password = true)
+-                if (loginError.isNotBlank()) Text(loginError, color = Color(0xFFFF7F9D), fontSize = 12.sp)
++                if (loginError.isNotBlank()) Text(loginError, color = Color(0xFFD43D5B), fontSize = 12.sp)
+                 Button(onClick = {
+                     val email = loginEmail.trim().lowercase(Locale.ROOT)
+                     when {
+@@ -254,11 +257,11 @@
+         } else {
+             Scaffold(containerColor = Night, bottomBar = {
+                 Surface(
+-                    color = Color(0xFF10151D),
+-                    shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
++                    color = Color(0xFFFEFEFF),
++                    shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
+                     tonalElevation = 0.dp,
+                     shadowElevation = 12.dp,
+-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .055f)),
++                    border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
+                     modifier = Modifier.fillMaxWidth()
+                 ) {
+                     Row(
+@@ -277,32 +280,32 @@
+                             }
+                             Surface(
+                                 onClick = { tab = t },
+-                                color = if (selected) Color(0xFF263D32) else Color.Transparent,
++                                color = if (selected) Color(0xFFEDE9FF) else Color.Transparent,
+                                 shape = RoundedCornerShape(17.dp),
+                                 modifier = Modifier.weight(1f)
+                             ) {
+                                 Column(
+-                                    modifier = Modifier.padding(vertical = 10.dp),
++                                    modifier = Modifier.padding(vertical = 9.dp),
+                                     horizontalAlignment = Alignment.CenterHorizontally,
+                                     verticalArrangement = Arrangement.spacedBy(5.dp)
+                                 ) {
+                                     Icon(icon, contentDescription = t, tint = if (selected) Blue else Muted, modifier = Modifier.size(20.dp))
+-                                    Text(t, color = if (selected) White else Muted, fontSize = 9.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
++                                    Text(t, color = if (selected) White else Muted, fontSize = 10.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium, maxLines = 1)
+                                 }
+                             }
+                         }
+                     }
+                 }
+             }) { pad ->
+-                Column(Modifier.fillMaxSize().padding(pad).background(Brush.verticalGradient(listOf(Color(0xFF101E19), Night, Color(0xFF080D0C)))).padding(horizontal = 20.dp)) {
++                Column(Modifier.fillMaxSize().padding(pad).background(Brush.verticalGradient(listOf(Color(0xFFF9F8FF), Night, Color(0xFFF2F3F9)))).padding(horizontal = 20.dp)) {
+                     Row(Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 20.dp), verticalAlignment = Alignment.CenterVertically) {
+                         Image(painterResource(R.drawable.ic_saldo_logo), "Saldo-logo", Modifier.size(38.dp))
+                         Spacer(Modifier.width(12.dp))
+                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+-                            Text("DIN ØKONOMI · ENKELT", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.55.sp)
++                            Text("DIN ØKONOMI · ENKELT", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.35.sp)
+                             Text(if (tab == "Overblik") "Godt overblik" else tab, color = White, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-1.0).sp)
+                         }
+-                        Surface(shape = RoundedCornerShape(14.dp), color = PanelRaised, border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .08f))) {
++                        Surface(shape = RoundedCornerShape(15.dp), color = Panel, border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), shadowElevation = 3.dp) {
+                             IconButton(onClick = { dialog = "post" }, modifier = Modifier.size(44.dp)) { Icon(Icons.Default.Add, "Tilføj post", tint = Blue, modifier = Modifier.size(22.dp)) }
+                         }
+                     }
+@@ -336,48 +339,48 @@
+                                     border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = .10f)),
+                                     modifier = Modifier.fillMaxWidth()
+                                 ) {
+-                                    Box(Modifier.background(Brush.linearGradient(listOf(Color(0xFF203D31), Color(0xFF152820), Color(0xFF10201B))))) {
++                                    Box(Modifier.background(Brush.linearGradient(listOf(Color(0xFF211B46), Color(0xFF35277B), Color(0xFF221D4A))))) {
+                                         Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                                             Row(verticalAlignment = Alignment.CenterVertically) {
+-                                                Surface(color = Color.White.copy(alpha = .10f), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(42.dp)) {
+-                                                    Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.AccountBalanceWallet, null, tint = Blue, modifier = Modifier.size(22.dp)) }
++                                                Surface(color = Color.White.copy(alpha = .13f), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(42.dp)) {
++                                                    Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.AccountBalanceWallet, null, tint = Color(0xFFC6BCFF), modifier = Modifier.size(22.dp)) }
+                                                 }
+                                                 Spacer(Modifier.width(11.dp))
+                                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+-                                                    Text("RÅDIGHEDSBELØB", color = White.copy(alpha = .72f), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.35.sp)
+-                                                    Text("Efter registrerede regninger", color = Muted, fontSize = 11.sp)
++                                                    Text("RÅDIGHEDSBELØB", color = Color.White.copy(alpha = .78f), fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.35.sp)
++                                                    Text("Efter registrerede regninger", color = Color(0xFFD3D0EB), fontSize = 11.sp)
+                                                 }
+                                                 Surface(color = if (available >= 0) Color(0x263CE0B0) else Color(0x26FF7798), shape = RoundedCornerShape(50)) {
+                                                     Row(Modifier.padding(horizontal = 10.dp, vertical = 7.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+-                                                        Box(Modifier.size(6.dp).background(if (available >= 0) Mint else Color(0xFFFF91A9), RoundedCornerShape(50)))
+-                                                        Text(if (available >= 0) "På sporet" else "Underskud", color = if (available >= 0) Mint else Color(0xFFFF91A9), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
++                                                        Box(Modifier.size(6.dp).background(if (available >= 0) Mint else Color(0xFFFFA8BA), RoundedCornerShape(50)))
++                                                        Text(if (available >= 0) "På sporet" else "Underskud", color = if (available >= 0) Color(0xFFB9F7DE) else Color(0xFFFFA8BA), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                                     }
+                                                 }
+                                             }
+                                             AnimatedContent(targetState = available, transitionSpec = { fadeIn(tween(240)) togetherWith fadeOut(tween(140)) }, label = "balance-number") { amount ->
+-                                                Text(money(amount), color = White, fontSize = 34.sp, fontWeight = FontWeight.Bold, letterSpacing = (-1.25).sp, maxLines = 1)
++                                                Text(money(amount), color = Color.White, fontSize = 34.sp, fontWeight = FontWeight.Bold, letterSpacing = (-1.25).sp, maxLines = 1)
+                                             }
+                                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+-                                                    Text("FORBRUG AF INDTÆGTER", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .6.sp)
+-                                                    Text("${(spendRatio * 100).toInt()}% brugt", color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
++                                                    Text("FORBRUG AF INDTÆGTER", color = Color(0xFFD3D0EB), fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .6.sp)
++                                                    Text("${(spendRatio * 100).toInt()}% brugt", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                                 }
+                                                 Box(contentAlignment = Alignment.Center, modifier = Modifier.size(58.dp)) {
+-                                                    CircularProgressIndicator(progress = { animatedSpend }, modifier = Modifier.fillMaxSize(), color = Blue, trackColor = Color.White.copy(alpha = .12f), strokeWidth = 5.dp)
++                                                    CircularProgressIndicator(progress = { animatedSpend }, modifier = Modifier.fillMaxSize(), color = Color(0xFFC6BCFF), trackColor = Color.White.copy(alpha = .12f), strokeWidth = 5.dp)
+                                                     Icon(if (spendRatio < .8f) Icons.Default.TrendingUp else Icons.Default.TrendingDown, null, tint = if (spendRatio < .8f) Mint else Color(0xFFFFC078), modifier = Modifier.size(20.dp))
+                                                 }
+                                             }
+                                             Box(Modifier.fillMaxWidth().height(7.dp).background(Color.White.copy(alpha = .10f), RoundedCornerShape(50))) {
+-                                                Box(Modifier.fillMaxWidth(animatedSpend).fillMaxHeight().background(Brush.horizontalGradient(listOf(Violet, Blue, Mint)), RoundedCornerShape(50)))
++                                                Box(Modifier.fillMaxWidth(animatedSpend).fillMaxHeight().background(Brush.horizontalGradient(listOf(Color(0xFFC6BCFF), Color(0xFFA9F2D4), Color.White)), RoundedCornerShape(50)))
+                                             }
+                                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+-                                                    Text("NÆSTE LØN", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .5.sp)
+-                                                    Text(if (daysToPay == 0) "I dag" else "Om $daysToPay dage", color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
++                                                    Text("NÆSTE LØN", color = Color(0xFFD3D0EB), fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .5.sp)
++                                                    Text(if (daysToPay == 0) "I dag" else "Om $daysToPay dage", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                                 }
+                                                 Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+-                                                    Text("LØN PR. GANG", color = Muted, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .5.sp)
+-                                                    Text(money(payAmount), color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
++                                                    Text("LØN PR. GANG", color = Color(0xFFD3D0EB), fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .5.sp)
++                                                    Text(money(payAmount), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                                 }
+                                             }
+                                         }
+@@ -421,7 +424,7 @@
+                             if (bills.none { !it.optBoolean("paid", false) }) item {
+                                 Surface(color = Panel, shape = RoundedCornerShape(20.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), modifier = Modifier.fillMaxWidth()) {
+                                     Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+-                                        Surface(color = Color(0x2639B982), shape = RoundedCornerShape(14.dp), modifier = Modifier.size(44.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.CheckCircle, null, tint = Mint) } }
++                                        Surface(color = Mint.copy(alpha = .12f), shape = RoundedCornerShape(14.dp), modifier = Modifier.size(44.dp)) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.CheckCircle, null, tint = Mint) } }
+                                         Spacer(Modifier.width(12.dp))
+                                         Column { Text("Alt er betalt", color = White, fontWeight = FontWeight.SemiBold); Text("Du har ingen ubetalte regninger lige nu.", color = Muted, fontSize = 11.sp) }
+                                     }
+@@ -522,16 +525,16 @@
+                             val totalSpent = budgetItems.sumOf { b -> tx.filter { it.s("type") == "Udgift" && it.s("category").equals(b.s("category"), true) && it.s("owner", "Mig").equals(b.s("owner", "Husstand"), true) && runCatching { LocalDate.parse(it.s("date")) }.getOrNull()?.let { d -> d.year == LocalDate.now().year && d.month == LocalDate.now().month } == true }.sumOf { it.n("amount") } }
+                             val totalRatio = if (totalLimit > 0) (totalSpent / totalLimit).toFloat().coerceIn(0f, 1f) else 0f
+                             Surface(color = Color.Transparent, shape = RoundedCornerShape(24.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp)) {
+-                                Column(Modifier.background(Brush.linearGradient(listOf(Color(0xFF20372D), Color(0xFF14221C)))).padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
++                                Column(Modifier.background(Brush.linearGradient(listOf(Color(0xFFEAE6FF), Color(0xFFF5F2FF)))).padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                     Text("SAMLET BUDGETSTATUS", color = Muted, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.2.sp)
+                                     Row(verticalAlignment = Alignment.Bottom) {
+                                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                             Text(money((totalLimit - totalSpent).coerceAtLeast(0.0)), color = White, fontSize = 27.sp, fontWeight = FontWeight.Bold, letterSpacing = (-.7).sp)
+                                             Text("tilbage af ${money(totalLimit)}", color = Muted, fontSize = 11.sp)
+                                         }
+-                                        Text("${(totalRatio * 100).toInt()}% brugt", color = if (totalRatio >= 1f) Color(0xFFFF91A9) else Blue, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+-                                    }
+-                                    Box(Modifier.fillMaxWidth().height(8.dp).background(Color.White.copy(alpha = .08f), RoundedCornerShape(50))) {
++                                        Text("${(totalRatio * 100).toInt()}% brugt", color = if (totalRatio >= 1f) Color(0xFFD43D5B) else Blue, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
++                                    }
++                                    Box(Modifier.fillMaxWidth().height(8.dp).background(Violet.copy(alpha = .12f), RoundedCornerShape(50))) {
+                                         Box(Modifier.fillMaxWidth(totalRatio).fillMaxHeight().background(Brush.horizontalGradient(listOf(Violet, Blue, Mint)), RoundedCornerShape(50)))
+                                     }
+                                 }
+@@ -556,16 +559,16 @@
+                                         Surface(color = Panel, shape = RoundedCornerShape(20.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), modifier = Modifier.fillMaxWidth()) {
+                                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                                 Row(verticalAlignment = Alignment.CenterVertically) {
+-                                                    Surface(color = if (over) Color(0x22FF7798) else Color(0x263F6B4E), shape = RoundedCornerShape(12.dp), modifier = Modifier.size(40.dp)) {
+-                                                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.PieChart, null, tint = if (over) Color(0xFFFF91A9) else Violet, modifier = Modifier.size(20.dp)) }
++                                                    Surface(color = if (over) Color(0x16E54865) else Violet.copy(alpha = .10f), shape = RoundedCornerShape(12.dp), modifier = Modifier.size(40.dp)) {
++                                                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.PieChart, null, tint = if (over) Color(0xFFD43D5B) else Violet, modifier = Modifier.size(20.dp)) }
+                                                     }
+                                                     Spacer(Modifier.width(11.dp))
+                                                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                                         Text(b.s("category"), color = White, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                                                         Text(b.s("owner", "Husstand"), color = Muted, fontSize = 10.sp)
+                                                     }
+-                                                    Surface(color = if (over) Color(0x24FF7798) else Color(0x1F3CE0B0), shape = RoundedCornerShape(9.dp)) {
+-                                                        Text(if (over) "Overskredet" else "${((1f - ratio.coerceIn(0f, 1f)) * 100).toInt()}% tilbage", color = if (over) Color(0xFFFF91A9) else Mint, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp))
++                                                    Surface(color = if (over) Color(0x16E54865) else Mint.copy(alpha = .10f), shape = RoundedCornerShape(9.dp)) {
++                                                        Text(if (over) "Overskredet" else "${((1f - ratio.coerceIn(0f, 1f)) * 100).toInt()}% tilbage", color = if (over) Color(0xFFD43D5B) else Mint, fontSize = 9.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp))
+                                                     }
+                                                 }
+                                                 Row(verticalAlignment = Alignment.Bottom) {
+@@ -573,10 +576,10 @@
+                                                     Spacer(Modifier.width(5.dp))
+                                                     Text("af ${money(limit)}", color = Muted, fontSize = 11.sp, modifier = Modifier.padding(bottom = 3.dp))
+                                                 }
+-                                                Box(Modifier.fillMaxWidth().height(7.dp).background(Color.White.copy(alpha = .07f), RoundedCornerShape(50))) {
++                                                Box(Modifier.fillMaxWidth().height(7.dp).background(Violet.copy(alpha = .10f), RoundedCornerShape(50))) {
+                                                     Box(Modifier.fillMaxWidth(animatedRatio).fillMaxHeight().background(Brush.horizontalGradient(if (over) listOf(Color(0xFFFF7798), Color(0xFFFFB07C)) else listOf(Violet, Blue)), RoundedCornerShape(50)))
+                                                 }
+-                                                Text(if (over) "Budget overskredet med ${money(spent - limit)}" else "Tilbage: ${money(limit - spent)}", color = if (over) Color(0xFFFF91A9) else Muted, fontSize = 11.sp)
++                                                Text(if (over) "Budget overskredet med ${money(spent - limit)}" else "Tilbage: ${money(limit - spent)}", color = if (over) Color(0xFFD43D5B) else Muted, fontSize = 11.sp)
+                                             }
+                                         }
+                                     }
+@@ -613,7 +616,7 @@
+                                 }
+                                 Surface(onClick = { tab = t }, color = Panel, shape = RoundedCornerShape(20.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), modifier = Modifier.fillMaxWidth()) {
+                                     Row(Modifier.padding(horizontal = 14.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+-                                        Surface(color = Color(0x263F6B4E), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(44.dp)) {
++                                        Surface(color = Violet.copy(alpha = .10f), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(44.dp)) {
+                                             Box(contentAlignment = Alignment.Center) { Icon(icon, null, tint = Violet, modifier = Modifier.size(21.dp)) }
+                                         }
+                                         Spacer(Modifier.width(12.dp))
+@@ -651,14 +654,14 @@
+                                     Surface(color = Panel, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                                         Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                                             Column(Modifier.weight(1f)) { Text("Næste $days dage", color = White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp); Text("Forventet ændring i saldo", color = Muted, fontSize = 12.sp) }
+-                                            Text(money(projection), color = if (projection >= 0) Mint else Color(0xFFFF7F9D), fontWeight = FontWeight.Bold, fontSize = 16.sp)
++                                            Text(money(projection), color = if (projection >= 0) Mint else Color(0xFFD43D5B), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                         }
+                                     }
+                                 }
+                                 Text("Bemærk: Prognosen er et estimat, ikke en bankbalance. Den bruger lønindstillingen, gennemsnittet af registrerede udgifter de seneste 90 dage og ubetalte regninger med forfald i perioden. Manglende poster gør prognosen mindre præcis.", color = Muted, fontSize = 11.sp)
+                             }
+                         }
+-                        "Rapporter" -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) { val currentMonthTx = tx.filter { runCatching { LocalDate.parse(it.s("date")) }.getOrNull()?.let { d -> d.year == LocalDate.now().year && d.month == LocalDate.now().month } == true }; val monthIncome = currentMonthTx.filter { it.s("type") == "Indtægt" }.sumOf { it.n("amount") }; val monthExpenses = currentMonthTx.filter { it.s("type") == "Udgift" }.sumOf { it.n("amount") }; val categories = currentMonthTx.filter { it.s("type") == "Udgift" }.groupBy { it.s("category", "Diverse") }.mapValues { entry -> entry.value.sumOf { it.n("amount") } }.toList().sortedByDescending { it.second }; Text("Rapporter", color = White, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text("Denne måned", color = Muted, fontSize = 13.sp); Metric("Indtægter denne måned", money(monthIncome), Modifier.fillMaxWidth(), positive = true); Metric("Udgifter denne måned", money(monthExpenses), Modifier.fillMaxWidth(), positive = false); Metric("Månedens netto", money(monthIncome - monthExpenses), Modifier.fillMaxWidth(), positive = monthIncome >= monthExpenses); Text("Udvikling – seneste 6 måneder", color = White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold); val monthTrend = (0..5).map { offset -> val month = LocalDate.now().withDayOfMonth(1).minusMonths((5 - offset).toLong()); val monthEntries = tx.filter { runCatching { LocalDate.parse(it.s("date")) }.getOrNull()?.let { d -> d.year == month.year && d.month == month.month } == true }; Triple(month, monthEntries.filter { it.s("type") == "Indtægt" }.sumOf { it.n("amount") }, monthEntries.filter { it.s("type") == "Udgift" }.sumOf { it.n("amount") }) }; monthTrend.forEach { (month, trendIncome, trendExpenses) -> Surface(color = Panel, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) { Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) { Text("${month.monthValue}/${month.year}", color = White, fontWeight = FontWeight.SemiBold); Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Indtægt", color = Muted, fontSize = 12.sp); Text(money(trendIncome), color = Mint, fontSize = 12.sp) }; Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Udgift", color = Muted, fontSize = 12.sp); Text(money(trendExpenses), color = Color(0xFFFF7F9D), fontSize = 12.sp) }; HorizontalDivider(color = Muted.copy(alpha = .2f)); Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Netto", color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold); Text(money(trendIncome - trendExpenses), color = if (trendIncome >= trendExpenses) Mint else Color(0xFFFF7F9D), fontSize = 12.sp, fontWeight = FontWeight.Bold) } } } }; Text("Største udgiftskategorier", color = White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold); if (categories.isEmpty()) Text("Ingen udgifter registreret i denne måned endnu.", color = Muted) else categories.take(5).forEach { (category, total) -> Row(Modifier.fillMaxWidth().background(Panel, RoundedCornerShape(12.dp)).padding(12.dp), verticalAlignment = Alignment.CenterVertically) { Text(category, Modifier.weight(1f), color = White); Text(money(total), color = Violet, fontWeight = FontWeight.SemiBold) } }; HorizontalDivider(color = Muted.copy(alpha = .25f)); Metric("Samlede indtægter (alle poster)", money(income), Modifier.fillMaxWidth(), positive = true); Metric("Samlede udgifter (alle poster)", money(expenses), Modifier.fillMaxWidth(), positive = false); Metric("Netto (alle poster)", money(income - expenses), Modifier.fillMaxWidth()); Metric("Abonnementer pr. år", money(list("subs").objects().sumOf { it.n("monthly") * 12 }), Modifier.fillMaxWidth()); Button(onClick = { shareCsv(context, tx, bills) }, modifier = Modifier.fillMaxWidth()) { Text("Eksportér CSV") }; Button(onClick = { shareBackup(context, data.toString()) }, modifier = Modifier.fillMaxWidth()) { Text("Eksportér sikkerhedskopi") }; Button(onClick = { dialog = "backup" }, modifier = Modifier.fillMaxWidth()) { Text("Gendan sikkerhedskopi") } }
++                        "Rapporter" -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) { val currentMonthTx = tx.filter { runCatching { LocalDate.parse(it.s("date")) }.getOrNull()?.let { d -> d.year == LocalDate.now().year && d.month == LocalDate.now().month } == true }; val monthIncome = currentMonthTx.filter { it.s("type") == "Indtægt" }.sumOf { it.n("amount") }; val monthExpenses = currentMonthTx.filter { it.s("type") == "Udgift" }.sumOf { it.n("amount") }; val categories = currentMonthTx.filter { it.s("type") == "Udgift" }.groupBy { it.s("category", "Diverse") }.mapValues { entry -> entry.value.sumOf { it.n("amount") } }.toList().sortedByDescending { it.second }; Text("Rapporter", color = White, fontSize = 22.sp, fontWeight = FontWeight.Bold); Text("Denne måned", color = Muted, fontSize = 13.sp); Metric("Indtægter denne måned", money(monthIncome), Modifier.fillMaxWidth(), positive = true); Metric("Udgifter denne måned", money(monthExpenses), Modifier.fillMaxWidth(), positive = false); Metric("Månedens netto", money(monthIncome - monthExpenses), Modifier.fillMaxWidth(), positive = monthIncome >= monthExpenses); Text("Udvikling – seneste 6 måneder", color = White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold); val monthTrend = (0..5).map { offset -> val month = LocalDate.now().withDayOfMonth(1).minusMonths((5 - offset).toLong()); val monthEntries = tx.filter { runCatching { LocalDate.parse(it.s("date")) }.getOrNull()?.let { d -> d.year == month.year && d.month == month.month } == true }; Triple(month, monthEntries.filter { it.s("type") == "Indtægt" }.sumOf { it.n("amount") }, monthEntries.filter { it.s("type") == "Udgift" }.sumOf { it.n("amount") }) }; monthTrend.forEach { (month, trendIncome, trendExpenses) -> Surface(color = Panel, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) { Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) { Text("${month.monthValue}/${month.year}", color = White, fontWeight = FontWeight.SemiBold); Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Indtægt", color = Muted, fontSize = 12.sp); Text(money(trendIncome), color = Mint, fontSize = 12.sp) }; Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Udgift", color = Muted, fontSize = 12.sp); Text(money(trendExpenses), color = Color(0xFFD43D5B), fontSize = 12.sp) }; HorizontalDivider(color = Muted.copy(alpha = .2f)); Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Netto", color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold); Text(money(trendIncome - trendExpenses), color = if (trendIncome >= trendExpenses) Mint else Color(0xFFD43D5B), fontSize = 12.sp, fontWeight = FontWeight.Bold) } } } }; Text("Største udgiftskategorier", color = White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold); if (categories.isEmpty()) Text("Ingen udgifter registreret i denne måned endnu.", color = Muted) else categories.take(5).forEach { (category, total) -> Row(Modifier.fillMaxWidth().background(Panel, RoundedCornerShape(12.dp)).padding(12.dp), verticalAlignment = Alignment.CenterVertically) { Text(category, Modifier.weight(1f), color = White); Text(money(total), color = Violet, fontWeight = FontWeight.SemiBold) } }; HorizontalDivider(color = Muted.copy(alpha = .25f)); Metric("Samlede indtægter (alle poster)", money(income), Modifier.fillMaxWidth(), positive = true); Metric("Samlede udgifter (alle poster)", money(expenses), Modifier.fillMaxWidth(), positive = false); Metric("Netto (alle poster)", money(income - expenses), Modifier.fillMaxWidth()); Metric("Abonnementer pr. år", money(list("subs").objects().sumOf { it.n("monthly") * 12 }), Modifier.fillMaxWidth()); Button(onClick = { shareCsv(context, tx, bills) }, modifier = Modifier.fillMaxWidth()) { Text("Eksportér CSV") }; Button(onClick = { shareBackup(context, data.toString()) }, modifier = Modifier.fillMaxWidth()) { Text("Eksportér sikkerhedskopi") }; Button(onClick = { dialog = "backup" }, modifier = Modifier.fillMaxWidth()) { Text("Gendan sikkerhedskopi") } }
+                         "Indstillinger" -> Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                             Text("Indstillinger", color = White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                             SettingsAction("Løn og næste løndato", "Tilpas løn og lønrytme", Icons.Default.CalendarMonth) { dialog = "payday" }
+@@ -866,39 +869,75 @@
+ private fun updatePaid(bills: List<JSONObject>, target: JSONObject, store: (String, JSONArray) -> Unit) { val arr = JSONArray(); bills.forEach { b -> arr.put(if (b.s("id") == target.s("id")) JSONObject(b.toString()).put("paid", !b.optBoolean("paid")) else b) }; store("bills", arr) }
+ 
+ @Composable private fun MonthlyFlowCard(monthIncome: Double, monthExpenses: Double) {
+-    val ratio = if (monthIncome > 0.0) (monthExpenses / monthIncome).toFloat().coerceIn(0f, 1f) else if (monthExpenses > 0.0) 1f else 0f
+-    val animatedRatio by animateFloatAsState(
+-        targetValue = ratio,
++    val scale = maxOf(monthIncome, monthExpenses, 1.0)
++    val incomeRatio = (monthIncome / scale).toFloat().coerceIn(0f, 1f)
++    val expenseRatio = (monthExpenses / scale).toFloat().coerceIn(0f, 1f)
++    val animatedIncome by animateFloatAsState(
++        targetValue = incomeRatio,
+         animationSpec = tween(durationMillis = 850, easing = FastOutSlowInEasing),
+-        label = "monthly-expense-progress"
++        label = "monthly-income-bar"
+     )
++    val animatedExpenses by animateFloatAsState(
++        targetValue = expenseRatio,
++        animationSpec = tween(durationMillis = 850, easing = FastOutSlowInEasing),
++        label = "monthly-expense-bar"
++    )
++    val net = monthIncome - monthExpenses
+     Surface(
+         color = Panel,
+-        shape = RoundedCornerShape(20.dp),
++        shape = RoundedCornerShape(24.dp),
+         border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
++        shadowElevation = 2.dp,
+         modifier = Modifier.fillMaxWidth()
+     ) {
+-        Column(Modifier.padding(17.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
++        Column(Modifier.padding(19.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+             Row(verticalAlignment = Alignment.CenterVertically) {
++                Surface(color = Violet.copy(alpha = .10f), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(42.dp)) {
++                    Box(contentAlignment = Alignment.Center) {
++                        Icon(Icons.Default.ShowChart, contentDescription = null, tint = Violet, modifier = Modifier.size(22.dp))
++                    }
++                }
++                Spacer(Modifier.width(11.dp))
+                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+-                    Text("Månedens pengestrøm", color = White, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+-                    Text("Forbrug sammenholdt med indtægter", color = Muted, fontSize = 11.sp)
+-                }
+-                Surface(color = if (monthIncome >= monthExpenses) Color(0x243ED7A5) else Color(0x24FF7798), shape = RoundedCornerShape(10.dp)) {
+-                    Text(if (monthIncome >= monthExpenses) "Positiv" else "Underskud", color = if (monthIncome >= monthExpenses) Mint else Color(0xFFFF91A9), fontSize = 10.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+-                }
+-            }
+-            Box(Modifier.fillMaxWidth().height(8.dp).background(Color.White.copy(alpha = .07f), RoundedCornerShape(50))) {
+-                Box(Modifier.fillMaxWidth(animatedRatio).fillMaxHeight().background(Brush.horizontalGradient(listOf(Violet, Blue, Mint)), RoundedCornerShape(50)))
+-            }
+-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+-                    Text("Forbrug", color = Muted, fontSize = 10.sp)
+-                    Text(money(monthExpenses), color = White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+-                }
+-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+-                    Text("Tilbage af indtægter", color = Muted, fontSize = 10.sp)
+-                    Text(money(monthIncome - monthExpenses), color = if (monthIncome >= monthExpenses) Mint else Color(0xFFFF91A9), fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
++                    Text("Månedens pengestrøm", color = White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
++                    Text("Indtægter sammenholdt med udgifter", color = Muted, fontSize = 11.sp)
++                }
++                Surface(
++                    color = if (net >= 0) Mint.copy(alpha = .11f) else Color(0x16E54865),
++                    shape = RoundedCornerShape(10.dp)
++                ) {
++                    Text(
++                        if (net >= 0) "Plus" else "Minus",
++                        color = if (net >= 0) Mint else Color(0xFFD43D5B),
++                        fontSize = 10.sp,
++                        fontWeight = FontWeight.Bold,
++                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
++                    )
++                }
++            }
++            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
++                Text("Månedens netto", color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
++                Text(money(net), color = if (net >= 0) Mint else Color(0xFFD43D5B), fontSize = 25.sp, fontWeight = FontWeight.Bold, letterSpacing = (-.6).sp)
++                Text("Forskel mellem registrerede indtægter og udgifter", color = Muted, fontSize = 10.sp)
++            }
++            Column(verticalArrangement = Arrangement.spacedBy(13.dp)) {
++                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
++                    Row(verticalAlignment = Alignment.CenterVertically) {
++                        Text("Indtægter", color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
++                        Text(money(monthIncome), color = Mint, fontSize = 12.sp, fontWeight = FontWeight.Bold)
++                    }
++                    Box(Modifier.fillMaxWidth().height(8.dp).background(Mint.copy(alpha = .12f), RoundedCornerShape(50))) {
++                        Box(Modifier.fillMaxWidth(animatedIncome).fillMaxHeight().background(Brush.horizontalGradient(listOf(Color(0xFF67CBA8), Mint)), RoundedCornerShape(50)))
++                    }
++                }
++                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
++                    Row(verticalAlignment = Alignment.CenterVertically) {
++                        Text("Udgifter", color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
++                        Text(money(monthExpenses), color = Violet, fontSize = 12.sp, fontWeight = FontWeight.Bold)
++                    }
++                    Box(Modifier.fillMaxWidth().height(8.dp).background(Violet.copy(alpha = .11f), RoundedCornerShape(50))) {
++                        Box(Modifier.fillMaxWidth(animatedExpenses).fillMaxHeight().background(Brush.horizontalGradient(listOf(Color(0xFFB4A5FF), Violet)), RoundedCornerShape(50)))
++                    }
+                 }
+             }
+         }
+@@ -923,14 +962,14 @@
+         modifier = Modifier.fillMaxWidth()
+     ) {
+         Row(Modifier.padding(horizontal = 14.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+-            Surface(color = if (danger) Color(0x24FF7798) else Color(0x263F6B4E), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(42.dp)) {
++            Surface(color = if (danger) Color(0x16E54865) else Violet.copy(alpha = .10f), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(42.dp)) {
+                 Box(contentAlignment = Alignment.Center) {
+-                    Icon(icon, contentDescription = null, tint = if (danger) Color(0xFFFF91A9) else Violet, modifier = Modifier.size(20.dp))
++                    Icon(icon, contentDescription = null, tint = if (danger) Color(0xFFD43D5B) else Violet, modifier = Modifier.size(20.dp))
+                 }
+             }
+             Spacer(Modifier.width(12.dp))
+             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+-                Text(title, color = if (danger) Color(0xFFFF91A9) else White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
++                Text(title, color = if (danger) Color(0xFFD43D5B) else White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                 Text(subtitle, color = Muted, fontSize = 10.sp)
+             }
+             Icon(trailing, contentDescription = null, tint = Muted, modifier = Modifier.size(18.dp))
+@@ -952,9 +991,10 @@
+ @Composable private fun QuickAction(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit, modifier: Modifier = Modifier) {
+     Surface(
+         onClick = onClick,
+-        color = Color(0xFF15221C),
+-        shape = RoundedCornerShape(18.dp),
+-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF2A4035)),
++        color = Panel,
++        shape = RoundedCornerShape(20.dp),
++        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
++        shadowElevation = 2.dp,
+         modifier = modifier
+     ) {
+         Column(
+@@ -962,7 +1002,7 @@
+             horizontalAlignment = Alignment.CenterHorizontally,
+             verticalArrangement = Arrangement.spacedBy(9.dp)
+         ) {
+-            Surface(color = Color(0xFF2B4436), shape = RoundedCornerShape(15.dp), modifier = Modifier.size(42.dp)) {
++            Surface(color = Violet.copy(alpha = .10f), shape = RoundedCornerShape(14.dp), modifier = Modifier.size(42.dp)) {
+                 Box(contentAlignment = Alignment.Center) { Icon(icon, null, tint = Violet, modifier = Modifier.size(22.dp)) }
+             }
+             Text(label, color = White, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+@@ -971,15 +1011,15 @@
+ }
+ 
+ @Composable private fun DashboardMetric(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, accent: Color, modifier: Modifier = Modifier) {
+-    Surface(modifier = modifier, color = Panel, shape = RoundedCornerShape(20.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)) {
+-        Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
++    Surface(modifier = modifier, color = Panel, shape = RoundedCornerShape(22.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), shadowElevation = 2.dp) {
++        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+             Row(verticalAlignment = Alignment.CenterVertically) {
+                 Surface(color = accent.copy(alpha = .13f), shape = RoundedCornerShape(11.dp), modifier = Modifier.size(34.dp)) { Box(contentAlignment = Alignment.Center) { Icon(icon, null, tint = accent, modifier = Modifier.size(18.dp)) } }
+                 Spacer(Modifier.width(8.dp))
+                 Text(label, color = Muted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+             }
+             Text(value, color = White, fontSize = 17.sp, fontWeight = FontWeight.Bold, letterSpacing = (-.4).sp, maxLines = 1)
+-            Box(Modifier.fillMaxWidth().height(3.dp).background(Color.White.copy(alpha = .07f), RoundedCornerShape(50))) {
++            Box(Modifier.fillMaxWidth().height(3.dp).background(Violet.copy(alpha = .10f), RoundedCornerShape(50))) {
+                 Box(Modifier.fillMaxWidth(.72f).fillMaxHeight().background(Brush.horizontalGradient(listOf(accent.copy(alpha = .55f), accent)), RoundedCornerShape(50)))
+             }
+         }
+@@ -987,9 +1027,9 @@
+ }
+ 
+ @Composable private fun UpcomingBillCard(title: String, date: String, amount: String, onPaid: () -> Unit) {
+-    Surface(color = Panel, shape = RoundedCornerShape(20.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), modifier = Modifier.fillMaxWidth()) {
++    Surface(color = Panel, shape = RoundedCornerShape(21.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle), shadowElevation = 1.dp, modifier = Modifier.fillMaxWidth()) {
+         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+-            Surface(color = Color(0x263F6B4E), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(44.dp)) {
++            Surface(color = Violet.copy(alpha = .10f), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(44.dp)) {
+                 Box(contentAlignment = Alignment.Center) { Icon(Icons.Default.ReceiptLong, null, tint = Violet, modifier = Modifier.size(21.dp)) }
+             }
+             Spacer(Modifier.width(12.dp))
+@@ -1006,10 +1046,27 @@
+ }
+ 
+ @Composable private fun RecordRow(title: String, detail: String, amount: String, positive: Boolean, onDelete: () -> Unit, onToggle: (() -> Unit)? = null) {
+-    Surface(Modifier.fillMaxWidth().animateContentSize().padding(vertical = 3.dp), color = Panel, shape = RoundedCornerShape(19.dp), border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle)) {
++    Surface(
++        Modifier.fillMaxWidth().animateContentSize().padding(vertical = 4.dp),
++        color = Panel,
++        shape = RoundedCornerShape(20.dp),
++        border = androidx.compose.foundation.BorderStroke(1.dp, BorderSubtle),
++        shadowElevation = 1.dp
++    ) {
+         Row(Modifier.padding(horizontal = 13.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+-            Surface(color = if (positive) Color(0x2639B982) else Color(0x263F6B4E), shape = RoundedCornerShape(13.dp), modifier = Modifier.size(42.dp)) {
+-                Box(contentAlignment = Alignment.Center) { Icon(if (positive) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward, null, tint = if (positive) Mint else Violet, modifier = Modifier.size(19.dp)) }
++            Surface(
++                color = if (positive) Mint.copy(alpha = .12f) else Violet.copy(alpha = .10f),
++                shape = RoundedCornerShape(14.dp),
++                modifier = Modifier.size(43.dp)
++            ) {
++                Box(contentAlignment = Alignment.Center) {
++                    Icon(
++                        if (positive) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
++                        contentDescription = if (positive) "Indtægt" else "Udgift",
++                        tint = if (positive) Mint else Violet,
++                        modifier = Modifier.size(19.dp)
++                    )
++                }
+             }
+             Spacer(Modifier.width(12.dp))
+             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+@@ -1019,14 +1076,21 @@
+             Spacer(Modifier.width(6.dp))
+             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                 Text(amount, color = if (positive) Mint else White, fontWeight = FontWeight.Bold, fontSize = 12.sp, maxLines = 1)
+-                Row {
+-                    if (onToggle != null) TextButton(onClick = onToggle, contentPadding = PaddingValues(horizontal = 3.dp, vertical = 0.dp)) { Text("Betalt", color = Mint, fontSize = 9.sp) }
+-                    TextButton(onClick = onDelete, contentPadding = PaddingValues(horizontal = 3.dp, vertical = 0.dp)) { Text("Slet", color = Color(0xFFFF91A9), fontSize = 9.sp) }
+-                }
+-            }
+-        }
+-    }
+-}
++                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.End) {
++                    if (onToggle != null) {
++                        IconButton(onClick = onToggle, modifier = Modifier.size(30.dp)) {
++                            Icon(Icons.Default.CheckCircle, contentDescription = "Markér regning som betalt", tint = Mint, modifier = Modifier.size(17.dp))
++                        }
++                    }
++                    IconButton(onClick = onDelete, modifier = Modifier.size(30.dp)) {
++                        Icon(Icons.Default.DeleteOutline, contentDescription = "Slet $title", tint = Color(0xFFD43D5B), modifier = Modifier.size(17.dp))
++                    }
++                }
++            }
++        }
++    }
++}
++
+ @Composable private fun ManagedList(title: String, records: List<JSONObject>, onAdd: () -> Unit, row: @Composable (JSONObject) -> Unit) { Column(Modifier.fillMaxSize()) { Row(Modifier.padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) { Text(title, Modifier.weight(1f), color = White, fontSize = 23.sp, fontWeight = FontWeight.Bold, letterSpacing = (-.4).sp); Button(onClick = onAdd, shape = RoundedCornerShape(14.dp)) { Icon(Icons.Default.Add, null); Spacer(Modifier.width(5.dp)); Text("Tilføj") } }; if (records.isEmpty()) { Surface(color = Panel, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) { Column(Modifier.padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Default.Inbox, null, tint = Muted, modifier = Modifier.size(30.dp)); Spacer(Modifier.height(8.dp)); Text("Her er tomt endnu", color = White, fontWeight = FontWeight.SemiBold); Text("Tilføj din første post for at komme i gang.", color = Muted, fontSize = 12.sp) } } }; LazyColumn(verticalArrangement = Arrangement.spacedBy(3.dp)) { items(records, key = { it.s("id") }) { row(it) } } } }
+ 
+ @Composable private fun DataDialog(kind: String, onDismiss: () -> Unit, onSave: (String, JSONObject) -> Unit) {

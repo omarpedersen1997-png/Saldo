@@ -1,92 +1,21 @@
-name: Build Saldo Android APK
+Ret min eksisterende fil ".github/workflows/android-build.yml" direkte i GitHub-repositoryet.
 
-"on":
-workflow_dispatch:
-push:
-branches:
-- main
+VIGTIGT:
 
-permissions:
-contents: read
+- Ret YAML-syntaksen, så GitHub Actions accepterer workflowet.
+- Slet hele det nuværende indhold i filen, og erstat det med gyldig YAML.
+- Behold workflow-navnet "Build Saldo Android APK".
+- Workflowet skal starte ved push til "main" og manuelt via "workflow_dispatch".
+- Brug Java 17.
+- Download og brug Gradle 8.14.3 direkte.
+- Pak "Saldo-professionel.zip" ud fra repositoryets rod.
+- Find Android-projektets "settings.gradle.kts" eller "settings.gradle".
+- Byg appen med "gradle assembleDebug --no-daemon --stacktrace".
+- Brug GitHub Secrets "SUPABASE_URL" og "SUPABASE_ANON_KEY".
+- Upload APK-filen som et artifact med navnet "Saldo-Android-APK".
+- Sørg for korrekt YAML-indrykning med mellemrum, ikke tabulatorer.
+- Kontrollér, at workflow-filen er gyldig YAML, før ændringerne afsluttes.
+- Behold alle eksisterende projektfiler og appfunktioner.
+- Ændr ikke Saldo-logoet.
 
-jobs:
-build:
-runs-on: ubuntu-latest
-
-steps:
-  - name: Hent repository
-    uses: actions/checkout@v4
-
-  - name: Opsæt Java 17
-    uses: actions/setup-java@v5
-    with:
-      distribution: temurin
-      java-version: "17"
-
-  - name: Installer Gradle 8.14.3
-    shell: bash
-    run: |
-      set -euo pipefail
-
-      curl -fL --retry 3 \
-        https://services.gradle.org/distributions/gradle-8.14.3-bin.zip \
-        -o "$RUNNER_TEMP/gradle.zip"
-
-      unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP"
-
-      echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
-
-      "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
-
-  - name: Pak Android-projektet ud
-    shell: bash
-    run: |
-      set -euo pipefail
-
-      ZIP_FILE="Saldo-professionel.zip"
-
-      if [ ! -f "$ZIP_FILE" ]; then
-        echo "FEJL: ZIP-filen mangler: $ZIP_FILE"
-        ls -la
-        exit 1
-      fi
-
-      mkdir -p extracted
-      unzip -oq "$ZIP_FILE" -d extracted
-
-      PROJECT_DIR="$(find extracted -type f \( -name settings.gradle.kts -o -name settings.gradle \) -print -quit | xargs -r dirname)"
-
-      if [ -z "$PROJECT_DIR" ]; then
-        echo "FEJL: Projektets Gradle-settings blev ikke fundet."
-        find extracted -maxdepth 4 -type f | head -100
-        exit 1
-      fi
-
-      if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ] && [ ! -f "$PROJECT_DIR/app/build.gradle" ]; then
-        echo "FEJL: Appens build.gradle blev ikke fundet."
-        exit 1
-      fi
-
-      echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-      echo "Projekt fundet: $PROJECT_DIR"
-
-  - name: Byg APK
-    shell: bash
-    env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-    run: |
-      set -euo pipefail
-
-      cd "$PROJECT_DIR"
-
-      gradle --version
-      gradle assembleDebug --no-daemon --stacktrace
-
-  - name: Upload APK
-    uses: actions/upload-artifact@v4
-    with:
-      name: Saldo-Android-APK
-      path: extracted/**/app/build/outputs/apk/debug/*.apk
-      if-no-files-found: error
-      retention-days: 14
+Implementér ændringen direkte i filen. Lav ikke kun et forslag eller en forklaring. Fortæl mig bagefter, hvilke ændringer der blev gemt.

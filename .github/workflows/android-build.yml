@@ -38,7 +38,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # Accepter automatisk alle SDK-licenser ved at oprette licens-mapperne eller køre yes-pipen korrekt
           mkdir -p $ANDROID_SDK_ROOT/licenses
           echo "24333f8a63b6825ea9c5514f83c2829b004d1fb8" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
           echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
@@ -67,14 +66,12 @@ jobs:
           set -euo pipefail
           PROJECT_DIR=""
 
-          if [[ -f "$GITHUB_WORKSPACE/settings.gradle.kts" && -f "$GITHUB_WORKSPACE/app/build.gradle.kts" ]]; then
-            PROJECT_DIR="$GITHUB_WORKSPACE"
-          elif [[ -f "$GITHUB_WORKSPACE/settings.gradle" && -f "$GITHUB_WORKSPACE/app/build.gradle" ]]; then
+          if [[ -f "$GITHUB_WORKSPACE/settings.gradle.kts" || -f "$GITHUB_WORKSPACE/settings.gradle" ]]; then
             PROJECT_DIR="$GITHUB_WORKSPACE"
           else
             while IFS= read -r settings_file; do
               candidate="$(dirname "$settings_file")"
-              if [[ -f "$candidate/app/build.gradle.kts" || -f "$candidate/app/build.gradle" ]]; then
+              if [[ -f "$candidate/build.gradle.kts" || -f "$candidate/build.gradle" ]]; then
                 PROJECT_DIR="$candidate"
                 break
               fi
@@ -82,7 +79,7 @@ jobs:
           fi
 
           if [[ -z "$PROJECT_DIR" ]]; then
-            echo "::error::Could not find the Android project (settings.gradle(.kts) and app/build.gradle(.kts))."
+            echo "::error::Could not find the Android project root."
             find "$GITHUB_WORKSPACE" -maxdepth 5 -type f \( -name '*.gradle' -o -name '*.gradle.kts' \) -print
             exit 1
           fi

@@ -1,10 +1,9 @@
 name: Build Saldo Android APK
 
-"on":
+on:
   push:
-    branches:
-      - main
-  workflow_dispatch: {}
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,55 +16,45 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Gradle 8.14.3
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -fL --retry 3 https://services.gradle.org/distributions/gradle-8.14.3-bin.zip -o "$RUNNER_TEMP/gradle.zip"
-          unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
-          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Extract Android project
+      - name: Install Gradle 8.13
         shell: bash
         run: |
           set -euo pipefail
-          ZIP_FILE="Saldo-2026-redesign.zip"
-          if [ ! -f "$ZIP_FILE" ]; then
-            echo "::error::Saldo-2026-redesign.zip was not found in the repository root."
-            ls -la
-            exit 1
+          curl -fL --retry 3 https://services.gradle.org/distributions/gradle-8.13-bin.zip -o "$RUNNER_TEMP/gradle.zip"
+          unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gradle-8.13/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/gradle-8.13/bin/gradle" --version
+
+      - name: Locate Android project
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f "app/build.gradle.kts" ] && [ -f "settings.gradle.kts" ]; then
+            PROJECT_DIR="$GITHUB_WORKSPACE"
+          else
+            PROJECT_DIR="$(find "$GITHUB_WORKSPACE" -type f -name settings.gradle.kts -not -path '*/.gradle/*' -print -quit | xargs -r dirname)"
           fi
-          unzip -t "$ZIP_FILE"
-          mkdir -p extracted
-          unzip -oq "$ZIP_FILE" -d extracted
-          SETTINGS="$(find extracted -type f \( -name settings.gradle.kts -o -name settings.gradle \) -print -quit)"
-          if [ -z "$SETTINGS" ]; then
-            echo "::error::Gradle settings file was not found inside the ZIP."
-            find extracted -maxdepth 5 -type f | head -100
-            exit 1
-          fi
-          PROJECT_DIR="$(dirname "$SETTINGS")"
-          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ] && [ ! -f "$PROJECT_DIR/app/build.gradle" ]; then
-            echo "::error::Android app Gradle file was not found in $PROJECT_DIR."
+          if [ -z "${PROJECT_DIR:-}" ] || [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
+            echo "::error::Could not locate the Saldo Android project."
+            find "$GITHUB_WORKSPACE" -maxdepth 5 -type f | head -100
             exit 1
           fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Project directory: $PROJECT_DIR"
+          echo "Building project at $PROJECT_DIR"
 
-      - name: Build APK
-        shell: bash
+      - name: Build debug APK
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: |
-          set -euo pipefail
-          gradle -p "$PROJECT_DIR" assembleDebug --no-daemon --stacktrace
+        run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon --stacktrace
 
       - name: Prepare APK artifact
         shell: bash
@@ -77,12 +66,12 @@ jobs:
             exit 1
           fi
           mkdir -p release
-          cp "$APK" release/Saldo-2026.apk
+          cp "$APK" release/Saldo-4.2.0-debug.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Saldo-2026-Android-APK
-          path: release/Saldo-2026.apk
+          name: Saldo-4.2.0-Android-APK
+          path: release/Saldo-4.2.0-debug.apk
           if-no-files-found: error
           retention-days: 14

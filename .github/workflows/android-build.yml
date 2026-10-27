@@ -2,19 +2,20 @@ name: Validate and build Saldo APK
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: saldo-build-${{ github.ref }}
+  group: saldo-apk-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    name: Find project, build APK, and upload result
+    name: Build Saldo debug APK
     runs-on: ubuntu-24.04
     timeout-minutes: 35
 
@@ -23,126 +24,78 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: gradle
 
+      # Explicit package list prevents setup-android from installing the removed "tools" package.
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-36
+            build-tools;36.0.0
 
-      - name: Install Android SDK packages
+      - name: Install Gradle 8.14.3
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Validate project files
         shell: bash
         run: |
           set -euo pipefail
-          sdkmanager --licenses </dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
-
-      - name: Locate correct Gradle project
-        id: locate
-        shell: bash
-        run: |
-          set -euo pipefail
-          ROOT="$GITHUB_WORKSPACE"
-          PROJECT=""
-
-          # First prefer a directory containing both the settings file and app module.
-          while IFS= read -r settings; do
-            candidate="$(dirname "$settings")"
-            if [[ -f "$candidate/app/build.gradle.kts" || -f "$candidate/app/build.gradle" ]]; then
-              PROJECT="$candidate"
-              break
-            fi
-          done < <(find "$ROOT" -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/.gradle/*' -not -path '*/build/*' -print)
-
-          # If settings is misplaced at the repository root, locate the actual app module
-          # and use the closest settings file if one exists in the same directory.
-          if [[ -z "$PROJECT" ]]; then
-            while IFS= read -r appbuild; do
-              candidate="$(dirname "$(dirname "$appbuild")")"
-              if [[ -f "$candidate/settings.gradle.kts" || -f "$candidate/settings.gradle" ]]; then
-                PROJECT="$candidate"
-                break
-              fi
-            done < <(find "$ROOT" -type f \( -path '*/app/build.gradle.kts' -o -path '*/app/build.gradle' \) -not -path '*/.gradle/*' -not -path '*/build/*' -print)
-          fi
-
-          if [[ -z "$PROJECT" ]]; then
-            echo "::error::Could not find a directory containing settings.gradle(.kts) and app/build.gradle(.kts)."
-            echo "Gradle files found:"
-            find "$ROOT" -type f \( -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \) -not -path '*/.gradle/*' -not -path '*/build/*' -print | head -200
-            exit 1
-          fi
-
-          echo "Selected project directory: $PROJECT"
-          echo "project_dir=$PROJECT" >> "$GITHUB_OUTPUT"
-          echo "Project files:"
-          ls -la "$PROJECT"
-          ls -la "$PROJECT/app"
-
-      - name: Validate Gradle project structure
-        working-directory: ${{ steps.locate.outputs.project_dir }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -f settings.gradle.kts || test -f settings.gradle
-          test -f app/build.gradle.kts || test -f app/build.gradle
-          echo "settings file:"
-          if [[ -f settings.gradle.kts ]]; then sed -n '1,160p' settings.gradle.kts; else sed -n '1,160p' settings.gradle; fi
-          echo "app build file:"
-          if [[ -f app/build.gradle.kts ]]; then sed -n '1,180p' app/build.gradle.kts; else sed -n '1,180p' app/build.gradle; fi
+          test -f settings.gradle.kts
+          test -f build.gradle.kts
+          test -f app/build.gradle.kts
+          echo "Project root: $GITHUB_WORKSPACE"
+          echo "Gradle settings:"
+          sed -n '1,120p' settings.gradle.kts
+          echo "App module:"
+          sed -n '1,160p' app/build.gradle.kts
 
       - name: Build debug APK
-        working-directory: ${{ steps.locate.outputs.project_dir }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -f ./gradlew ]]; then
-            chmod +x ./gradlew
-            ./gradlew --version
-            ./gradlew :app:assembleDebug --no-daemon --stacktrace
-          else
-            gradle --version
-            gradle :app:assembleDebug --no-daemon --stacktrace
-          fi
+          gradle --version
+          gradle :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Verify APK exists
-        id: verify
-        env:
-          PROJECT_DIR: ${{ steps.locate.outputs.project_dir }}
+      - name: Verify APK
         shell: bash
         run: |
           set -euo pipefail
-          APK="$(find "$PROJECT_DIR/app/build/outputs/apk" -type f -name '*.apk' -print -quit 2>/dev/null || true)"
-          if [[ -z "$APK" || ! -s "$APK" ]]; then
-            echo "::error::Gradle finished without producing an APK in app/build/outputs/apk."
-            find "$PROJECT_DIR" -type f -path '*/build/outputs/*' -print || true
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          if [[ ! -s "$APK" ]]; then
+            echo "::error::Expected APK not found or empty: $APK"
+            find app/build/outputs -maxdepth 5 -type f -print 2>/dev/null || true
             exit 1
           fi
-          mkdir -p "$GITHUB_WORKSPACE/release"
-          cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-debug.apk"
-          sha256sum "$GITHUB_WORKSPACE/release/Saldo-debug.apk"
-          echo "APK verified: $APK"
+          mkdir -p release
+          cp "$APK" release/Saldo-4.2.0-debug.apk
+          sha256sum release/Saldo-4.2.0-debug.apk
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Saldo-Android-APK
-          path: release/Saldo-debug.apk
+          name: Saldo-4.2.0-Android-APK
+          path: release/Saldo-4.2.0-debug.apk
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload Gradle diagnostics if build fails
+      - name: Upload build diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-build-diagnostics
           path: |
-            **/build/reports/**
-            **/build/outputs/logs/**
+            app/build/reports/**
+            app/build/outputs/logs/**
           if-no-files-found: ignore
           retention-days: 7

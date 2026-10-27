@@ -95,7 +95,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          gradle assembleDebug --no-daemon --stacktrace
+          gradle assembleDebug --no-daemon --stacktrace --info
 
       - name: Verify APK output
         id: apk

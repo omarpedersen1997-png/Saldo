@@ -51,8 +51,8 @@ uses: actions/checkout@v4
 
   - name: Build debug APK
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+    SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     run: gradle -p "$PROJECT_DIR" assembleDebug --no-daemon --stacktrace
 
   - name: Upload APK

@@ -31,11 +31,18 @@ jobs:
 
       - name: Set up Android SDK environment
         uses: android-actions/setup-android@v3
+        with:
+          packages: ""
 
-      - name: Install required Android SDK packages
+      - name: Install required Android SDK packages and accept licenses
         shell: bash
         run: |
           set -euo pipefail
+          # Accepter automatisk alle SDK-licenser ved at oprette licens-mapperne eller køre yes-pipen korrekt
+          mkdir -p $ANDROID_SDK_ROOT/licenses
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fb8" > $ANDROID_SDK_ROOT/licenses/android-sdk-license
+          echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_SDK_ROOT/licenses/android-sdk-preview-license
+          
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager --install \
             "platform-tools" \

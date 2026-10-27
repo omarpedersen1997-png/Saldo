@@ -1,0 +1,57 @@
+name: Build Saldo 4.3.0 APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Hent kildekoden
+        uses: actions/checkout@v4
+
+      - name: Opsæt Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Opsæt Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Kontrollér Gradle
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "FEJL: gradlew mangler i projektets rod."
+            exit 1
+          fi
+          chmod +x gradlew
+
+      - name: Byg APK
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Kontrollér APK
+        run: |
+          APK="app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -f "$APK" ]; then
+            echo "FEJL: APK-filen blev ikke fundet."
+            exit 1
+          fi
+          ls -lh "$APK"
+          sha256sum "$APK"
+
+      - name: Gem APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saldo-4.3.0-Android-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14

@@ -16,59 +16,114 @@ jobs:
 
     steps:
       - name: Hent kildekoden
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Opsæt Java 17
-        uses: actions/setup-java@v5
+      - name: Opsaet Java 17
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Opsæt Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Opsaet Android SDK
+        uses: android-actions/setup-android@v4
         with:
           accept-android-sdk-licenses: true
           log-accepted-android-sdk-licenses: false
           packages: platform-tools
 
-      - name: Acceptér Android SDK-licenser
+      - name: Installer Gradle
         shell: bash
         run: |
-          set -o pipefail
-          yes | sdkmanager --licenses
+          set -euo pipefail
+          curl -fL --retry 3 \
+            https://services.gradle.org/distributions/gradle-8.14.3-bin.zip \
+            -o "$RUNNER_TEMP/gradle.zip"
+          unzip -q "$RUNNER_TEMP/gradle.zip" \
+            -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
 
-      - name: Kontrollér Gradle
+      - name: Find Android-projektet
         shell: bash
         run: |
-          if [ ! -f gradlew ]; then
-            echo "FEJL: gradlew mangler i projektets rod"
+          set -euo pipefail
+
+          PROJECT_DIR="$GITHUB_WORKSPACE"
+
+          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ] && \
+             [ ! -f "$PROJECT_DIR/app/build.gradle" ]; then
+
+            ZIP_FILE="$GITHUB_WORKSPACE/Saldo-4.3.0-Finpudset.zip"
+
+            if [ ! -f "$ZIP_FILE" ]; then
+              echo "::error::Android-projektet blev ikke fundet."
+              find "$GITHUB_WORKSPACE" -maxdepth 2 -type f
+              exit 1
+            fi
+
+            mkdir -p "$RUNNER_TEMP/saldo-project"
+            unzip -oq "$ZIP_FILE" -d "$RUNNER_TEMP/saldo-project"
+
+            SETTINGS_FILE="$(find "$RUNNER_TEMP/saldo-project" \
+              -type f \
+              \( -name settings.gradle.kts -o -name settings.gradle \) \
+              -print -quit)"
+
+            if [ -z "$SETTINGS_FILE" ]; then
+              echo "::error::Gradle settings-filen mangler i ZIP-filen."
+              find "$RUNNER_TEMP/saldo-project" -maxdepth 5 -type f
+              exit 1
+            fi
+
+            PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
+          fi
+
+          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ] && \
+             [ ! -f "$PROJECT_DIR/app/build.gradle" ]; then
+            echo "::error::App-modulets Gradle-fil blev ikke fundet."
+            find "$PROJECT_DIR" -maxdepth 5 -type f
             exit 1
           fi
-          chmod +x gradlew
-          java -version
-          ./gradlew --version
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Android-projekt: $PROJECT_DIR"
 
       - name: Byg Saldo APK
         shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
-          set -o pipefail
-          ./gradlew --no-daemon assembleDebug
+          set -euo pipefail
+          gradle -p "$PROJECT_DIR" \
+            assembleDebug \
+            --no-daemon \
+            --stacktrace
 
-      - name: Kontrollér APK
+      - name: Find og kontroller APK
         shell: bash
         run: |
-          APK="app/build/outputs/apk/debug/app-debug.apk"
-          if [ ! -f "$APK" ]; then
-            echo "FEJL: APK-filen blev ikke oprettet"
-            find . -path "*/build/outputs/apk/*" -type f
+          set -euo pipefail
+
+          APK="$(find "$PROJECT_DIR" \
+            -type f \
+            -path '*/build/outputs/apk/debug/*.apk' \
+            -print -quit)"
+
+          if [ -z "$APK" ]; then
+            echo "::error::APK-filen blev ikke oprettet."
+            find "$PROJECT_DIR" -type f -name '*.apk'
             exit 1
           fi
+
+          echo "APK_PATH=$APK" >> "$GITHUB_ENV"
           ls -lh "$APK"
 
-      - name: Gem APK
+      - name: Gem APK som download
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-4.3.0-Android-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.APK_PATH }}
           if-no-files-found: error
           retention-days: 14
+          

@@ -11,9 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Android APK
     runs-on: ubuntu-latest
-
     steps:
       - name: Hent kildekoden
         uses: actions/checkout@v4
@@ -27,26 +25,14 @@ jobs:
       - name: Opsæt Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Kontrollér Gradle
+      - name: Byg APK
         run: |
           if [ ! -f gradlew ]; then
-            echo "FEJL: gradlew mangler i projektets rod."
+            echo "FEJL: gradlew mangler i projektets rod"
             exit 1
           fi
           chmod +x gradlew
-
-      - name: Byg APK
-        run: ./gradlew --no-daemon assembleDebug
-
-      - name: Kontrollér APK
-        run: |
-          APK="app/build/outputs/apk/debug/app-debug.apk"
-          if [ ! -f "$APK" ]; then
-            echo "FEJL: APK-filen blev ikke fundet."
-            exit 1
-          fi
-          ls -lh "$APK"
-          sha256sum "$APK"
+          ./gradlew --no-daemon assembleDebug
 
       - name: Gem APK
         uses: actions/upload-artifact@v4

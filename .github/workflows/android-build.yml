@@ -26,11 +26,9 @@ jobs:
       - name: Set up Java 17
         uses: actions/setup-java@v5
         with:
-          distribution: temurin
+          distribution: 'temurin'
           java-version: '17'
 
-      # Do not pass a packages list to setup-android: the old workflow
-      # incorrectly tried to install the obsolete package named "tools".
       - name: Set up Android SDK environment
         uses: android-actions/setup-android@v3
 

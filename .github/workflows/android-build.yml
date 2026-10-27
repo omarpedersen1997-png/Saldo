@@ -1,9 +1,8 @@
-name: Validate and build Saldo APK
+name: Saldo 4.2.0 - Android APK build (direct SDK)
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -15,71 +14,150 @@ concurrency:
 
 jobs:
   build:
-    name: Build Saldo debug APK
+    name: Build Saldo APK
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 40
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
           cache: gradle
 
-      # Explicit package list prevents setup-android from installing the removed "tools" package.
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: |
-            platform-tools
-            platforms;android-36
-            build-tools;36.0.0
-
-      - name: Install Gradle 8.14.3
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.14.3'
-
-      - name: Validate project files
+      # Use the SDK already installed on GitHub's Ubuntu runner and install exact packages directly.
+      - name: Configure preinstalled Android SDK (direct)
         shell: bash
         run: |
           set -euo pipefail
-          test -f settings.gradle.kts
-          test -f build.gradle.kts
-          test -f app/build.gradle.kts
-          echo "Project root: $GITHUB_WORKSPACE"
-          echo "Gradle settings:"
-          sed -n '1,120p' settings.gradle.kts
-          echo "App module:"
-          sed -n '1,160p' app/build.gradle.kts
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [[ ! -d "$SDK_ROOT/cmdline-tools" ]]; then
+            echo "::error::Android SDK command-line tools not found at $SDK_ROOT/cmdline-tools"
+            echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
+            echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-unset}"
+            exit 1
+          fi
+          SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager -print | sort -V | tail -n 1)"
+          if [[ -z "$SDKMANAGER" ]]; then
+            echo "::error::sdkmanager executable was not found under $SDK_ROOT/cmdline-tools"
+            exit 1
+          fi
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          echo "$(dirname "$SDKMANAGER")" >> "$GITHUB_PATH"
+          echo "SALDO_WORKFLOW_REVISION=2026-10-27-direct-sdk" >> "$GITHUB_ENV"
+          echo "Workflow revision: 2026-10-27-direct-sdk"
+          echo "Android SDK root: $SDK_ROOT"
+          echo "Using sdkmanager: $SDKMANAGER"
+          "$SDKMANAGER" --version
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0"
+
+      - name: Install Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Find Android project (repository or uploaded source ZIP)
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+          SEARCH_ROOT="$GITHUB_WORKSPACE"
+          EXTRACT_ROOT="$RUNNER_TEMP/saldo-source-zip"
+          PROJECT_DIR=""
+
+          find_project() {
+            local root="$1"
+            while IFS= read -r settings_file; do
+              local candidate
+              candidate="$(dirname "$settings_file")"
+              if [[ -f "$candidate/app/build.gradle.kts" || -f "$candidate/app/build.gradle" ]]; then
+                PROJECT_DIR="$candidate"
+                return 0
+              fi
+            done < <(find "$root" -type f \
+              \( -name settings.gradle.kts -o -name settings.gradle \) \
+              -not -path '*/.git/*' -not -path '*/.gradle/*' -not -path '*/build/*' -print)
+            return 1
+          }
+
+          if ! find_project "$SEARCH_ROOT"; then
+            echo "No complete Gradle project found directly in the repository. Checking ZIP uploads..."
+            mkdir -p "$EXTRACT_ROOT"
+            shopt -s nullglob
+            zip_files=("$GITHUB_WORKSPACE"/*.zip "$GITHUB_WORKSPACE"/*/*.zip "$GITHUB_WORKSPACE"/*/*/*.zip)
+            found_zip=false
+            for zip_file in "${zip_files[@]}"; do
+              [[ -f "$zip_file" ]] || continue
+              found_zip=true
+              target="$EXTRACT_ROOT/$(basename "$zip_file" .zip)"
+              mkdir -p "$target"
+              if unzip -oq "$zip_file" -d "$target"; then
+                if find_project "$target"; then
+                  echo "Project found inside: $zip_file"
+                  break
+                fi
+              fi
+            done
+            if [[ -z "$PROJECT_DIR" ]]; then
+              echo "::error::Could not find a complete Android project. Need settings.gradle(.kts) and app/build.gradle(.kts) in the same project root, or a ZIP containing those files."
+              echo "Gradle files found in the repository:"
+              find "$GITHUB_WORKSPACE" -type f \
+                \( -name settings.gradle -o -name settings.gradle.kts -o -name build.gradle -o -name build.gradle.kts \) \
+                -not -path '*/.git/*' -print | head -200 || true
+              if [[ "$found_zip" == false ]]; then
+                echo "No source ZIP was found in the repository."
+              fi
+              exit 1
+            fi
+          fi
+
+          [[ -f "$PROJECT_DIR/settings.gradle.kts" || -f "$PROJECT_DIR/settings.gradle" ]]
+          [[ -f "$PROJECT_DIR/app/build.gradle.kts" || -f "$PROJECT_DIR/app/build.gradle" ]]
+          echo "project_dir=$PROJECT_DIR" >> "$GITHUB_OUTPUT"
+          echo "Selected project: $PROJECT_DIR"
+          echo "Project root contents:"
+          ls -la "$PROJECT_DIR"
+          echo "App module contents:"
+          ls -la "$PROJECT_DIR/app"
 
       - name: Build debug APK
+        working-directory: ${{ steps.project.outputs.project_dir }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         shell: bash
         run: |
           set -euo pipefail
+          echo "SALDO_WORKFLOW_REVISION=2026-10-27-direct-sdk"
           gradle --version
           gradle :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Verify APK
+      - name: Verify and prepare APK
+        env:
+          PROJECT_DIR: ${{ steps.project.outputs.project_dir }}
         shell: bash
         run: |
           set -euo pipefail
-          APK="app/build/outputs/apk/debug/app-debug.apk"
-          if [[ ! -s "$APK" ]]; then
-            echo "::error::Expected APK not found or empty: $APK"
-            find app/build/outputs -maxdepth 5 -type f -print 2>/dev/null || true
+          APK="$(find "$PROJECT_DIR/app/build/outputs/apk/debug" -type f -name '*.apk' -print -quit 2>/dev/null || true)"
+          if [[ -z "$APK" || ! -s "$APK" ]]; then
+            echo "::error::No non-empty debug APK was produced under app/build/outputs/apk/debug."
+            find "$PROJECT_DIR/app/build/outputs" -type f -print 2>/dev/null || true
             exit 1
           fi
-          mkdir -p release
-          cp "$APK" release/Saldo-4.2.0-debug.apk
-          sha256sum release/Saldo-4.2.0-debug.apk
+          mkdir -p "$GITHUB_WORKSPACE/release"
+          cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.2.0-debug.apk"
+          sha256sum "$GITHUB_WORKSPACE/release/Saldo-4.2.0-debug.apk"
+          echo "APK size: $(stat -c '%s' "$GITHUB_WORKSPACE/release/Saldo-4.2.0-debug.apk") bytes"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
@@ -89,13 +167,13 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload build diagnostics on failure
+      - name: Upload diagnostic reports on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: Saldo-build-diagnostics
           path: |
-            app/build/reports/**
-            app/build/outputs/logs/**
+            **/build/reports/**
+            **/build/outputs/logs/**
           if-no-files-found: ignore
           retention-days: 7

@@ -31,17 +31,21 @@ jobs:
           log-accepted-android-sdk-licenses: false
           packages: platform-tools
 
-      - name: Installer Gradle
+      - name: Installer Gradle 8.14.4
         shell: bash
         run: |
           set -euo pipefail
+
           curl -fL --retry 3 \
-            https://services.gradle.org/distributions/gradle-8.14.3-bin.zip \
+            https://services.gradle.org/distributions/gradle-8.14.4-bin.zip \
             -o "$RUNNER_TEMP/gradle.zip"
+
           unzip -q "$RUNNER_TEMP/gradle.zip" \
             -d "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
-          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
+
+          echo "$RUNNER_TEMP/gradle-8.14.4/bin" >> "$GITHUB_PATH"
+
+          "$RUNNER_TEMP/gradle-8.14.4/bin/gradle" --version
 
       - name: Find Android-projektet
         shell: bash
@@ -56,13 +60,14 @@ jobs:
             ZIP_FILE="$GITHUB_WORKSPACE/Saldo-4.3.0-Finpudset.zip"
 
             if [ ! -f "$ZIP_FILE" ]; then
-              echo "::error::Android-projektet blev ikke fundet."
+              echo "::error::Android-projektets ZIP-fil mangler."
               find "$GITHUB_WORKSPACE" -maxdepth 2 -type f
               exit 1
             fi
 
             mkdir -p "$RUNNER_TEMP/saldo-project"
-            unzip -oq "$ZIP_FILE" -d "$RUNNER_TEMP/saldo-project"
+            unzip -oq "$ZIP_FILE" \
+              -d "$RUNNER_TEMP/saldo-project"
 
             SETTINGS_FILE="$(find "$RUNNER_TEMP/saldo-project" \
               -type f \
@@ -70,23 +75,77 @@ jobs:
               -print -quit)"
 
             if [ -z "$SETTINGS_FILE" ]; then
-              echo "::error::Gradle settings-filen mangler i ZIP-filen."
-              find "$RUNNER_TEMP/saldo-project" -maxdepth 5 -type f
+              echo "::error::Gradle settings-filen mangler."
               exit 1
             fi
 
             PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
           fi
 
-          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ] && \
-             [ ! -f "$PROJECT_DIR/app/build.gradle" ]; then
-            echo "::error::App-modulets Gradle-fil blev ikke fundet."
+          if [ ! -f "$PROJECT_DIR/app/build.gradle.kts" ]; then
+            echo "::error::app/build.gradle.kts blev ikke fundet."
             find "$PROJECT_DIR" -maxdepth 5 -type f
             exit 1
           fi
 
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Android-projekt: $PROJECT_DIR"
+          echo "Android-projekt fundet: $PROJECT_DIR"
+
+      - name: Ret Kotlin compiler-indstillinger
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          project = Path(os.environ["PROJECT_DIR"])
+          file = project / "app" / "build.gradle.kts"
+
+          if not file.is_file():
+              raise SystemExit(
+                  f"Gradle-filen blev ikke fundet: {file}"
+              )
+
+          text = file.read_text(encoding="utf-8-sig")
+
+          old_setting = re.compile(
+              r'(?m)^[ \t]*kotlinOptions[ \t]*'
+              r'\{[ \t]*jvmTarget[ \t]*=[ \t]*"17"'
+              r'[ \t]*\}[ \t]*(?:\r?\n|$)'
+          )
+
+          text, count = old_setting.subn("", text, count=1)
+
+          if count != 1:
+              raise SystemExit(
+                  "Den gamle Kotlin-indstilling blev ikke fundet "
+                  "i det forventede format. Filen ændres ikke."
+              )
+
+          import_line = (
+              "import org.jetbrains.kotlin.gradle.dsl.JvmTarget"
+          )
+
+          if import_line not in text:
+              text = import_line + "\n" + text
+
+          text = text.rstrip() + """
+
+          kotlin {
+              compilerOptions {
+                  jvmTarget.set(JvmTarget.JVM_17)
+              }
+          }
+          """
+
+          file.write_text(text + "\n", encoding="utf-8")
+
+          print("Kotlin-indstillingerne er opdateret.")
+          print(f"Rettet fil: {file}")
+          PY
 
       - name: Byg Saldo APK
         shell: bash
@@ -95,12 +154,13 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
+
           gradle -p "$PROJECT_DIR" \
             assembleDebug \
             --no-daemon \
             --stacktrace
 
-      - name: Find og kontroller APK
+      - name: Find APK
         shell: bash
         run: |
           set -euo pipefail

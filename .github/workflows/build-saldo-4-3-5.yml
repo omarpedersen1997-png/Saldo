@@ -71,7 +71,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug --no-daemon --stacktrace
+        run: gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease --no-daemon --stacktrace
 
       - name: Kontrollér APK-identitet og opret kontrolsum
         shell: bash

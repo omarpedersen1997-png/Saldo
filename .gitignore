@@ -1,0 +1,4 @@
+# Signeringsnøgler må aldrig ligge i repoet
+*.jks
+*.keystore
+*.b64

@@ -24,7 +24,7 @@
 - [ ] Onlinebackup, gendannelse, kontosletning.
 - [ ] Lille skærm, stor skriftstørrelse og TalkBack.
 
-## 4. Play Console
+## 4. Play Console – se `PLAY_CONSOLE_GUIDE.md` for alle svar trin for trin
 - [ ] Privatlivspolitik: udfyld navn og support-e-mail i `docs/privacy/index.html`, deploy GitHub Pages.
 - [ ] Butikstekst fra `STORE_LISTING_DA.md` (udfyld support-e-mail).
 - [ ] Datasikkerhed fra `DATA_SAFETY_4.4.0.md`.

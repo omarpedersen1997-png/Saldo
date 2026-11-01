@@ -4,6 +4,8 @@ Den største opdatering af Saldo til dato: nyt design i navy og guld, nyt logo, 
 
 ## Ændringer
 
+- Nyt: brug Saldo uden konto ("Fortsæt uden konto"). Data gemmes kun på telefonen, og du kan oprette en konto senere for onlinebackup – dine data følger med.
+- Rettet: "Velkommen tilbage" vises kun for brugere, der har været logget ind før.
 - Nyt: "Spørg Saldo" – en assistent, der svarer på spørgsmål om din egen økonomi ud fra dine tal og forklarer 33 emner om privatøkonomi i Danmark. Kører helt på telefonen, gratis og offline.
 - Rettet: lønrytmen kan nu vælges (månedlig, hver 14. dag eller ugentlig) – før var den låst til 14 dage.
 - Rettet: når lønnen ikke er angivet, viser Overblik "Ikke angivet" og en knap til at angive den i stedet for "På sporet" og "Næste løn: I dag"; Hvad nu hvis? og Prognoser gør opmærksom på, at der regnes med en standardløn.

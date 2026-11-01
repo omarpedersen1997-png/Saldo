@@ -11,7 +11,7 @@ Svarene bygger på koden i 4.4.0. Kontrollér dem mod jeres endelige Supabase-op
 ## Datatyper
 | Datatype (Play-kategori) | Indsamles | Formål | Valgfri |
 |---|---|---|---|
-| Personlige oplysninger → E-mailadresse | Ja | Kontoadministration | Nej (login kræves) |
+| Personlige oplysninger → E-mailadresse | Ja | Kontoadministration | Ja – appen kan bruges uden konto ("Fortsæt uden konto") |
 | Økonomiske oplysninger → Andre økonomiske oplysninger (poster, budgetter, regninger, gæld, opsparing, noter) | Ja, ved onlinebackup | Appfunktionalitet (backup/gendannelse) | Ja |
 | Fotos (kvitteringer) | Nej – kun lokalt på enheden | – | – |
 | Filer og dokumenter (CSV-import) | Nej – læses lokalt | – | – |

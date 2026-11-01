@@ -1,6 +1,8 @@
 # Ændringslog — Saldo
 
 ## 4.4.0 – Den store overhaling
+- Nyt: "Fortsæt uden konto" – Saldo kan bruges helt uden login; data gemmes kun på telefonen. Under Indstillinger kan man senere logge ind eller oprette en konto, og en ny konto får de lokale data med.
+- Rettet: login-skærmen siger kun "Velkommen tilbage" til personer, der har været logget ind på telefonen før, og udfylder deres e-mail.
 - Rettet: manglende løn vises som "Ikke angivet" med genvej i stedet for "På sporet"/"I dag"; Hvad nu hvis? og Prognoser advarer om standardløn; tomme budgetkort skjules; lange titler skaleres ned i toppen.
 - Rettet: uden angivet løn vises "–" i stedet for 0,00 kr. pr. dag, og "Ingen regninger før næste løn" skjules; dobbelt punktum i lønbeskeden fjernet.
 - Nyt: "Spørg Saldo" – en assistent på telefonen, der svarer på de mest almindelige spørgsmål med dine egne tal: rådighed og pr. dag, næste løn, regninger der skal betales, hvad du bruger mest på, forbrug på en kategori/butik i en bestemt måned, budgetstatus, sparetips, opsparing, abonnementer, gæld og sammenligning med sidste måned – samt hvordan appen bruges (import, backup, PIN, widgets, lønrytme, faste poster). Svar har genveje til den rigtige skærm. Indbygget vidensbase med 33 emner om privatøkonomi i Danmark (ÅOP, renter, gæld eller opsparing, kviklån, inkasso/RKI, realkredit, boligkøb, investering, aktiesparekonto, pension, skat, fradrag, årsopgørelse, SU, dagpenge, boligstøtte, forsikringer, svindel, fælles økonomi m.m.). Kører helt lokalt, gratis og offline; intet sendes ud. Dækket af enhedstests.

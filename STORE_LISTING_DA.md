@@ -17,6 +17,7 @@ Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed fre
 
 **Mindre tastearbejde**
 - "Spørg Saldo": stil spørgsmål som "Hvor meget kan jeg bruge i dag?" eller "Hvad brugte jeg på mad i oktober?" – svarene beregnes på telefonen ud fra dine egne tal
+- Slå AI-svar til (valgfrit, kræver konto) og spørg om alt inden for økonomi – fra "Skal jeg betale gæld af eller spare op?" til SU, skat og pension
 - "Del til Saldo": del en CSV-eksport fra din netbank direkte til appen – retning og kategori foreslås automatisk, og dubletter springes over
 - Faste poster som løn og husleje lægger sig ind af sig selv
 - Huskede butikker udfylder kategori og beløb med ét tryk, og beløbsfeltet regner selv (fx 89,95+45)

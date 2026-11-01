@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -92,7 +92,33 @@ jobs:
       - name: Lav Google Play-skærmbilleder (eksempeldata)
         id: screenshots
         continue-on-error: true
-        run: gradle -p "$PROJECT_DIR" testDebugUnitTest --tests 'dk.saldo.app.PlayScreenshotTest' -PsaldoScreenshots=true --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle -p "$PROJECT_DIR" testDebugUnitTest --tests 'dk.saldo.app.PlayScreenshotTest' -PsaldoScreenshots=true --no-daemon
+          ls -la "$PROJECT_DIR/app/build/play-screenshots"
+          cat "$PROJECT_DIR/app/build/play-screenshots/errors.txt" || true
+
+      - name: Vis fejl fra skærmbillede-testen
+        if: steps.screenshots.outcome == 'failure'
+        run: |
+          grep -h -A12 "<failure" "$PROJECT_DIR"/app/build/test-results/testDebugUnitTest/*.xml | head -60 || true
+          cat "$PROJECT_DIR/app/build/play-screenshots/errors.txt" || true
+
+      - name: Gem skærmbilleder på grenen play-screenshots
+        if: steps.screenshots.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHOTS="$RUNNER_TEMP/play-shots"
+          rm -rf "$SHOTS" && mkdir -p "$SHOTS"
+          cp "$PROJECT_DIR"/app/build/play-screenshots/* "$SHOTS"/
+          cd "$SHOTS"
+          git init -q
+          git checkout -q -b play-screenshots
+          git add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Rå Google Play-skærmbilleder fra ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" play-screenshots
 
       - name: Upload Google Play-skærmbilleder
         if: always()

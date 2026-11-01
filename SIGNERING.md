@@ -3,7 +3,9 @@
 Google Play kræver en signeret AAB. Workflowet bygger den automatisk, når fire GitHub Secrets er sat.
 
 ## 1. Opret en upload-nøgle (én gang)
-Nemmest: kør `bash scripts/lav-upload-noegle.sh` – scriptet spørger om en adgangskode, laver nøglen og filen `saldo-upload.b64` og viser præcis, hvad der skal i GitHub Secrets. Eller gør det manuelt:
+**Kun mobil:** åbn værktøjet "Saldo upload-nøgle" (https://claude.ai/artifact/Jfaqh6pRaETxduQzb7JA73). Det laver nøglen i browseren på telefonen og viser de fire værdier til GitHub Secrets. Nøglen sendes ingen steder hen.
+
+**Med computer:** Nemmest: kør `bash scripts/lav-upload-noegle.sh` – scriptet spørger om en adgangskode, laver nøglen og filen `saldo-upload.b64` og viser præcis, hvad der skal i GitHub Secrets. Eller gør det manuelt:
 
 Kræver Java (fx Android Studio). Kør i en terminal:
 

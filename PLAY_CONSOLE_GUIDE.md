@@ -5,7 +5,7 @@ Alle svar herunder passer til appen, som den er bygget nu. Felter markeret **[DI
 ---
 
 ## 0. Før du starter
-- [ ] Signeret AAB: læg upload-nøglen ind i GitHub (se `SIGNERING.md` eller kør `scripts/lav-upload-noegle.sh`), kør workflowet, og hent `Saldo-4.4.0-release.aab` fra artefaktet **Saldo-4.4.0-Android**.
+- [ ] Signeret AAB: læg upload-nøglen ind i GitHub (på mobilen med værktøjet i `SIGNERING.md`, eller på en computer med `scripts/lav-upload-noegle.sh`), kør workflowet, og hent `Saldo-4.4.0-release.aab` fra artefaktet **Saldo-4.4.0-Android**.
 - [ ] Privatlivspolitikken skal være online: merge pull request #1 til `main`, så GitHub Pages udgiver `https://omarpedersen1997-png.github.io/Saldo/privacy/`. Sæt først navn og support-e-mail ind i `docs/privacy/index.html` **[DIG]**.
 
 ## 1. Opret appen

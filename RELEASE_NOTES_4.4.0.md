@@ -1,0 +1,63 @@
+# Saldo 4.4.0 – udgivelsesnoter
+
+Den største opdatering af Saldo til dato: nyt design i navy og guld, nyt logo, bankimport via "Del til Saldo", faste poster, månedsnavigation, velkomstguide, redigering af alt og mange rettelser.
+
+## Ændringer
+
+- Nyt: "Spørg Saldo" – en assistent, der svarer på spørgsmål om din egen økonomi ud fra dine tal og forklarer 33 emner om privatøkonomi i Danmark. Kører helt på telefonen, gratis og offline.
+- Rettet: lønrytmen kan nu vælges (månedlig, hver 14. dag eller ugentlig) – før var den låst til 14 dage.
+- Rettet: når lønnen ikke er angivet, viser Overblik "Ikke angivet" og en knap til at angive den i stedet for "På sporet" og "Næste løn: I dag"; Hvad nu hvis? og Prognoser gør opmærksom på, at der regnes med en standardløn.
+- Rettet: Budget viser ikke tomme oversigtskort med 0,00 kr., før der er oprettet budgetter.
+- Rettet: lange skærmtitler (fx "Hvad nu hvis?") bliver ikke længere skåret af i toppen.
+- Nyt: foreslåede budgetter ud fra gennemsnitligt forbrug de seneste tre måneder (vælg til/fra før oprettelse).
+- Nyt: "Indbetal" på opsparingsmål – kan samtidig registreres som overførsel til opsparing.
+- Nyt: valgfri note på poster; noter vises i listen og indgår i søgningen.
+- Nyt: Kategorier under Mere – se alle kategorier med antal og forbrug, omdøb eller flet dem på tværs af poster, regninger og budgetter.
+- Version 4.4.0 (versionCode 33) med nyt byggeflow, så opdateringen kan udgives.
+- Nyt: velkomstguide i tre trin for nye brugere (løn, løndato, saldo og tema), så rådighedsbeløbet er rigtigt fra start.
+- Nyt: bladr mellem måneder på Poster, Budget og Rapporter. Søgning i Poster dækker alle måneder; budgettempo vises kun for den aktuelle måned.
+- Nyt: cirkeldiagram over forbrug fordelt på kategorier i Rapporter, og 6-måneders-trenden følger den valgte måned.
+- Nyt: tema kan følge telefonen (Lys / Mørk / System).
+- Nyt: "Del til Saldo" – del en CSV-eksport fra netbanken, Filer eller e-mail direkte til Saldo, så åbner importen med forslag til retning og kategori.
+- Nyt: genveje på startskærmen (hold på ikonet): "Ny post" og "Importér".
+- Nyt: bankformater genkendes bedre – kolonner vælges efter prioritet (fx Nordeas "Navn" frem for "Afsender"), tomme navne falder tilbage på beskrivelsen, "sep=;"-linjer og kontooplysninger over overskriften springes over, og importen viser hvilke kolonner der blev brugt. Dækket af nye enhedstests.
+- Nyt: faste poster – vælg Månedlig/Kvartalsvis/Årlig på en post, så oprettes den automatisk fremover. Ny skærm "Faste poster" under Mere med næste dato, netto pr. måned, Rediger og Stop.
+- Nyt: huskede butikker – når du skriver en beskrivelse, foreslås tidligere poster; ét tryk udfylder kategori, type, ejer og det sædvanlige beløb.
+- Gentagelse på regninger vælges nu med knapper i stedet for fritekst.
+- Enklere rådighedskort: ét forbrugsbjælke, rådighed pr. dag, næste løn og andel brugt – uden dobbeltvisning.
+- Nyt: kalendervælger på alle 9 datofelter (teksten kan stadig skrives); ugyldige datoer markeres, gyldige vises som fx "Lørdag 1. november".
+- Nyt: abonnementer, gæld og tankninger kan redigeres (aktiv-status bevares).
+- Nyt: Kalender er grupperet pr. måned med faste månedsoverskrifter og månedens total.
+- Rettet: saldo og løn gemmes nu præcist til øret (tidligere Float-afrunding ved store beløb). Den gamle værdi gemmes stadig, så ældre data og backups virker uændret.
+- Rettet: tal for gæld og tankning vises på dansk (komma, ikke punktum), tankninger viser læsbar dato, og abonnementsdatoer skrives på dansk.
+- Nyt: poster og regninger kan redigeres (blyant-ikon). Id, betalt-status og importoplysninger bevares.
+- Nyt: "Fortryd" efter sletning af poster, regninger, opsparingsmål m.m.
+- Nyt: appen låser automatisk, når den har været i baggrunden i mere end 60 sekunder (hvis PIN eller biometri er slået til).
+- Nyt: "Fjern app-lås" i Indstillinger (kræver nuværende PIN eller fingeraftryk). Biometri-kortet viser, om det er aktivt.
+- Rettet: man kunne blive låst ude, hvis kun biometrisk oplåsning var slået til, og fingeraftryk ikke længere virkede. Biometri kræver nu en PIN som reserve, låseskærmen viser kun PIN-feltet, når der findes en PIN, og fingeraftryk startes automatisk.
+- Skånsomt for øjnene: blødere mørkt tema med lysere navy, dæmpet champagneguld, lysegrå i stedet for kridhvid tekst, afdæmpet grøn/rød, næsten ingen glød. Logo og widgets følger samme bløde toner. Kontrast er stadig 6,8–13,8:1.
+- Rettelser efter test på telefon: rådighedskortets undertekst har sin egen linje, trendlinjen skjules uden historik og klippes ikke længere i kanten, ikonfelter/valgt fane/valgte chips er lysere navy i stedet for brunlige, Økonomitjek-overskrifter skæres ikke af, mere luft på Budget, ingen markør uden budget, og skyderne i "Hvad nu hvis?" er glatte uden prikker.
+- Budgettempo: hver budgetbjælke har en markør for, hvor langt måneden er, og viser en prognose for månedens forbrug, hvis tempoet er for højt.
+- Opsparingsmål vises med fremskridtsring, procent og hvor meget der skal spares pr. måned for at nå målet til måldatoen.
+- Ny indsigt på Overblik: forbrug sammenlignet med samme tidspunkt sidste måned.
+- Beløb vises som i en bankapp: altid to decimaler, og i store beløb er øre og "kr." sat mindre end kronebeløbet.
+- Poster vises med en rund forbogstavsavatar og et lille ind/ud-mærke i stedet for generiske pile.
+- Overblik har tappbare indsigter: forfaldne regninger, andel af indtægten brugt, regninger før løn og største udgiftskategori.
+- Bundmenuen bruger konturikoner, der bliver udfyldt ved valg; let haptisk feedback ved faneskift og når noget gemmes.
+- Ny farveprofil: navy og guld. Appen (mørkt og lyst tema), logo, launcher-/notifikationsikoner, widgets og butiksgrafik bruger samme navy-baggrund og guldgradient. Advarsler er nu orange, så de ikke forveksles med guldaccenten.
+- Roligere udtryk: mindre glød og blødere kanter.
+- Bedre læsbarhed: beløb vises med + / − ved siden af grøn/rød (farveblind-venligt), ingen tekst under 10 pt, og grøn/orange har nu tilstrækkelig kontrast i lyst tema.
+- Rettet: brændstofforbrug (l/100 km) talte literne fra den første tankning med og viste derfor for højt forbrug.
+- Rettet: widgets kunne crashe på startskærmen, hvis den krypterede lagring ikke kunne læses.
+- Optimeret: beløbsformatering genbruges i stedet for at blive oprettet ved hvert kald (også i animationer og widgets), masseimport af regninger gemmer én gang i stedet for op til 20 gange, og regningsgrupper/dubletsøgning caches.
+- Skrifttypen Inter (OFL-1.1, se INTER-FONT-LICENSE.txt) bruges i hele appen, med tabeltal i animerede beløb.
+- Primære knapper, plusknappen og den valgte fane i bundmenuen bruger logoets gradient; kontoknap i toppen åbner Indstillinger.
+- Rådighedskortet viser en animeret trendlinje for netto de seneste 6 måneder.
+- Nyt logo: minimalistisk, geometrisk S med guldgradient på dyb navy. Launcher-, adaptive-, monochrome-, notifikations- og butiksikoner samt feature graphic er gentegnet (kilde: store-assets/render-logo.js).
+- Ny struktur: personlig hilsen og 2×2-nøgletal på Overblik, poster grupperet pr. dag med faste datooverskrifter, regninger grupperet i Forfaldne/Kommende/Betalt, og Mere som et adaptivt gitter.
+- Layoutet centreres og begrænses i bredden på tablets og foldbare telefoner.
+- Nyt mørkt standardtema med dyb navy/sort baggrund, lilla gradienter, diskrete glødende kanter og afrundede kort.
+- Animerede budgetbjælker, glidende beløb, nyt søjlediagram i Rapporter og kategoribjælker i stedet for tekstlister.
+- Flydende bundnavigation med animeret markering, tilbageknap på undersider og Android-tilbage-tast til Mere/Overblik.
+- Hurtige skærmovergange, trykanimationer på kort og knapper, animerede listeændringer og en kort succesanimation ved gemning.
+- Logo, ikoner og brandingfiler er uændrede. Dataformat, Supabase-login, synkronisering, PIN, biometri, PDF, backup og notifikationer er bevaret.

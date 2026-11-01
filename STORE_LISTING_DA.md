@@ -39,7 +39,7 @@ Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed fre
 Saldo forbinder ikke til din bank og foretager ingen betalinger. Beløb og prognoser bygger på de data, du selv registrerer eller importerer, og er vejledende.
 
 ## Nyheder i 4.4.0 (maks. 500 tegn)
-Helt nyt design og logo. Vælg lønrytme (månedlig, 14 dage eller ugentlig). Del CSV fra netbanken direkte til Saldo, faste poster, månedsvælger, søgning, saldoprognose frem til løn, budgetforslag, gældfri-plan, abonnementsradar, kvitteringer, noter, lommeregner i beløbsfeltet, skjul beløb, ugentlig opsummering og ny budget-widget. Alt kan nu redigeres, og mange fejl er rettet.
+Helt nyt design og logo. Nyt: Spørg Saldo – spørg om din økonomi, gæld, skat, pension m.m. Vælg lønrytme (månedlig, 14 dage eller ugentlig). Del CSV fra netbanken direkte til Saldo, faste poster, søgning, saldoprognose, budgetforslag, gældfri-plan, abonnementsradar, kvitteringer, noter, lommeregner, skjul beløb og ny budget-widget. Alt kan redigeres, og mange fejl er rettet.
 
 ## Kategori og kontakt
 - Kategori: Finans

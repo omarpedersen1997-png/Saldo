@@ -2,7 +2,8 @@
 
 ## 1. Build (GitHub Actions)
 - [x] `Saldo-4.4.0-Udgivelsesklar.zip` og `.github/workflows/build-saldo-4-4-0.yml` ligger i repoet.
-- [x] Kildekontrol (`scripts/validate-saldo-source.py`) og enhedstests kører i workflowet.
+- [x] Kildekontrol (`scripts/validate-saldo-source.py`) og enhedstests (CSV, faste poster, gæld, budgetforslag, radar, prognose, lommeregner, lønrytme) kører i workflowet.
+- [x] Release-build med R8 bygges i workflowet.
 - [ ] Merge ændringerne til `main`, så workflowet `build-saldo-4-4-0.yml` kan køres derfra.
 - [ ] GitHub Secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`.
 
@@ -12,7 +13,8 @@
 - [ ] Kør workflowet og hent `Saldo-4.4.0-release.aab` fra artefaktet.
 
 ## 3. Test på rigtig telefon (intern test i Play Console)
-- [ ] Velkomstguide, login/logout, PIN, fingeraftryk og automatisk lås.
+- [ ] Velkomstguide (inkl. valg af lønrytme), login/logout, PIN, fingeraftryk og automatisk lås.
+- [ ] Lønrytme: månedlig (også løn d. 31 i korte måneder), 14 dage og ugentlig – kontrollér "Næste løn", pr. dag og prognose.
 - [ ] "Del til Saldo" fra netbank/Filer, CSV-import fra mindst to banker.
 - [ ] Poster/regninger: opret, rediger, slet + Fortryd, kvittering, note, faste poster over månedsskifte.
 - [ ] Budget (forslag, tempo), opsparing (indbetal), gæld (plan), rapporter, kalender, prognose.

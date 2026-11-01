@@ -10,7 +10,7 @@ Se hvad du har til rådighed frem til løn – budget, regninger og opsparing.
 Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed frem til næste løn, og hvad du kan bruge pr. dag.
 
 **Overblik der giver mening**
-- Rådighedsbeløb og beløb pr. dag frem til næste løn
+- Rådighedsbeløb og beløb pr. dag frem til næste løn – månedlig, 14-dages eller ugentlig løn
 - Saldoprognose dag for dag med varsel, hvis saldoen kan gå i minus
 - Indsigter: andel af indtægten brugt, regninger før løn, største udgift og sammenligning med sidste måned
 - Bladr mellem måneder, cirkeldiagram over kategorier og forbrugskalender
@@ -18,7 +18,7 @@ Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed fre
 **Mindre tastearbejde**
 - "Del til Saldo": del en CSV-eksport fra din netbank direkte til appen – retning og kategori foreslås automatisk, og dubletter springes over
 - Faste poster som løn og husleje lægger sig ind af sig selv
-- Huskede butikker udfylder kategori og beløb med ét tryk
+- Huskede butikker udfylder kategori og beløb med ét tryk, og beløbsfeltet regner selv (fx 89,95+45)
 - Scan regninger med tekstgenkendelse, og knyt kvitteringer til poster
 
 **Budget, regninger og mål**
@@ -33,12 +33,12 @@ Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed fre
 - Data krypteres på telefonen; valgfri onlinebackup
 - PIN-kode og fingeraftryk med automatisk lås
 - Skjul beløb med ét tryk
-- Mørkt, lyst eller system-tema og widgets til startskærmen
+- Mørkt, lyst eller system-tema, søgning i alt og widgets til startskærmen
 
 Saldo forbinder ikke til din bank og foretager ingen betalinger. Beløb og prognoser bygger på de data, du selv registrerer eller importerer, og er vejledende.
 
 ## Nyheder i 4.4.0 (maks. 500 tegn)
-Helt nyt design og logo. Del CSV fra netbanken direkte til Saldo, faste poster, månedsvælger, velkomstguide, saldoprognose frem til løn, budgetforslag, gældfri-plan, abonnementsradar, kvitteringer, noter, skjul beløb, ugentlig opsummering og ny budget-widget. Alt kan nu redigeres, og vi har rettet en række fejl.
+Helt nyt design og logo. Vælg lønrytme (månedlig, 14 dage eller ugentlig). Del CSV fra netbanken direkte til Saldo, faste poster, månedsvælger, søgning, saldoprognose frem til løn, budgetforslag, gældfri-plan, abonnementsradar, kvitteringer, noter, lommeregner i beløbsfeltet, skjul beløb, ugentlig opsummering og ny budget-widget. Alt kan nu redigeres, og mange fejl er rettet.
 
 ## Kategori og kontakt
 - Kategori: Finans

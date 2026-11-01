@@ -1,11 +1,11 @@
-name: Build Saldo 4.3.5
+name: Build Saldo 4.4.0 (via 4-3-5-filnavn)
 
 on:
   push:
     branches: [main]
     paths:
-      - 'Saldo-4.3.5-Udgivelsesklar.zip'
-      - '.github/workflows/build-saldo-4-3-5.yml'
+      - 'Saldo-4.4.0-Udgivelsesklar.zip'
+      - '.github/workflows/build-saldo-4-4-0.yml'
   workflow_dispatch:
 
 permissions:
@@ -49,9 +49,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ZIP="$GITHUB_WORKSPACE/Saldo-4.3.5-Udgivelsesklar.zip"
+          ZIP="$GITHUB_WORKSPACE/Saldo-4.4.0-Udgivelsesklar.zip"
           if [ ! -f "$ZIP" ]; then
-            echo "::error::Saldo-4.3.5-Udgivelsesklar.zip mangler i repositoryets rod."
+            echo "::error::Saldo-4.4.0-Udgivelsesklar.zip mangler i repositoryets rod."
             exit 1
           fi
           mkdir -p "$RUNNER_TEMP/saldo-project"
@@ -84,10 +84,10 @@ jobs:
           fi
           AAPT="$ANDROID_HOME/build-tools/36.0.0/aapt"
           BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='dk.saldo.app' versionCode='32' versionName='4.3.5'"
+          echo "$BADGING" | grep -F "package: name='dk.saldo.app' versionCode='33' versionName='4.4.0'"
           mkdir -p "$GITHUB_WORKSPACE/release"
-          cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.3.5-debug.apk"
-          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.3.5-debug.apk > SHA256SUMS.txt)
+          cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-debug.apk"
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.4.0-debug.apk > SHA256SUMS.txt)
 
       - name: Byg signeret AAB, hvis upload-nøgle er konfigureret
         shell: bash
@@ -113,13 +113,13 @@ jobs:
             echo "::error::Den signerede AAB-fil blev ikke oprettet."
             exit 1
           fi
-          cp "$AAB" "$GITHUB_WORKSPACE/release/Saldo-4.3.5-release.aab"
-          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.3.5-release.aab >> SHA256SUMS.txt)
+          cp "$AAB" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-release.aab"
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.4.0-release.aab >> SHA256SUMS.txt)
 
       - name: Upload APK, eventuel AAB og SHA-256
         uses: actions/upload-artifact@v4
         with:
-          name: Saldo-4.3.5-Android
+          name: Saldo-4.4.0-Android
           path: release/*
           if-no-files-found: error
           retention-days: 14

@@ -1,6 +1,7 @@
 # Ændringslog — Saldo
 
 ## 4.4.0 – Den store overhaling
+- Rettet: titler i toppen (fx "Rapporter", "Opsparing", "Abonnementer") skrumper nu automatisk, så de ikke bliver skåret af ved siden af tilbage-knappen.
 - Nyt: "Fortsæt uden konto" – Saldo kan bruges helt uden login; data gemmes kun på telefonen. Under Indstillinger kan man senere logge ind eller oprette en konto, og en ny konto får de lokale data med.
 - Rettet: login-skærmen siger kun "Velkommen tilbage" til personer, der har været logget ind på telefonen før, og udfylder deres e-mail.
 - Rettet: manglende løn vises som "Ikke angivet" med genvej i stedet for "På sporet"/"I dag"; Hvad nu hvis? og Prognoser advarer om standardløn; tomme budgetkort skjules; lange titler skaleres ned i toppen.

@@ -1,6 +1,8 @@
 # Ændringslog — Saldo
 
 ## 4.4.0 – Den store overhaling
+- Nyt: del en post i to (splitTransaction, testet), budgetskabelon 50/30/20 (fiftyThirtyTwentyBudgets, testet) og valgfri påmindelse om at registrere (dagligt/ugentligt, kun hvis der ikke er registreret noget).
+- Fjernet: Kalender (dublerede Regninger), Økonomitjek (advarslerne står på Overblik) og Prognoser (saldoprognosen er flyttet til "Hvad nu hvis?"). Ingen data slettes.
 - Redesign "Klar" erstatter navy og guld: lys-først palet (mørk udgave følger med), blæk-tekst, iris-accent, flade kort, mørke nøgletalskort på Overblik/Regninger/Budget, flydende mørk bundmenu, store tal i Plus Jakarta Sans, sætningsstore etiketter i stedet for versaler. Nyt logo (to kontakter i balance) med alle ikoner, widgets og butiksgrafik. Temaet sættes én gang til at følge telefonen.
 - Rettet: titler i toppen (fx "Rapporter", "Opsparing", "Abonnementer") skrumper nu automatisk, så de ikke bliver skåret af ved siden af tilbage-knappen.
 - Nyt: "Fortsæt uden konto" – Saldo kan bruges helt uden login; data gemmes kun på telefonen. Under Indstillinger kan man senere logge ind eller oprette en konto, og en ny konto får de lokale data med.

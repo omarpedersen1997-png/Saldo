@@ -20,11 +20,12 @@ Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed fre
 - "Del til Saldo": del en CSV-eksport fra din netbank direkte til appen – retning og kategori foreslås automatisk, og dubletter springes over
 - Faste poster som løn og husleje lægger sig ind af sig selv
 - Huskede butikker udfylder kategori og beløb med ét tryk, og beløbsfeltet regner selv (fx 89,95+45)
+- Del ét køb i flere kategorier eller mellem dig og din partner, og få en blid påmindelse om at registrere
 - Scan regninger med tekstgenkendelse, og knyt kvitteringer til poster
 
 **Budget, regninger og mål**
 - Budgetter for dig, din partner og fælles udgifter – med tempo-markør og prognose
-- Foreslåede budgetter ud fra dit faktiske forbrug
+- Foreslåede budgetter ud fra dit faktiske forbrug – eller 50/30/20 ud fra din løn
 - Regninger grupperet som forfaldne, kommende og betalte
 - Opsparingsmål med månedlig opsparingsplan og hurtig indbetaling
 - Gældfri-plan (højeste rente eller mindste gæld først)

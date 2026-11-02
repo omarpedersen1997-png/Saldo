@@ -4,6 +4,10 @@ Den største opdatering af Saldo til dato: helt nyt, moderne design og logo, ban
 
 ## Ændringer
 
+- Nyt: del en post i to (fx ét Føtex-køb på mad og husholdning, eller mellem dig og din partner).
+- Nyt: budgetskabelon 50/30/20 – lav budgetter ud fra din løn med ét tryk.
+- Nyt: valgfri påmindelse om at registrere dine køb (dagligt eller ugentligt).
+- Enklere: Kalender, Økonomitjek og Prognoser er fjernet; saldoprognosen frem til løn ligger nu i "Hvad nu hvis?", og advarsler om forfaldne regninger og budgetter står på Overblik.
 - Nyt design "Klar": lyse, rolige flader, store tal, mørke nøgletalskort, én elektrisk iris-farve og en flydende menu i bunden. Mørkt tema følger med, og temaet følger telefonen som standard. Ny skrift (Plus Jakarta Sans).
 - Nyt logo: to kontakter i balance. Nyt app-ikon, notifikationsikon, widgets og butiksgrafik.
 - Nyt: brug Saldo uden konto ("Fortsæt uden konto"). Data gemmes kun på telefonen, og du kan oprette en konto senere for onlinebackup – dine data følger med.
@@ -31,7 +35,6 @@ Den største opdatering af Saldo til dato: helt nyt, moderne design og logo, ban
 - Enklere rådighedskort: ét forbrugsbjælke, rådighed pr. dag, næste løn og andel brugt – uden dobbeltvisning.
 - Nyt: kalendervælger på alle 9 datofelter (teksten kan stadig skrives); ugyldige datoer markeres, gyldige vises som fx "Lørdag 1. november".
 - Nyt: abonnementer, gæld og tankninger kan redigeres (aktiv-status bevares).
-- Nyt: Kalender er grupperet pr. måned med faste månedsoverskrifter og månedens total.
 - Rettet: saldo og løn gemmes nu præcist til øret (tidligere Float-afrunding ved store beløb). Den gamle værdi gemmes stadig, så ældre data og backups virker uændret.
 - Rettet: tal for gæld og tankning vises på dansk (komma, ikke punktum), tankninger viser læsbar dato, og abonnementsdatoer skrives på dansk.
 - Nyt: poster og regninger kan redigeres (blyant-ikon). Id, betalt-status og importoplysninger bevares.

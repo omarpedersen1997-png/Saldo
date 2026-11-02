@@ -1,9 +1,11 @@
 # Saldo 4.4.0 – udgivelsesnoter
 
-Den største opdatering af Saldo til dato: nyt design i navy og guld, nyt logo, bankimport via "Del til Saldo", faste poster, månedsnavigation, velkomstguide, redigering af alt og mange rettelser.
+Den største opdatering af Saldo til dato: helt nyt, moderne design og logo, bankimport via "Del til Saldo", faste poster, månedsnavigation, velkomstguide, redigering af alt og mange rettelser.
 
 ## Ændringer
 
+- Nyt design "Klar": lyse, rolige flader, store tal, mørke nøgletalskort, én elektrisk iris-farve og en flydende menu i bunden. Mørkt tema følger med, og temaet følger telefonen som standard. Ny skrift (Plus Jakarta Sans).
+- Nyt logo: to kontakter i balance. Nyt app-ikon, notifikationsikon, widgets og butiksgrafik.
 - Nyt: brug Saldo uden konto ("Fortsæt uden konto"). Data gemmes kun på telefonen, og du kan oprette en konto senere for onlinebackup – dine data følger med.
 - Rettet: "Velkommen tilbage" vises kun for brugere, der har været logget ind før.
 - Nyt: "Spørg Saldo" – en assistent, der svarer på spørgsmål om din egen økonomi ud fra dine tal og forklarer 33 emner om privatøkonomi i Danmark. Kører helt på telefonen, gratis og offline.
@@ -37,8 +39,6 @@ Den største opdatering af Saldo til dato: nyt design i navy og guld, nyt logo, 
 - Nyt: appen låser automatisk, når den har været i baggrunden i mere end 60 sekunder (hvis PIN eller biometri er slået til).
 - Nyt: "Fjern app-lås" i Indstillinger (kræver nuværende PIN eller fingeraftryk). Biometri-kortet viser, om det er aktivt.
 - Rettet: man kunne blive låst ude, hvis kun biometrisk oplåsning var slået til, og fingeraftryk ikke længere virkede. Biometri kræver nu en PIN som reserve, låseskærmen viser kun PIN-feltet, når der findes en PIN, og fingeraftryk startes automatisk.
-- Skånsomt for øjnene: blødere mørkt tema med lysere navy, dæmpet champagneguld, lysegrå i stedet for kridhvid tekst, afdæmpet grøn/rød, næsten ingen glød. Logo og widgets følger samme bløde toner. Kontrast er stadig 6,8–13,8:1.
-- Rettelser efter test på telefon: rådighedskortets undertekst har sin egen linje, trendlinjen skjules uden historik og klippes ikke længere i kanten, ikonfelter/valgt fane/valgte chips er lysere navy i stedet for brunlige, Økonomitjek-overskrifter skæres ikke af, mere luft på Budget, ingen markør uden budget, og skyderne i "Hvad nu hvis?" er glatte uden prikker.
 - Budgettempo: hver budgetbjælke har en markør for, hvor langt måneden er, og viser en prognose for månedens forbrug, hvis tempoet er for højt.
 - Opsparingsmål vises med fremskridtsring, procent og hvor meget der skal spares pr. måned for at nå målet til måldatoen.
 - Ny indsigt på Overblik: forbrug sammenlignet med samme tidspunkt sidste måned.
@@ -46,7 +46,6 @@ Den største opdatering af Saldo til dato: nyt design i navy og guld, nyt logo, 
 - Poster vises med en rund forbogstavsavatar og et lille ind/ud-mærke i stedet for generiske pile.
 - Overblik har tappbare indsigter: forfaldne regninger, andel af indtægten brugt, regninger før løn og største udgiftskategori.
 - Bundmenuen bruger konturikoner, der bliver udfyldt ved valg; let haptisk feedback ved faneskift og når noget gemmes.
-- Ny farveprofil: navy og guld. Appen (mørkt og lyst tema), logo, launcher-/notifikationsikoner, widgets og butiksgrafik bruger samme navy-baggrund og guldgradient. Advarsler er nu orange, så de ikke forveksles med guldaccenten.
 - Roligere udtryk: mindre glød og blødere kanter.
 - Bedre læsbarhed: beløb vises med + / − ved siden af grøn/rød (farveblind-venligt), ingen tekst under 10 pt, og grøn/orange har nu tilstrækkelig kontrast i lyst tema.
 - Rettet: brændstofforbrug (l/100 km) talte literne fra den første tankning med og viste derfor for højt forbrug.
@@ -55,10 +54,8 @@ Den største opdatering af Saldo til dato: nyt design i navy og guld, nyt logo, 
 - Skrifttypen Inter (OFL-1.1, se INTER-FONT-LICENSE.txt) bruges i hele appen, med tabeltal i animerede beløb.
 - Primære knapper, plusknappen og den valgte fane i bundmenuen bruger logoets gradient; kontoknap i toppen åbner Indstillinger.
 - Rådighedskortet viser en animeret trendlinje for netto de seneste 6 måneder.
-- Nyt logo: minimalistisk, geometrisk S med guldgradient på dyb navy. Launcher-, adaptive-, monochrome-, notifikations- og butiksikoner samt feature graphic er gentegnet (kilde: store-assets/render-logo.js).
 - Ny struktur: personlig hilsen og 2×2-nøgletal på Overblik, poster grupperet pr. dag med faste datooverskrifter, regninger grupperet i Forfaldne/Kommende/Betalt, og Mere som et adaptivt gitter.
 - Layoutet centreres og begrænses i bredden på tablets og foldbare telefoner.
-- Nyt mørkt standardtema med dyb navy/sort baggrund, lilla gradienter, diskrete glødende kanter og afrundede kort.
 - Animerede budgetbjælker, glidende beløb, nyt søjlediagram i Rapporter og kategoribjælker i stedet for tekstlister.
 - Flydende bundnavigation med animeret markering, tilbageknap på undersider og Android-tilbage-tast til Mere/Overblik.
 - Hurtige skærmovergange, trykanimationer på kort og knapper, animerede listeændringer og en kort succesanimation ved gemning.

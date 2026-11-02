@@ -1,6 +1,7 @@
 # Ændringslog — Saldo
 
 ## 4.4.0 – Den store overhaling
+- Redesign "Klar" erstatter navy og guld: lys-først palet (mørk udgave følger med), blæk-tekst, iris-accent, flade kort, mørke nøgletalskort på Overblik/Regninger/Budget, flydende mørk bundmenu, store tal i Plus Jakarta Sans, sætningsstore etiketter i stedet for versaler. Nyt logo (to kontakter i balance) med alle ikoner, widgets og butiksgrafik. Temaet sættes én gang til at følge telefonen.
 - Rettet: titler i toppen (fx "Rapporter", "Opsparing", "Abonnementer") skrumper nu automatisk, så de ikke bliver skåret af ved siden af tilbage-knappen.
 - Nyt: "Fortsæt uden konto" – Saldo kan bruges helt uden login; data gemmes kun på telefonen. Under Indstillinger kan man senere logge ind eller oprette en konto, og en ny konto får de lokale data med.
 - Rettet: login-skærmen siger kun "Velkommen tilbage" til personer, der har været logget ind på telefonen før, og udfylder deres e-mail.

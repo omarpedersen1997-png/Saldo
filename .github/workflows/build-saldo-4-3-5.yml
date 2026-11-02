@@ -71,7 +71,16 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease --no-daemon 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Vis kompilerings- og testfejl
+        if: failure()
+        shell: bash
+        run: |
+          grep -E "^e: |FAILED|AssertionError|Exception:" "$RUNNER_TEMP/build.log" | head -40 || true
 
       - name: Kontrollér APK-identitet og opret kontrolsum
         shell: bash

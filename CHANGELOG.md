@@ -1,6 +1,7 @@
 # Ændringslog — Saldo
 
 ## 4.4.0 – Den store overhaling
+- Ny opbygning: Overblik har et stort tal direkte på siden (uden kort), nøgletal som piller, runde genveje, et vandret bånd med kommende regninger og én samlet linje for måneden. Lister fylder hele bredden uden kasser. Bundmenuen er kun ikoner med en stor plus-knap ved siden af; toppen har en stor overskrift (hilsen på Overblik). Mørkt tema er rent sort (OLED).
 - Nyt: del en post i to (splitTransaction, testet), budgetskabelon 50/30/20 (fiftyThirtyTwentyBudgets, testet) og valgfri påmindelse om at registrere (dagligt/ugentligt, kun hvis der ikke er registreret noget).
 - Fjernet: Kalender (dublerede Regninger), Økonomitjek (advarslerne står på Overblik) og Prognoser (saldoprognosen er flyttet til "Hvad nu hvis?"). Ingen data slettes.
 - Redesign "Klar" erstatter navy og guld: lys-først palet (mørk udgave følger med), blæk-tekst, iris-accent, flade kort, mørke nøgletalskort på Overblik/Regninger/Budget, flydende mørk bundmenu, store tal i Plus Jakarta Sans, sætningsstore etiketter i stedet for versaler. Nyt logo (to kontakter i balance) med alle ikoner, widgets og butiksgrafik. Temaet sættes én gang til at følge telefonen.

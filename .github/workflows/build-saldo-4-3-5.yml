@@ -74,7 +74,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease --no-daemon 2>&1 | tee "$RUNNER_TEMP/build.log"
+          gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease assembleHurtig --no-daemon 2>&1 | tee "$RUNNER_TEMP/build.log"
 
       - name: Vis kompilerings- og testfejl
         if: failure()
@@ -96,7 +96,12 @@ jobs:
           echo "$BADGING" | grep -F "package: name='dk.saldo.app' versionCode='33' versionName='4.4.0'"
           mkdir -p "$GITHUB_WORKSPACE/release"
           cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-debug.apk"
-          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.4.0-debug.apk > SHA256SUMS.txt)
+          FAST_APK="$(find "$PROJECT_DIR" -type f -path '*/build/outputs/apk/hurtig/*.apk' -print -quit)"
+          if [ -n "$FAST_APK" ] && [ -s "$FAST_APK" ]; then
+            # Optimised build (R8) – install this one on the phone; the debug APK is much slower.
+            cp "$FAST_APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-hurtig.apk"
+          fi
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum *.apk > SHA256SUMS.txt)
 
       - name: Lav Google Play-skærmbilleder (eksempeldata)
         id: screenshots

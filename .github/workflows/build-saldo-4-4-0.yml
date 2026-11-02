@@ -71,7 +71,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease --no-daemon --stacktrace
+        run: gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease assembleHurtig --no-daemon --stacktrace
 
       - name: Kontrollér APK-identitet og opret kontrolsum
         shell: bash
@@ -87,7 +87,12 @@ jobs:
           echo "$BADGING" | grep -F "package: name='dk.saldo.app' versionCode='33' versionName='4.4.0'"
           mkdir -p "$GITHUB_WORKSPACE/release"
           cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-debug.apk"
-          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.4.0-debug.apk > SHA256SUMS.txt)
+          FAST_APK="$(find "$PROJECT_DIR" -type f -path '*/build/outputs/apk/hurtig/*.apk' -print -quit)"
+          if [ -n "$FAST_APK" ] && [ -s "$FAST_APK" ]; then
+            # Optimised build (R8) – install this one on the phone; the debug APK is much slower.
+            cp "$FAST_APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-hurtig.apk"
+          fi
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum *.apk > SHA256SUMS.txt)
 
       - name: Byg signeret AAB, hvis upload-nøgle er konfigureret
         shell: bash

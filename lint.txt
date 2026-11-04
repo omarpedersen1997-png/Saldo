@@ -1,0 +1,435 @@
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:868: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+                                                                                .remove(localAccountSettingsKey(SALDO_LOCAL_ACCOUNT_ID)).remove(localAccountBackupKey(SALDO_LOCAL_ACCOUNT_ID)).commit()
+                                                                                                                                                                                               ~~~~~~~~
+
+   Explanation for issues of type "ApplySharedPref":
+   Consider using apply() instead of commit on shared preferences. Whereas
+   commit blocks and writes its data to persistent storage immediately, apply
+   will handle it in the background.
+
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:18: Warning: Not targeting the latest versions of Android; compatibility modes apply. Consider testing and updating this version. Consult the android.os.Build.VERSION_CODES javadoc for details. [OldTargetApi]
+        targetSdk = 36
+        ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "OldTargetApi":
+   When your application or sdk runs on a version of Android that is more
+   recent than your targetSdkVersion specifies that it has been tested with,
+   various compatibility modes kick in. This ensures that your application
+   continues to work, but it may look out of place. For example, if the
+   targetSdkVersion is less than 14, your app may get an option button in the
+   UI.
+
+   To fix this issue, set the targetSdkVersion to the highest available value.
+   Then test your app to make sure everything works correctly. You may want to
+   consult the compatibility notes to see what changes apply to each version
+   you are adding support for:
+   https://developer.android.com/reference/android/os/Build.VERSION_CODES.html
+   as well as follow this guide:
+   https://developer.android.com/distribute/best-practices/develop/target-sdk.
+   html
+
+   https://developer.android.com/distribute/best-practices/develop/target-sdk.html
+
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:94: Warning: A newer version of androidx.activity:activity-compose than 1.11.0 is available: 1.13.0 [GradleDependency]
+    implementation("androidx.activity:activity-compose:1.11.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:95: Warning: A newer version of androidx.fragment:fragment-ktx than 1.8.9 is available: 1.9.1 [GradleDependency]
+    implementation("androidx.fragment:fragment-ktx:1.8.9")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:96: Warning: A newer version of androidx.work:work-runtime-ktx than 2.10.5 is available: 2.12.0 [GradleDependency]
+    implementation("androidx.work:work-runtime-ktx:2.10.5")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:98: Warning: A newer version of androidx.core:core-ktx than 1.17.0 is available: 1.19.1 [GradleDependency]
+    implementation("androidx.core:core-ktx:1.17.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:108: Warning: A newer version of androidx.lifecycle:lifecycle-runtime-ktx than 2.9.4 is available: 2.11.0 [GradleDependency]
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:117: Warning: A newer version of androidx.test:core than 1.6.1 is available: 1.7.0 [GradleDependency]
+    testImplementation("androidx.test:core:1.6.1")
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:118: Warning: A newer version of androidx.work:work-testing than 2.10.5 is available: 2.12.0 [GradleDependency]
+    testImplementation("androidx.work:work-testing:2.10.5")
+                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "GradleDependency":
+   This detector looks for usages of libraries where the version you are using
+   is not the current stable release. Using older versions is fine, and there
+   are cases where you deliberately want to stick with an older version.
+   However, you may simply not be aware that a more recent version is
+   available, and that is what this lint check helps find.
+
+/home/runner/work/_temp/saldo-project/app/build.gradle.kts:112: Warning: A newer version of org.json:json than 20240303 is available: 20260814 [NewerVersionAvailable]
+    testImplementation("org.json:json:20240303")
+                       ~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "NewerVersionAvailable":
+   This detector checks with a central repository to see if there are newer
+   versions available for the dependencies used by this project. This is
+   similar to the GradleDependency check, which checks for newer versions
+   available in the Android SDK tools and libraries, but this works with any
+   MavenCentral dependency, and connects to the library every time, which
+   makes it more flexible but also much slower.
+
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoComponents.kt:348: Warning: Modifier parameter should be the first optional parameter [ModifierParameter from androidx.compose.ui]
+@Composable internal fun RecordRow(title: String, detail: String, amount: String, positive: Boolean, onDelete: () -> Unit, onToggle: (() -> Unit)? = null, onEdit: (() -> Unit)? = null, modifier: Modifier = Modifier, onSplit: (() -> Unit)? = null) {
+                                                                                                                                                                                         ~~~~~~~~
+
+   Explanation for issues of type "ModifierParameter":
+   The first (or only) Modifier parameter in a Composable function should
+   follow the following rules:
+   - Be named modifier
+   - Have a type of Modifier
+   - Either have no default value, or have a default value of Modifier
+   - If optional, be the first optional parameter in the parameter list
+
+   Vendor: Jetpack Compose
+   Identifier: androidx.compose.ui
+   Feedback: https://issuetracker.google.com/issues/new?component=612128
+
+/home/runner/work/_temp/saldo-project/app/src/main/AndroidManifest.xml:7: Warning: The attribute android:dataExtractionRules only applies for Android 12 and higher; since minSdkVersion is API 26 you should also set android:fullBackupContent [DataExtractionRules]
+        android:dataExtractionRules="@xml/data_extraction_rules"
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "DataExtractionRules":
+   Before Android 12, the attributes android:allowBackup and
+   android:fullBackupContent were used to configure all forms of backup,
+   including cloud backups, device-to-device transfers and adb backup.
+
+   In Android 12 and higher, these attributes have been deprecated and will
+   only apply to cloud backups. You should instead use the attribute
+   android:dataExtractionRules, specifying an @xml resource that configures
+   which files to back up, for cloud backups and for device-to-device
+   transfers, separately. If your minSdkVersion supports older versions,
+   you'll still want to specify an android:fullBackupContent resource if the
+   default behavior is not right for your app.
+
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   https://goo.gle/DataExtractionRules
+
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:136: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+                if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(NotificationChannel("saldo_bills", "Regningspåmindelser", NotificationManager.IMPORTANCE_DEFAULT))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:150: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+                if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(NotificationChannel("saldo_subscriptions", "Abonnementer og fornyelser", NotificationManager.IMPORTANCE_DEFAULT))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:170: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+                if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(NotificationChannel("saldo_budgets", "Budgetadvarsler", NotificationManager.IMPORTANCE_DEFAULT))
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:185: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+                    if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(NotificationChannel("saldo_cashflow", "Rådighedsadvarsler", NotificationManager.IMPORTANCE_DEFAULT))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:204: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+                    if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(NotificationChannel("saldo_weekly", "Ugentlig opsummering", NotificationManager.IMPORTANCE_LOW))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:224: Warning: Unnecessary; Build.VERSION.SDK_INT >= 26 is always true here (SDK_INT ≥ 26 and < 33) [ObsoleteSdkInt]
+                    if (Build.VERSION.SDK_INT >= 26) nm.createNotificationChannel(NotificationChannel("saldo_entry_reminder", "Påmindelse om at registrere", NotificationManager.IMPORTANCE_DEFAULT))
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:248: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+    if (Build.VERSION.SDK_INT >= 26) manager.createNotificationChannel(NotificationChannel("saldo_bills", "Regningspåmindelser", NotificationManager.IMPORTANCE_DEFAULT))
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:266: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+    if (Build.VERSION.SDK_INT >= 26) manager.createNotificationChannel(NotificationChannel("saldo_subscriptions", "Abonnementer og fornyelser", NotificationManager.IMPORTANCE_DEFAULT))
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:292: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+    if (Build.VERSION.SDK_INT >= 26) manager.createNotificationChannel(NotificationChannel("saldo_budgets", "Budgetadvarsler", NotificationManager.IMPORTANCE_DEFAULT))
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoWidgets.kt:166: Warning: Unnecessary; SDK_INT is always >= 26 [ObsoleteSdkInt]
+    if (android.os.Build.VERSION.SDK_INT >= 26 && manager.isRequestPinAppWidgetSupported) {
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/mipmap-anydpi-v26: Warning: This folder configuration (v26) is unnecessary; minSdkVersion is 26. Merge all the resources in this folder into mipmap-anydpi. [ObsoleteSdkInt]
+
+   Explanation for issues of type "ObsoleteSdkInt":
+   This check flags version checks that are not necessary, because the
+   minSdkVersion (or surrounding known API level) is already at least as high
+   as the version checked for.
+
+   Similarly, it also looks for resources in -vNN folders, such as values-v14
+   where the version qualifier is less than or equal to the minSdkVersion,
+   where the contents should be merged into the best folder.
+
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:330: Hint: Prefer mutableIntStateOf instead of mutableStateOf [AutoboxingStateCreation from androidx.compose.runtime]
+    var loginStep by remember { mutableStateOf(0) }
+                                ~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoComponents.kt:491: Hint: Prefer mutableIntStateOf instead of mutableStateOf [AutoboxingStateCreation from androidx.compose.runtime]
+    var step by remember { mutableStateOf(0) }
+                           ~~~~~~~~~~~~~~
+
+   Explanation for issues of type "AutoboxingStateCreation":
+   Calling mutableStateOf<T>() when T is either backed by a primitive type on
+   the JVM or is a value class results in a state implementation that requires
+   all state values to be boxed. This usually causes an additional allocation
+   for each state write, and adds some additional work to auto-unbox values
+   when reading the value of the state. Instead, prefer to use a specialized
+   primitive state implementation for Int, Long, Float, and Double when the
+   state does not need to track null values and does not override the default
+   SnapshotMutationPolicy. See mutableIntStateOf(), mutableLongStateOf(),
+   mutableFloatStateOf(), and mutableDoubleStateOf() for more information.
+
+   Vendor: Jetpack Compose
+   Identifier: androidx.compose.runtime
+   Feedback: https://issuetracker.google.com/issues/new?component=612128
+
+/home/runner/work/_temp/saldo-project/app/src/main/res/mipmap-hdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/home/runner/work/_temp/saldo-project/app/src/main/res/mipmap-mdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/home/runner/work/_temp/saldo-project/app/src/main/res/mipmap-xhdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/home/runner/work/_temp/saldo-project/app/src/main/res/mipmap-xxhdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+/home/runner/work/_temp/saldo-project/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png: Warning: Launcher icon used as round icon did not have a circular shape [IconLauncherShape]
+
+   Explanation for issues of type "IconLauncherShape":
+   According to the Android Design Guide
+   (https://d.android.com/r/studio-ui/designer/material/iconography) your
+   launcher icons should "use a distinct silhouette", a "three-dimensional,
+   front view, with a slight perspective as if viewed from above, so that
+   users perceive some depth."
+
+   The unique silhouette implies that your launcher icon should not be a
+   filled square.
+
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:200: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+        val fragmentValues = uri?.fragment?.let { Uri.parse("https://saldo-recovery.invalid/?$it") }
+                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:205: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+            prefs.edit().putString("password_recovery_token", token).apply()
+            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:226: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putString("theme_mode", themeMode).apply()
+        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:235: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putString("home_visible_sections", updated.joinToString("|")).apply()
+        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:239: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putBoolean("dark_mode", darkMode).apply()
+        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:255: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        val editor = prefs.edit().putString("data", snapshot)
+                     ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:262: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+            prefs.edit().remove("encryption_reset_notice").apply()
+            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:275: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        val editor = prefs.edit().putString("data", snapshot)
+                     ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:572: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+            prefs.edit().putStringSet("recurring_generated_ids", (generatedBefore + generated.map { it.s("id") }).toList().takeLast(1000).toSet()).apply()
+            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:672: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                                    prefs.edit().remove("password_recovery_token").remove("online_access_token").remove("online_refresh_token").apply()
+                                                    ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:692: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                prefs.edit().remove("password_recovery_token").apply()
+                                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:867: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                                                            prefs.edit().remove("active_account_user_id").remove(localAccountDataKey(SALDO_LOCAL_ACCOUNT_ID))
+                                                                            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:871: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                                                        prefs.edit().putString("online_access_token", token).putString("online_refresh_token", response.optString("refresh_token")).putString("account_email", email)
+                                                                        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:962: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                            prefs.edit().putBoolean("local_only_mode", true).apply()
+                            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1003: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                        prefs.edit().putBoolean("biometric_enabled", false).apply()
+                        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1025: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                        prefs.edit().remove("pin_failed_attempts").remove("pin_locked_until").apply()
+                        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1031: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                            prefs.edit().putInt("pin_failed_attempts", 0).putLong("pin_locked_until", now + 30_000L).apply()
+                            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1034: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                            prefs.edit().putInt("pin_failed_attempts", attempts).apply()
+                            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1103: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                            prefs.edit().putBoolean("amounts_hidden", saldoAmountsHidden).apply()
+                            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1146: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                        IconButton(onClick = { recapDismissed = recapMonth.toString(); prefs.edit().putString("month_recap_dismissed", recapDismissed).apply() }) { Icon(Icons.Default.Close, contentDescription = "Luk månedsafslutning", tint = Muted) }
+                                                                                                       ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1790: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                                prefs.edit().putStringSet("radar_ignored", radarIgnored).apply()
+                                                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1929: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                    val editor = prefs.edit().putString("auto_backup_data", currentSnapshot)
+                                                 ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:1947: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                    if (activity != null) startBiometric(activity, context) { prefs.edit().putBoolean("biometric_enabled", true).apply(); Toast.makeText(context, "Biometrisk oplåsning aktiveret.", Toast.LENGTH_SHORT).show() }
+                                                                                              ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2000: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                        val restoreEditor = prefs.edit()
+                                                            ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2022: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                prefs.edit().putBoolean("weekly_summary_enabled", weeklySummaryOn).apply()
+                                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2031: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                prefs.edit().putString("entry_reminder", entryReminder).apply()
+                                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2083: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                    prefs.edit().putBoolean("onboarding_done", true).apply()
+                    ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2087: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                    val editor = prefs.edit().putBoolean("onboarding_done", true).putString("pay_frequency", frequency)
+                                 ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2327: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                prefs.edit().remove("pin_hash").remove("pin_salt").remove("pin").remove("biometric_enabled")
+                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2432: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                        prefs.edit().putSaldoMoney("cash_balance", obj.n("balance")).apply()
+                        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/MainActivity.kt:2644: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                                        prefs.edit()
+                                        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:211: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                prefs.edit().putString("weekly_summary_sent", weekKey).apply()
+                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoBackground.kt:235: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+                prefs.edit().putString("entry_reminder_sent", nowDate.toString()).apply()
+                ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCloud.kt:127: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+    runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                                                                   ~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCloud.kt:214: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+    val editor = prefs.edit().putString("online_access_token", accessToken)
+                 ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCloud.kt:243: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putString("active_account_user_id", userId).putString(localAccountDataKey(userId), data.toString()).apply()
+        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCore.kt:191: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        check(legacy.edit().clear().commit()) { "Saldo kunne ikke rydde den gamle ukrypterede datakopi. Genstart appen, og kontrollér lagerpladsen." }
+              ~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCore.kt:338: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+    if (userId.isNotBlank()) prefs.edit().putString(localAccountSettingsKey(userId), saldoSettingsJson(prefs).toString()).apply()
+                             ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCore.kt:410: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+            check(prefs.edit().putString("data", restored.toString()).commit()) {
+                  ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCore.kt:420: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+            check(prefs.edit().putString("data", restored.toString()).commit()) {
+                  ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCore.kt:441: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putString("data", restored.toString()).apply()
+        ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCore.kt:450: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+    prefs.edit().putString("data", empty.toString()).apply()
+    ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoCsv.kt:625: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+    prefs.edit().putString(prefKey, json.toString()).apply()
+    ~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/java/dk/saldo/app/SaldoSecurity.kt:170: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putString("pin_salt", salt).putString("pin_hash", hashPin(candidate, salt))
+        ~~~~~~~~~~~~
+
+   Explanation for issues of type "UseKtx":
+   The Android KTX libraries decorates the Android platform SDK as well as
+   various libraries with more convenient extension functions available from
+   Kotlin, allowing you to use default parameters, named parameters, and
+   more.
+
+   Available options:
+
+   **remove-defaults** (default is true):
+   Whether to skip arguments that match the defaults provided by the extension.
+
+   Extensions often provide default values for some of the parameters. For example:
+   ```kotlin
+   fun Path.readLines(charset: Charset = Charsets.UTF_8): List<String> { return Files.readAllLines(this, charset) }
+   ```
+   This lint check will by default automatically omit parameters that match the default, so if your code was calling
+
+   ```kotlin
+   Files.readAllLines(file, Charset.UTF_8)
+   ```
+   lint would replace this with
+   ```kotlin
+   file.readLines()
+   ```
+   rather than
+
+   ```kotlin
+   file.readLines(Charset.UTF_8
+   ```
+   You can turn this behavior off using this option.
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UseKtx">
+           <option name="remove-defaults" value="true" />
+       </issue>
+   </lint>
+   ```
+
+   **require-present** (default is true):
+   Whether to only offer extensions already available.
+
+   This option lets you only have lint suggest extension replacements if those extensions are already available on the class path (in other words, you're already depending on the library containing the extension method.)
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UseKtx">
+           <option name="require-present" value="true" />
+       </issue>
+   </lint>
+   ```
+
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_balance.xml:8: Warning: Hardcoded string "Til rådighed", should use @string resource [HardcodedText]
+        android:text="Til rådighed" android:textColor="#9C9CFF" android:textSize="12sp" android:textStyle="bold" />
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_balance.xml:10: Warning: Hardcoded string "0 kr.", should use @string resource [HardcodedText]
+        android:layout_marginTop="7dp" android:text="0 kr." android:textColor="#FFFFFF" android:textSize="25sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+                                       ~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_balance.xml:12: Warning: Hardcoded string "0 kr. pr. dag", should use @string resource [HardcodedText]
+        android:layout_marginTop="5dp" android:text="0 kr. pr. dag" android:textColor="#5FE3AE" android:textSize="13sp" android:textStyle="bold" />
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_balance.xml:14: Warning: Hardcoded string "Til næste løn", should use @string resource [HardcodedText]
+        android:layout_marginTop="3dp" android:text="Til næste løn" android:textColor="#A7A7B3" android:textSize="12sp" />
+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_bills.xml:8: Warning: Hardcoded string "Kommende regninger", should use @string resource [HardcodedText]
+        android:text="Kommende regninger" android:textColor="#9C9CFF" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.04" />
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_bills.xml:10: Warning: Hardcoded string "Ingen ubetalte regninger", should use @string resource [HardcodedText]
+        android:layout_marginTop="11dp" android:text="Ingen ubetalte regninger" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:maxLines="2" android:ellipsize="end" />
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_budget.xml:8: Warning: Hardcoded string "Budgetstatus", should use @string resource [HardcodedText]
+        android:text="Budgetstatus" android:textColor="#9C9CFF" android:textSize="12sp" android:textStyle="bold" android:letterSpacing="0.04" />
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_budget.xml:10: Warning: Hardcoded string "Ingen budgetter endnu – opret dem i Saldo", should use @string resource [HardcodedText]
+        android:layout_marginTop="10dp" android:text="Ingen budgetter endnu – opret dem i Saldo" android:textColor="#A7A7B3" android:textSize="12sp" />
+                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_monthly.xml:8: Warning: Hardcoded string "Denne måned", should use @string resource [HardcodedText]
+        android:text="Denne måned" android:textColor="#9C9CFF" android:textSize="12sp" android:textStyle="bold" />
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_monthly.xml:11: Warning: Hardcoded string "Indtægter", should use @string resource [HardcodedText]
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Indtægter" android:textColor="#5FE3AE" android:textSize="12sp" />
+                                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_monthly.xml:12: Warning: Hardcoded string "0 kr.", should use @string resource [HardcodedText]
+            <TextView android:id="@+id/widget_month_income" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0 kr." android:textColor="#FFFFFF" android:textSize="15sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+                                                                                                                                     ~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_monthly.xml:15: Warning: Hardcoded string "Udgifter", should use @string resource [HardcodedText]
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Udgifter" android:textColor="#9C9CFF" android:textSize="12sp" />
+                                                                                               ~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_monthly.xml:16: Warning: Hardcoded string "0 kr.", should use @string resource [HardcodedText]
+            <TextView android:id="@+id/widget_month_expense" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="0 kr." android:textColor="#FFFFFF" android:textSize="15sp" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" />
+                                                                                                                                      ~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/_temp/saldo-project/app/src/main/res/layout/widget_monthly.xml:19: Warning: Hardcoded string "Netto: 0 kr.", should use @string resource [HardcodedText]
+    <TextView android:id="@+id/widget_month_net" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:text="Netto: 0 kr." android:textColor="#5FE3AE" android:textSize="12sp" android:textStyle="bold" />
+                                                                                                                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "HardcodedText":
+   Hardcoding text attributes directly in layout files is bad for several
+   reasons:
+
+   * When creating configuration variations (for example for landscape or
+   portrait) you have to repeat the actual text (and keep it up to date when
+   making changes)
+
+   * The application cannot be translated to other languages by just adding
+   new translations for existing string resources.
+
+   There are quickfixes to automatically extract this hardcoded string into a
+   resource lookup.
+
+0 errors, 86 warnings, 2 hints

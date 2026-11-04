@@ -1,20 +1,20 @@
-name: Build Saldo 4.3.5
+name: Build Saldo 4.4.0 (via 4-3-5-filnavn)
 
 on:
   push:
     branches: [main]
     paths:
-      - 'Saldo-4.3.5-Udgivelsesklar.zip'
-      - '.github/workflows/build-saldo-4-3-5.yml'
+      - 'Saldo-4.4.0-Udgivelsesklar.zip'
+      - '.github/workflows/build-saldo-4-4-0.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - name: Hent repository
         uses: actions/checkout@v7
@@ -49,9 +49,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          ZIP="$GITHUB_WORKSPACE/Saldo-4.3.5-Udgivelsesklar.zip"
+          ZIP="$GITHUB_WORKSPACE/Saldo-4.4.0-Udgivelsesklar.zip"
           if [ ! -f "$ZIP" ]; then
-            echo "::error::Saldo-4.3.5-Udgivelsesklar.zip mangler i repositoryets rod."
+            echo "::error::Saldo-4.4.0-Udgivelsesklar.zip mangler i repositoryets rod."
             exit 1
           fi
           mkdir -p "$RUNNER_TEMP/saldo-project"
@@ -71,7 +71,16 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-        run: gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle -p "$PROJECT_DIR" testDebugUnitTest assembleDebug assembleRelease assembleHurtig --no-daemon 2>&1 | tee "$RUNNER_TEMP/build.log"
+
+      - name: Vis kompilerings- og testfejl
+        if: failure()
+        shell: bash
+        run: |
+          grep -E "^e: |FAILED|AssertionError|Exception:" "$RUNNER_TEMP/build.log" | head -40 || true
 
       - name: Kontrollér APK-identitet og opret kontrolsum
         shell: bash
@@ -84,10 +93,66 @@ jobs:
           fi
           AAPT="$ANDROID_HOME/build-tools/36.0.0/aapt"
           BADGING="$("$AAPT" dump badging "$APK")"
-          echo "$BADGING" | grep -F "package: name='dk.saldo.app' versionCode='32' versionName='4.3.5'"
+          echo "$BADGING" | grep -F "package: name='dk.saldo.app' versionCode='33' versionName='4.4.0'"
           mkdir -p "$GITHUB_WORKSPACE/release"
-          cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.3.5-debug.apk"
-          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.3.5-debug.apk > SHA256SUMS.txt)
+          cp "$APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-debug.apk"
+          FAST_APK="$(find "$PROJECT_DIR" -type f -path '*/build/outputs/apk/hurtig/*.apk' -print -quit)"
+          if [ -n "$FAST_APK" ] && [ -s "$FAST_APK" ]; then
+            # Optimised build (R8) – install this one on the phone; the debug APK is much slower.
+            cp "$FAST_APK" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-hurtig.apk"
+          fi
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum *.apk > SHA256SUMS.txt)
+
+      - name: Lav Google Play-skærmbilleder (eksempeldata)
+        id: screenshots
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          gradle -p "$PROJECT_DIR" testDebugUnitTest --tests 'dk.saldo.app.PlayScreenshotTest*' -PsaldoScreenshots=true --no-daemon
+          ls -la "$PROJECT_DIR/app/build/play-screenshots"
+          cat "$PROJECT_DIR/app/build/play-screenshots/errors.txt" || true
+
+      - name: Android lint (gennemgang)
+        id: lint
+        continue-on-error: true
+        shell: bash
+        run: |
+          gradle -p "$PROJECT_DIR" lintDebug -Dlint.abortOnError=false --no-daemon > "$RUNNER_TEMP/lint.log" 2>&1 || true
+          REPORT="$PROJECT_DIR/app/build/reports/lint-results-debug.txt"; [ -s "$REPORT" ] || REPORT=""
+          if [ -n "$REPORT" ]; then cp "$REPORT" "$PROJECT_DIR/app/build/play-screenshots/lint.txt"; tail -5 "$REPORT"; else tail -40 "$RUNNER_TEMP/lint.log" | tee "$PROJECT_DIR/app/build/play-screenshots/lint.txt"; fi
+
+      - name: Vis fejl fra skærmbillede-testen
+        if: steps.screenshots.outcome == 'failure'
+        run: |
+          grep -h -A12 "<failure" "$PROJECT_DIR"/app/build/test-results/testDebugUnitTest/*.xml | head -60 || true
+          cat "$PROJECT_DIR/app/build/play-screenshots/errors.txt" || true
+
+      - name: Gem skærmbilleder på grenen play-screenshots
+        if: steps.screenshots.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHOTS="$RUNNER_TEMP/play-shots"
+          rm -rf "$SHOTS" && mkdir -p "$SHOTS"
+          cp "$PROJECT_DIR"/app/build/play-screenshots/* "$SHOTS"/
+          cd "$SHOTS"
+          git init -q
+          git checkout -q -b play-screenshots
+          git add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Rå Google Play-skærmbilleder fra ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" play-screenshots
+
+      - name: Upload Google Play-skærmbilleder
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Saldo-Play-skaermbilleder
+          path: |
+            ${{ env.PROJECT_DIR }}/app/build/play-screenshots/*
+            ${{ env.PROJECT_DIR }}/app/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Byg signeret AAB, hvis upload-nøgle er konfigureret
         shell: bash
@@ -113,13 +178,13 @@ jobs:
             echo "::error::Den signerede AAB-fil blev ikke oprettet."
             exit 1
           fi
-          cp "$AAB" "$GITHUB_WORKSPACE/release/Saldo-4.3.5-release.aab"
-          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.3.5-release.aab >> SHA256SUMS.txt)
+          cp "$AAB" "$GITHUB_WORKSPACE/release/Saldo-4.4.0-release.aab"
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum Saldo-4.4.0-release.aab >> SHA256SUMS.txt)
 
       - name: Upload APK, eventuel AAB og SHA-256
         uses: actions/upload-artifact@v4
         with:
-          name: Saldo-4.3.5-Android
+          name: Saldo-4.4.0-Android
           path: release/*
           if-no-files-found: error
           retention-days: 14

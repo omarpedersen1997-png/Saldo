@@ -108,9 +108,18 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          gradle -p "$PROJECT_DIR" testDebugUnitTest --tests 'dk.saldo.app.PlayScreenshotTest' -PsaldoScreenshots=true --no-daemon
+          gradle -p "$PROJECT_DIR" testDebugUnitTest --tests 'dk.saldo.app.PlayScreenshotTest*' -PsaldoScreenshots=true --no-daemon
           ls -la "$PROJECT_DIR/app/build/play-screenshots"
           cat "$PROJECT_DIR/app/build/play-screenshots/errors.txt" || true
+
+      - name: Android lint (gennemgang)
+        id: lint
+        continue-on-error: true
+        shell: bash
+        run: |
+          gradle -p "$PROJECT_DIR" lintDebug -Dlint.abortOnError=false --no-daemon > "$RUNNER_TEMP/lint.log" 2>&1 || true
+          REPORT="$PROJECT_DIR/app/build/reports/lint-results-debug.txt"; [ -s "$REPORT" ] || REPORT=""
+          if [ -n "$REPORT" ]; then cp "$REPORT" "$PROJECT_DIR/app/build/play-screenshots/lint.txt"; tail -5 "$REPORT"; else tail -40 "$RUNNER_TEMP/lint.log" | tee "$PROJECT_DIR/app/build/play-screenshots/lint.txt"; fi
 
       - name: Vis fejl fra skærmbillede-testen
         if: steps.screenshots.outcome == 'failure'

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -41,9 +42,11 @@ data class AppEntry(
     val packageName: String,
     val activityName: String,
     val label: String,
-    val icon: ImageBitmap,
+    val bitmap: Bitmap,
     val autoCategory: Category,
-)
+) {
+    val icon: ImageBitmap by lazy { bitmap.asImageBitmap() }
+}
 
 /** Automatisk sortering ud fra pakkenavn, appnavn og Androids egen kategori. */
 object Categorizer {
@@ -153,7 +156,10 @@ object Categorizer {
 }
 
 object AppRepository {
-    suspend fun loadApps(context: Context): List<AppEntry> = withContext(Dispatchers.IO) {
+    /** @param only hvis sat: kun apps i denne kategori (inkl. brugerens egne flytninger). */
+    suspend fun loadApps(context: Context, only: Category? = null, iconSizeDp: Int = 52): List<AppEntry> =
+        withContext(Dispatchers.IO) {
+        val overrides = if (only != null) LauncherPrefs(context).overrides() else emptyMap()
         val pm = context.packageManager
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         val resolved: List<ResolveInfo> = if (Build.VERSION.SDK_INT >= 33) {
@@ -162,7 +168,7 @@ object AppRepository {
             @Suppress("DEPRECATION")
             pm.queryIntentActivities(intent, 0)
         }
-        val iconPx = (52 * context.resources.displayMetrics.density).toInt().coerceIn(96, 192)
+        val iconPx = (iconSizeDp * context.resources.displayMetrics.density).toInt().coerceIn(72, 192)
         val collator = Collator.getInstance(Locale.forLanguageTag("da-DK"))
 
         resolved
@@ -171,13 +177,16 @@ object AppRepository {
                 runCatching {
                     val ai = ri.activityInfo
                     val label = ri.loadLabel(pm).toString().ifBlank { ai.packageName }
+                    val key = "${ai.packageName}/${ai.name}"
+                    val auto = Categorizer.categorize(ai.packageName, label, ai.applicationInfo)
+                    if (only != null && (overrides[key] ?: auto) != only) return@runCatching null
                     AppEntry(
-                        key = "${ai.packageName}/${ai.name}",
+                        key = key,
                         packageName = ai.packageName,
                         activityName = ai.name,
                         label = label,
-                        icon = ri.loadIcon(pm).toBitmap(iconPx, iconPx).asImageBitmap(),
-                        autoCategory = Categorizer.categorize(ai.packageName, label, ai.applicationInfo),
+                        bitmap = ri.loadIcon(pm).toBitmap(iconPx, iconPx),
+                        autoCategory = auto,
                     )
                 }.getOrNull()
             }
@@ -186,11 +195,15 @@ object AppRepository {
     }
 
     fun launch(context: Context, app: AppEntry) {
+        launch(context, app.packageName, app.activityName)
+    }
+
+    fun launch(context: Context, packageName: String, activityName: String): Boolean {
         val intent = Intent(Intent.ACTION_MAIN)
             .addCategory(Intent.CATEGORY_LAUNCHER)
-            .setComponent(ComponentName(app.packageName, app.activityName))
+            .setComponent(ComponentName(packageName, activityName))
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-        runCatching { context.startActivity(intent) }
+        return runCatching { context.startActivity(intent) }.isSuccess
     }
 
     fun openAppInfo(context: Context, packageName: String) {

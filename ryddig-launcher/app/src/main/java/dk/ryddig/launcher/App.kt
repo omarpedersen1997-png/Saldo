@@ -46,7 +46,7 @@ fun RyddigTheme(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun RyddigApp(packagesChanged: Int, resumed: Int, homePressed: Int) {
+fun RyddigApp(packagesChanged: Int, resumed: Int) {
     val context = LocalContext.current
     val focus = LocalFocusManager.current
     val prefs = remember { LauncherPrefs(context) }
@@ -61,14 +61,8 @@ fun RyddigApp(packagesChanged: Int, resumed: Int, homePressed: Int) {
 
     LaunchedEffect(packagesChanged) {
         apps = runCatching { AppRepository.loadApps(context) }.getOrDefault(apps ?: emptyList())
-    }
-    // Hjem-knap: tilbage til startskærmen og ryd søgningen.
-    LaunchedEffect(homePressed) {
-        if (homePressed > 0) {
-            tab = 0
-            query = ""
-            focus.clearFocus()
-        }
+        // Nye eller fjernede apps skal også vises i boksene på startskærmen.
+        CategoryWidgetProvider.refreshAll(context)
     }
 
     Box(
@@ -91,7 +85,7 @@ fun RyddigApp(packagesChanged: Int, resumed: Int, homePressed: Int) {
                     NavigationBarItem(
                         selected = tab == 0, onClick = { tab = 0 },
                         icon = { Icon(Icons.Filled.GridView, contentDescription = null) },
-                        label = { Text("Startskærm") }, colors = itemColors,
+                        label = { Text("Kategorier") }, colors = itemColors,
                     )
                     NavigationBarItem(
                         selected = tab == 1, onClick = { tab = 1; focus.clearFocus() },
@@ -115,12 +109,13 @@ fun RyddigApp(packagesChanged: Int, resumed: Int, homePressed: Int) {
                     onMoveApp = { app, cat ->
                         if (cat == null || cat == app.autoCategory) overrides.remove(app.key) else overrides[app.key] = cat
                         prefs.setOverride(app.key, if (cat == app.autoCategory) null else cat)
+                        CategoryWidgetProvider.refreshAll(context)
                     },
                     onResetCategories = {
                         overrides.clear()
                         prefs.clearOverrides()
+                        CategoryWidgetProvider.refreshAll(context)
                     },
-                    resumed = resumed,
                     contentPadding = padding,
                 )
 

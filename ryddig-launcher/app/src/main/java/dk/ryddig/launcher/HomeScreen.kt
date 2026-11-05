@@ -1,9 +1,6 @@
 package dk.ryddig.launcher
 
-import android.content.Intent
-import android.provider.Settings
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,7 +35,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,7 +44,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,12 +61,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-
-private val Danish: Locale = Locale.forLanguageTag("da-DK")
 
 @Composable
 fun HomeScreen(
@@ -83,18 +72,21 @@ fun HomeScreen(
     onToggleCategory: (Category) -> Unit,
     onMoveApp: (AppEntry, Category?) -> Unit,
     onResetCategories: () -> Unit,
-    resumed: Int,
     contentPadding: PaddingValues,
 ) {
     val context = LocalContext.current
     val focus = LocalFocusManager.current
     var menuApp by remember { mutableStateOf<AppEntry?>(null) }
     var moveApp by remember { mutableStateOf<AppEntry?>(null) }
-    var isDefaultHome by remember { mutableStateOf(true) }
-    val roleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        isDefaultHome = HomeRole.isDefaultHome(context)
+    fun pin(category: Category) {
+        if (!CategoryWidgetProvider.requestPin(context, category)) {
+            Toast.makeText(
+                context,
+                "Din startskærm tillader ikke dette direkte. Hold fingeren på startskærmen → Widgets → Ryddig Start.",
+                Toast.LENGTH_LONG,
+            ).show()
+        }
     }
-    LaunchedEffect(resumed) { isDefaultHome = HomeRole.isDefaultHome(context) }
 
     fun categoryOf(app: AppEntry) = overrides[app.key] ?: app.autoCategory
     fun launch(app: AppEntry) {
@@ -118,31 +110,28 @@ fun HomeScreen(
         ) {
             item(key = "header") {
                 Header(
-                    onWallpaper = {
-                        runCatching {
-                            context.startActivity(Intent.createChooser(Intent(Intent.ACTION_SET_WALLPAPER), "Vælg baggrund"))
-                        }
+                    onRefreshWidgets = {
+                        CategoryWidgetProvider.refreshAll(context)
+                        Toast.makeText(context, "Widgets på startskærmen er opdateret", Toast.LENGTH_SHORT).show()
                     },
-                    onSetDefault = { runCatching { roleLauncher.launch(HomeRole.requestIntent(context)) } },
-                    onPhoneSettings = { runCatching { context.startActivity(Intent(Settings.ACTION_SETTINGS)) } },
                     onResetCategories = onResetCategories,
                 )
             }
-            if (!isDefaultHome) {
-                item(key = "default") {
-                    GlassCard {
-                        Column(Modifier.padding(16.dp)) {
-                            Text("Gør Ryddig Start til din startskærm", fontWeight = FontWeight.SemiBold)
-                            Text(
-                                "Så åbner hjem-knappen altid din sorterede startskærm.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.White.copy(alpha = 0.75f),
-                            )
-                            Spacer(Modifier.height(10.dp))
-                            FilledTonalButton(onClick = {
-                                runCatching { roleLauncher.launch(HomeRole.requestIntent(context)) }
-                            }) { Text("Vælg som startskærm") }
-                        }
+            item(key = "intro") {
+                GlassCard {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Sæt orden på din startskærm", fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            "1. Tryk \"＋ Startskærm\" ved en kategori. Den lægges som en boks med apps på din " +
+                                "nuværende startskærm.\n" +
+                                "2. Gentag for de kategorier, du vil have.\n" +
+                                "3. Fjern de gamle løse ikoner fra startskærmen (hold fingeren på dem → Fjern). " +
+                                "Selve apps bliver ikke slettet.\n\n" +
+                                "Flytter du en app til en anden kategori her, opdateres boksen på startskærmen automatisk.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
                     }
                 }
             }
@@ -186,7 +175,7 @@ fun HomeScreen(
                         item(key = "cat-${category.name}") {
                             GlassCard {
                                 Column {
-                                    CategoryHeader(category, list.size, isCollapsed) { onToggleCategory(category) }
+                                    CategoryHeader(category, list.size, isCollapsed, onPin = { pin(category) }) { onToggleCategory(category) }
                                     if (!isCollapsed) {
                                         AppGrid(list, columns, onClick = ::launch, onLongClick = { menuApp = it })
                                         Spacer(Modifier.height(8.dp))
@@ -235,38 +224,19 @@ fun HomeScreen(
 }
 
 @Composable
-private fun Header(
-    onWallpaper: () -> Unit,
-    onSetDefault: () -> Unit,
-    onPhoneSettings: () -> Unit,
-    onResetCategories: () -> Unit,
-) {
-    var now by remember { mutableStateOf(Date()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            now = Date()
-            delay(1_000)
-        }
-    }
+private fun Header(onRefreshWidgets: () -> Unit, onResetCategories: () -> Unit) {
     var menuOpen by remember { mutableStateOf(false) }
-    val time = remember(now) { SimpleDateFormat("HH:mm", Danish).format(now) }
-    val date = remember(now) {
-        SimpleDateFormat("EEEE d. MMMM", Danish).format(now).replaceFirstChar { it.titlecase(Danish) }
-    }
-
-    Row(Modifier.fillMaxWidth().padding(start = 8.dp, top = 12.dp, bottom = 4.dp), verticalAlignment = Alignment.Top) {
+    Row(Modifier.fillMaxWidth().padding(start = 8.dp, top = 12.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
-            Text(time, fontSize = 56.sp, fontWeight = FontWeight.Light, color = Color.White)
-            Text(date, style = MaterialTheme.typography.titleMedium, color = Color.White.copy(alpha = 0.85f))
+            Text("Ryddig Start", fontSize = 34.sp, fontWeight = FontWeight.Light, color = Color.White)
+            Text("Dine apps sorteret i kategorier", style = MaterialTheme.typography.titleSmall, color = Color.White.copy(alpha = 0.8f))
         }
         Box {
             IconButton(onClick = { menuOpen = true }) {
                 Icon(Icons.Filled.MoreVert, contentDescription = "Menu", tint = Color.White)
             }
             DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(text = { Text("Skift baggrund") }, onClick = { menuOpen = false; onWallpaper() })
-                DropdownMenuItem(text = { Text("Vælg standard-startskærm") }, onClick = { menuOpen = false; onSetDefault() })
-                DropdownMenuItem(text = { Text("Telefonens indstillinger") }, onClick = { menuOpen = false; onPhoneSettings() })
+                DropdownMenuItem(text = { Text("Opdatér widgets på startskærmen") }, onClick = { menuOpen = false; onRefreshWidgets() })
                 DropdownMenuItem(text = { Text("Nulstil mine kategorier") }, onClick = { menuOpen = false; onResetCategories() })
             }
         }
@@ -320,7 +290,7 @@ fun GlassCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun CategoryHeader(category: Category, count: Int, collapsed: Boolean, onClick: () -> Unit) {
+private fun CategoryHeader(category: Category, count: Int, collapsed: Boolean, onPin: () -> Unit, onClick: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -332,7 +302,11 @@ private fun CategoryHeader(category: Category, count: Int, collapsed: Boolean, o
         Spacer(Modifier.width(10.dp))
         Text(category.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
         Text("$count", style = MaterialTheme.typography.labelLarge, color = Color.White.copy(alpha = 0.65f))
-        Spacer(Modifier.width(6.dp))
+        if (category != Category.SKJULT) {
+            TextButton(onClick = onPin) { Text("＋ Startskærm", color = MaterialTheme.colorScheme.primary) }
+        } else {
+            Spacer(Modifier.width(6.dp))
+        }
         Icon(
             if (collapsed) Icons.Filled.ExpandMore else Icons.Filled.ExpandLess,
             contentDescription = if (collapsed) "Fold ud" else "Fold sammen",

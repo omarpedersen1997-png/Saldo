@@ -1,0 +1,71 @@
+name: Byg Ryddig Start (APK)
+
+on:
+  push:
+    paths:
+      - 'ryddig-launcher/**'
+      - '.github/workflows/build-ryddig-start.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Hent repository
+        uses: actions/checkout@v4
+
+      - name: Opsæt Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Opsæt Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      - name: Installér Gradle 8.14.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 https://services.gradle.org/distributions/gradle-8.14.3-bin.zip -o "$RUNNER_TEMP/gradle.zip"
+          unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
+
+      - name: Byg APK
+        run: gradle -p ryddig-launcher assembleRelease --no-daemon --stacktrace
+
+      - name: Saml APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="$(find ryddig-launcher/app/build/outputs/apk/release -name '*.apk' -print -quit)"
+          test -s "$APK"
+          mkdir -p release
+          cp "$APK" release/RyddigStart.apk
+          (cd release && sha256sum RyddigStart.apk > SHA256SUMS.txt)
+
+      - name: Upload APK som artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: RyddigStart-APK
+          path: release/*
+          retention-days: 30
+
+      - name: Udgiv APK (download direkte på telefonen)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ryddig-start-build-${{ github.run_number }}
+          name: Ryddig Start (build ${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          body: |
+            Hent **RyddigStart.apk** herunder og åbn den på telefonen for at installere.
+            Bygget fra `${{ github.ref_name }}` (${{ github.sha }}).
+          files: |
+            release/RyddigStart.apk
+            release/SHA256SUMS.txt

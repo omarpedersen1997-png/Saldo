@@ -1,4 +1,5 @@
 name: Build Saldo 4.4.0 (via 4-3-5-filnavn)
+run-name: Saldo 4.4.0 (APK og skærmbilleder)
 
 on:
   push:

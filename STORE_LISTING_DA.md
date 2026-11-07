@@ -1,30 +1,48 @@
-# Google Play — butikstekst (udkast)
+# Google Play-butikstekst — Saldo 4.4.0
 
-## Appnavn
-PengeOverblik
+## Appnavn (maks. 30 tegn)
+Saldo – Budget og overblik
 
-## Kort beskrivelse
-Få et enkelt overblik over dine indtægter, udgifter og månedlige råderum.
+## Kort beskrivelse (maks. 80 tegn)
+Se hvad du har til rådighed frem til løn – budget, regninger og opsparing.
 
 ## Fuld beskrivelse
-PengeOverblik hjælper dig med at holde styr på din privatøkonomi ét sted.
+Saldo giver dig ro i økonomien. Se med det samme, hvad du har til rådighed frem til næste løn, og hvad du kan bruge pr. dag.
 
-• Registrér indtægter og udgifter manuelt.
-• Gruppér poster i kategorier som bolig, mad, transport og regninger.
-• Se samlede indtægter, udgifter og forskellen mellem dem.
-• Markér faste månedlige poster.
-• Gem budgettet lokalt på din telefon.
+**Overblik der giver mening**
+- Rådighedsbeløb og beløb pr. dag frem til næste løn – månedlig, 14-dages eller ugentlig løn
+- Saldoprognose dag for dag med varsel, hvis saldoen kan gå i minus
+- Indsigter: andel af indtægten brugt, regninger før løn, største udgift og sammenligning med sidste måned
+- Bladr mellem måneder, cirkeldiagram over kategorier og forbrugskalender
 
-PengeOverblik har i denne version ingen automatisk bankforbindelse, ingen reklamer og kræver ikke en konto. Dine budgetposter gemmes lokalt på enheden. Husk, at data kan gå tabt, hvis appdata slettes eller telefonen mistes; eksport og cloud-backup er endnu ikke tilgængeligt.
+**Mindre tastearbejde**
+- "Spørg Saldo": stil spørgsmål som "Hvor meget kan jeg bruge i dag?" eller "Hvad brugte jeg på mad i oktober?" – svarene beregnes på telefonen ud fra dine egne tal, og den forklarer også emner som gæld, opsparing, skat, pension og boligkøb
+- "Del til Saldo": del en CSV-eksport fra din netbank direkte til appen – retning og kategori foreslås automatisk, og dubletter springes over
+- Faste poster som løn og husleje lægger sig ind af sig selv
+- Huskede butikker udfylder kategori og beløb med ét tryk, og beløbsfeltet regner selv (fx 89,95+45)
+- Del ét køb i flere kategorier eller mellem dig og din partner, og få en blid påmindelse om at registrere
+- Scan regninger med tekstgenkendelse, og knyt kvitteringer til poster
 
-PengeOverblik er et budgetværktøj og ikke finansiel rådgivning.
+**Budget, regninger og mål**
+- Budgetter for dig, din partner og fælles udgifter – med tempo-markør og prognose
+- Foreslåede budgetter ud fra dit faktiske forbrug – eller 50/30/20 ud fra din løn
+- Regninger grupperet som forfaldne, kommende og betalte
+- Opsparingsmål med månedlig opsparingsplan og hurtig indbetaling
+- Gældfri-plan (højeste rente eller mindste gæld først)
+- Abonnementsradar finder faste betalinger, du har glemt
 
-## Kontaktoplysninger — udfyld før udgivelse
-- Udviklernavn: [indsæt]
-- Kontakt-e-mail: [indsæt]
-- Privatlivspolitik: [indsæt offentlig HTTPS-URL]
+**Privat og sikkert**
+- Data krypteres på telefonen; valgfri onlinebackup
+- PIN-kode og fingeraftryk med automatisk lås
+- Skjul beløb med ét tryk
+- Mørkt, lyst eller system-tema, søgning i alt og widgets til startskærmen
 
-## Grafik, der skal produceres
-- Appikon: 512 × 512 px PNG til Google Play.
-- Feature graphic: 1024 × 500 px.
-- Skærmbilleder: faktiske skærmbilleder fra den testede app; ingen mockups, der lover funktioner, som ikke findes.
+Saldo forbinder ikke til din bank og foretager ingen betalinger. Beløb og prognoser bygger på de data, du selv registrerer eller importerer, og er vejledende.
+
+## Nyheder i 4.4.0 (maks. 500 tegn)
+Helt nyt design og logo. Nyt: Spørg Saldo – spørg om din økonomi, gæld, skat, pension m.m. Vælg lønrytme (månedlig, 14 dage eller ugentlig). Del CSV fra netbanken direkte til Saldo, faste poster, søgning, saldoprognose, budgetforslag, gældfri-plan, abonnementsradar, kvitteringer, noter, lommeregner, skjul beløb og ny budget-widget. Alt kan redigeres, og mange fejl er rettet.
+
+## Kategori og kontakt
+- Kategori: Finans
+- Kontakt-e-mail: [INDSÆT SUPPORT-E-MAIL]
+- Privatlivspolitik: https://omarpedersen1997-png.github.io/Saldo/privacy/

@@ -1,11 +1,102 @@
-## 3.2.0
-- Skærmbillede-import til regninger kan bruges på tværs af Mit budget, Partners budget og Fælles.
-- Importdialogen gør det tydeligt, at budget skal vælges og oplysninger kontrolleres før gemning.
-- Appens synlige navn i hovedvisningen er nu Partners Budget.
+# Ændringslog — Saldo
 
-# Changelog
+## 4.4.0 – Den store overhaling
+- Gennemgang af alle skærme i mørkt tema: dobbelte overskrifter fjernet (Kategorier, Indstillinger, Hvad nu hvis?, Faste poster, Abonnementer), "System" knækker ikke længere over to linjer, regninger viser kun gentagelse når der er en, tankninger har kortere linjer med tusindtalsadskiller, Abonnementer viser ét stort tal, og alle lister har samme overskrift med "Tilføj".
+- Gennemgang: Android lint kører nu i CI (0 fejl). Rettet: krypterede data kopieres ikke længere ved telefonskift/cloud-backup (dataExtractionRules), fordi nøglen bliver på den gamle telefon; kan de krypterede data ikke åbnes, starter Saldo forfra med en besked i stedet for at gå ned ved hver opstart (den ulæselige fil gemmes til side). Widgets bruger mindst 12sp tekst og almindelige store/små bogstaver.
+- Hurtigere: indstillinger og data læses fra hukommelsen i stedet for at blive dekrypteret ved hver skærmopdatering, og krypteret lagring sker i baggrunden (stadig i rækkefølge, og alt skrives færdigt, når appen lukkes). Baseline-profiler installeres (profileinstaller), og GitHub bygger nu også en optimeret test-APK (Saldo-4.4.0-hurtig.apk), der kører som Play-udgaven.
+- Renere og mere flydende: tryk på en post åbner et handlingsark (rediger, del, slet, betalt) i stedet for små ikoner på hver række; regninger har én rund betalt-knap. Månedsvælgeren er ren tekst, overskrifter er uden forklarende undertekst, nøgletal står i én samlet liste (Rapporter, Gæld), filtrene på Poster er samlet i én række, og gentagne indsigter på Overblik er fjernet.
+- Ny opbygning: Overblik har et stort tal direkte på siden (uden kort), nøgletal som piller, runde genveje, et vandret bånd med kommende regninger og én samlet linje for måneden. Lister fylder hele bredden uden kasser. Bundmenuen er kun ikoner med en stor plus-knap ved siden af; toppen har en stor overskrift (hilsen på Overblik). Mørkt tema er rent sort (OLED).
+- Nyt: del en post i to (splitTransaction, testet), budgetskabelon 50/30/20 (fiftyThirtyTwentyBudgets, testet) og valgfri påmindelse om at registrere (dagligt/ugentligt, kun hvis der ikke er registreret noget).
+- Fjernet: Kalender (dublerede Regninger), Økonomitjek (advarslerne står på Overblik) og Prognoser (saldoprognosen er flyttet til "Hvad nu hvis?"). Ingen data slettes.
+- Redesign "Klar" erstatter navy og guld: lys-først palet (mørk udgave følger med), blæk-tekst, iris-accent, flade kort, mørke nøgletalskort på Overblik/Regninger/Budget, flydende mørk bundmenu, store tal i Plus Jakarta Sans, sætningsstore etiketter i stedet for versaler. Nyt logo (to kontakter i balance) med alle ikoner, widgets og butiksgrafik. Temaet sættes én gang til at følge telefonen.
+- Rettet: titler i toppen (fx "Rapporter", "Opsparing", "Abonnementer") skrumper nu automatisk, så de ikke bliver skåret af ved siden af tilbage-knappen.
+- Nyt: "Fortsæt uden konto" – Saldo kan bruges helt uden login; data gemmes kun på telefonen. Under Indstillinger kan man senere logge ind eller oprette en konto, og en ny konto får de lokale data med.
+- Rettet: login-skærmen siger kun "Velkommen tilbage" til personer, der har været logget ind på telefonen før, og udfylder deres e-mail.
+- Rettet: manglende løn vises som "Ikke angivet" med genvej i stedet for "På sporet"/"I dag"; Hvad nu hvis? og Prognoser advarer om standardløn; tomme budgetkort skjules; lange titler skaleres ned i toppen.
+- Rettet: uden angivet løn vises "–" i stedet for 0,00 kr. pr. dag, og "Ingen regninger før næste løn" skjules; dobbelt punktum i lønbeskeden fjernet.
+- Nyt: "Spørg Saldo" – en assistent på telefonen, der svarer på de mest almindelige spørgsmål med dine egne tal: rådighed og pr. dag, næste løn, regninger der skal betales, hvad du bruger mest på, forbrug på en kategori/butik i en bestemt måned, budgetstatus, sparetips, opsparing, abonnementer, gæld og sammenligning med sidste måned – samt hvordan appen bruges (import, backup, PIN, widgets, lønrytme, faste poster). Svar har genveje til den rigtige skærm. Indbygget vidensbase med 33 emner om privatøkonomi i Danmark (ÅOP, renter, gæld eller opsparing, kviklån, inkasso/RKI, realkredit, boligkøb, investering, aktiesparekonto, pension, skat, fradrag, årsopgørelse, SU, dagpenge, boligstøtte, forsikringer, svindel, fælles økonomi m.m.). Kører helt lokalt, gratis og offline; intet sendes ud. Dækket af enhedstests.
+- Rettet (vigtig): lønrytmen var låst til hver 14. dag. Nu kan du vælge Månedlig (standard), Hver 14. dag eller Ugentlig – i velkomstguiden og under Indstillinger → Løn og lønrytme. Rådighedsbeløb, beløb pr. dag, prognoser, "Hvad nu hvis?", advarsler og widgets bruger den valgte rytme. Månedlig løn holder dagen i måneden (fx d. 31 → sidste dag i korte måneder). Brugere med en tidligere løndato får en indsigt om at bekræfte rytmen. Dækket af nye enhedstests.
+- Kvalitet: koden er delt op i SaldoCore, SaldoCsv, SaldoCloud, SaldoSecurity, SaldoBackground, SaldoExport, SaldoComponents og SaldoFinance (MainActivity.kt gik fra ca. 5.450 til ca. 2.600 linjer). Ingen funktionelle ændringer.
+- Nyt: lommeregner i beløbsfeltet (fx 89,95+45) med +, −, ×, ÷-knapper og løbende resultat.
+- Nyt: "Opret en ny post bagefter" – gem og fortsæt direkte med næste post.
+- Nyt: søg i hele Saldo fra Overblik – poster, regninger, abonnementer, opsparingsmål og gæld.
+- Bedre tom skærm i Poster med "Ny post", "Importér" og "Nulstil filtre".
+- Tilgængelighed: bundmenuen annonceres korrekt af TalkBack (valgt fane, ingen dobbelt oplæsning), skjulte beløb læses som "Skjult beløb", operatorknapper har beskrivelser.
+- Kvalitet: beregningerne bag faste poster, gældfri-plan, budgetforslag, abonnementsradar, saldoprognose og lommeregner er flyttet til SaldoFinance.kt og dækket af 11 nye enhedstests.
+- Release-build bruger R8 (kode- og ressourceformindskelse), og byggeflowet bygger nu også release for at fange problemer tidligt.
+- Nyt: skjul beløb – øje-ikonet i toppen maskerer alle beløb på skærmen (••••). Eksport, PDF og notifikationer bruger stadig de rigtige tal.
+- Nyt: abonnementsradar på Abonnementer – finder betalinger med samme modtager og stabilt beløb i mindst 3 af de seneste 6 måneder, som ikke er registreret. Tilføj eller ignorér med ét tryk.
+- Nyt: forbrugskalender i Rapporter – hver dag farves efter forbrug; tryk for at se beløbet.
+- Nyt: saldo frem til næste løn på Prognoser – dag-for-dag graf ud fra saldo, ubetalte regninger og gennemsnitligt dagligt forbrug, med advarsel hvis saldoen kan gå i minus.
+- Nyt: månedsafslutning – de første 7 dage af en måned viser Overblik et kort med sidste måneds ind, ud, netto og største udgift.
+- Nyt: ugentlig opsummering hver mandag (ugens forbrug, indtægter og største kategori) – kan slås fra under Indstillinger.
+- Nyt: gældfri-plan på Gæld – vælg "højeste rente først" eller "mindste gæld først", tilføj ekstra afdrag og se gældfri-dato, samlede renter, besparelse og rækkefølge.
+- Nyt: kvitteringer på poster – vælg et billede, se det i fuld størrelse; gemmes kun på telefonen og ryddes op, når posten ikke længere findes.
+- Nyt: widget "Budgetstatus" med de tre budgetter, der er tættest på grænsen.
+- Nyt: filtrér Poster på kategori og sortér efter største beløb.
+- Rettet: kompileringsfejl i velkomstguiden (manglende import).
+- Nyt: foreslåede budgetter ud fra gennemsnitligt forbrug de seneste tre måneder (vælg til/fra før oprettelse).
+- Nyt: "Indbetal" på opsparingsmål – kan samtidig registreres som overførsel til opsparing.
+- Nyt: valgfri note på poster; noter vises i listen og indgår i søgningen.
+- Nyt: Kategorier under Mere – se alle kategorier med antal og forbrug, omdøb eller flet dem på tværs af poster, regninger og budgetter.
+- Version 4.4.0 (versionCode 33) med nyt byggeflow, så opdateringen kan udgives.
+- Nyt: velkomstguide i tre trin for nye brugere (løn, løndato, saldo og tema), så rådighedsbeløbet er rigtigt fra start.
+- Nyt: bladr mellem måneder på Poster, Budget og Rapporter. Søgning i Poster dækker alle måneder; budgettempo vises kun for den aktuelle måned.
+- Nyt: cirkeldiagram over forbrug fordelt på kategorier i Rapporter, og 6-måneders-trenden følger den valgte måned.
+- Nyt: tema kan følge telefonen (Lys / Mørk / System).
+- Nyt: "Del til Saldo" – del en CSV-eksport fra netbanken, Filer eller e-mail direkte til Saldo, så åbner importen med forslag til retning og kategori.
+- Nyt: genveje på startskærmen (hold på ikonet): "Ny post" og "Importér".
+- Nyt: bankformater genkendes bedre – kolonner vælges efter prioritet (fx Nordeas "Navn" frem for "Afsender"), tomme navne falder tilbage på beskrivelsen, "sep=;"-linjer og kontooplysninger over overskriften springes over, og importen viser hvilke kolonner der blev brugt. Dækket af nye enhedstests.
+- Nyt: faste poster – vælg Månedlig/Kvartalsvis/Årlig på en post, så oprettes den automatisk fremover. Ny skærm "Faste poster" under Mere med næste dato, netto pr. måned, Rediger og Stop.
+- Nyt: huskede butikker – når du skriver en beskrivelse, foreslås tidligere poster; ét tryk udfylder kategori, type, ejer og det sædvanlige beløb.
+- Gentagelse på regninger vælges nu med knapper i stedet for fritekst.
+- Enklere rådighedskort: ét forbrugsbjælke, rådighed pr. dag, næste løn og andel brugt – uden dobbeltvisning.
+- Nyt: kalendervælger på alle 9 datofelter (teksten kan stadig skrives); ugyldige datoer markeres, gyldige vises som fx "Lørdag 1. november".
+- Nyt: abonnementer, gæld og tankninger kan redigeres (aktiv-status bevares).
+- Nyt: Kalender er grupperet pr. måned med faste månedsoverskrifter og månedens total.
+- Rettet: saldo og løn gemmes nu præcist til øret (tidligere Float-afrunding ved store beløb). Den gamle værdi gemmes stadig, så ældre data og backups virker uændret.
+- Rettet: tal for gæld og tankning vises på dansk (komma, ikke punktum), tankninger viser læsbar dato, og abonnementsdatoer skrives på dansk.
+- Nyt: poster og regninger kan redigeres (blyant-ikon). Id, betalt-status og importoplysninger bevares.
+- Nyt: "Fortryd" efter sletning af poster, regninger, opsparingsmål m.m.
+- Nyt: appen låser automatisk, når den har været i baggrunden i mere end 60 sekunder (hvis PIN eller biometri er slået til).
+- Nyt: "Fjern app-lås" i Indstillinger (kræver nuværende PIN eller fingeraftryk). Biometri-kortet viser, om det er aktivt.
+- Rettet: man kunne blive låst ude, hvis kun biometrisk oplåsning var slået til, og fingeraftryk ikke længere virkede. Biometri kræver nu en PIN som reserve, låseskærmen viser kun PIN-feltet, når der findes en PIN, og fingeraftryk startes automatisk.
+- Skånsomt for øjnene: blødere mørkt tema med lysere navy, dæmpet champagneguld, lysegrå i stedet for kridhvid tekst, afdæmpet grøn/rød, næsten ingen glød. Logo og widgets følger samme bløde toner. Kontrast er stadig 6,8–13,8:1.
+- Rettelser efter test på telefon: rådighedskortets undertekst har sin egen linje, trendlinjen skjules uden historik og klippes ikke længere i kanten, ikonfelter/valgt fane/valgte chips er lysere navy i stedet for brunlige, Økonomitjek-overskrifter skæres ikke af, mere luft på Budget, ingen markør uden budget, og skyderne i "Hvad nu hvis?" er glatte uden prikker.
+- Budgettempo: hver budgetbjælke har en markør for, hvor langt måneden er, og viser en prognose for månedens forbrug, hvis tempoet er for højt.
+- Opsparingsmål vises med fremskridtsring, procent og hvor meget der skal spares pr. måned for at nå målet til måldatoen.
+- Ny indsigt på Overblik: forbrug sammenlignet med samme tidspunkt sidste måned.
+- Beløb vises som i en bankapp: altid to decimaler, og i store beløb er øre og "kr." sat mindre end kronebeløbet.
+- Poster vises med en rund forbogstavsavatar og et lille ind/ud-mærke i stedet for generiske pile.
+- Overblik har tappbare indsigter: forfaldne regninger, andel af indtægten brugt, regninger før løn og største udgiftskategori.
+- Bundmenuen bruger konturikoner, der bliver udfyldt ved valg; let haptisk feedback ved faneskift og når noget gemmes.
+- Ny farveprofil: navy og guld. Appen (mørkt og lyst tema), logo, launcher-/notifikationsikoner, widgets og butiksgrafik bruger samme navy-baggrund og guldgradient. Advarsler er nu orange, så de ikke forveksles med guldaccenten.
+- Roligere udtryk: mindre glød og blødere kanter.
+- Bedre læsbarhed: beløb vises med + / − ved siden af grøn/rød (farveblind-venligt), ingen tekst under 10 pt, og grøn/orange har nu tilstrækkelig kontrast i lyst tema.
+- Rettet: brændstofforbrug (l/100 km) talte literne fra den første tankning med og viste derfor for højt forbrug.
+- Rettet: widgets kunne crashe på startskærmen, hvis den krypterede lagring ikke kunne læses.
+- Optimeret: beløbsformatering genbruges i stedet for at blive oprettet ved hvert kald (også i animationer og widgets), masseimport af regninger gemmer én gang i stedet for op til 20 gange, og regningsgrupper/dubletsøgning caches.
+- Skrifttypen Inter (OFL-1.1, se INTER-FONT-LICENSE.txt) bruges i hele appen, med tabeltal i animerede beløb.
+- Primære knapper, plusknappen og den valgte fane i bundmenuen bruger logoets gradient; kontoknap i toppen åbner Indstillinger.
+- Rådighedskortet viser en animeret trendlinje for netto de seneste 6 måneder.
+- Nyt logo: minimalistisk, geometrisk S med guldgradient på dyb navy. Launcher-, adaptive-, monochrome-, notifikations- og butiksikoner samt feature graphic er gentegnet (kilde: store-assets/render-logo.js).
+- Ny struktur: personlig hilsen og 2×2-nøgletal på Overblik, poster grupperet pr. dag med faste datooverskrifter, regninger grupperet i Forfaldne/Kommende/Betalt, og Mere som et adaptivt gitter.
+- Layoutet centreres og begrænses i bredden på tablets og foldbare telefoner.
+- Nyt mørkt standardtema med dyb navy/sort baggrund, lilla gradienter, diskrete glødende kanter og afrundede kort.
+- Animerede budgetbjælker, glidende beløb, nyt søjlediagram i Rapporter og kategoribjælker i stedet for tekstlister.
+- Flydende bundnavigation med animeret markering, tilbageknap på undersider og Android-tilbage-tast til Mere/Overblik.
+- Hurtige skærmovergange, trykanimationer på kort og knapper, animerede listeændringer og en kort succesanimation ved gemning.
+- Logo, ikoner og brandingfiler er uændrede. Dataformat, Supabase-login, synkronisering, PIN, biometri, PDF, backup og notifikationer er bevaret.
 
-## 3.1.0
-- Tilføjet import af regningsoplysninger fra skærmbilleder med tekstgenkendelse.
-- Bruger skal kontrollere og bekræfte de aflæste oplysninger før lagring.
-- Appnavn ændret til Partners Budget.
+## 4.3.5 — Smartere import, ydeevne og UX
+- CSV-kategorisering tager højde for detaljeret tekst, brugerens eksisterende kategorier, kendte transaktioner, beløbsnærhed og tidligere rettelser.
+- Usikre retninger/kategorier markeres til review; type og kategori kan ændres i importens forhåndsvisning.
+- CSV-dubletkontrol er ændret til set-baserede fingerprints, og kategoriændringer alene skaber ikke dublettransaktioner.
+- CSV læses/analyseres på IO-dispatcheren, og preview bruger `LazyColumn`.
+- Cache af månedsindeks og kategori-/ejer-summer samt debounced widgetopdatering reducerer gentaget arbejde.
+- Indstillinger er sektioneret, og eksisterende lette animationer bevares.
+- Launcher-ikonet har forbedret indre margen; overskriftstekster er strammet op.
+- Version: `4.3.5`, versionCode `32`.
+
+## 4.3.4 og tidligere
+Se historikken i `RELEASE_NOTES_4.3.4.md`, `RELEASE_NOTES_4.3.3.md` og tidligere test-/auditfiler.

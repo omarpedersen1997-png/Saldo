@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sønderborg Borger</string>
+    <string name="channel_news">Nye nyheder</string>
+    <string name="channel_news_desc">Besked når der er nye nyheder fra dine kilder</string>
+</resources>

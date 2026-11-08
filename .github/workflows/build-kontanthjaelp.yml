@@ -32,7 +32,13 @@ jobs:
       - name: Byg APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          # Prøv igen ved midlertidige netværksfejl (fx 504 ved hentning af Gradle).
+          for i in 1 2 3 4; do
+            ./gradlew assembleDebug --no-daemon && exit 0
+            echo "Forsøg $i fejlede, prøver igen om $((i * 15)) sekunder ..."
+            sleep $((i * 15))
+          done
+          exit 1
 
       - name: Gem APK-filen
         uses: actions/upload-artifact@v4

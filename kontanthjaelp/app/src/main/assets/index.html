@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#0b2f55">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Kontanthjælp – Idle-sagen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6fb; --card:#fff; --ink:#0f1e33; --muted:#64748b; --line:#e3e9f2;
+  --navy:#0b2a52; --blue:#2563eb; --blue2:#1d4ed8; --bluel:#eaf1ff;
+  --green:#15803d; --greenl:#e7f6ec; --red:#dc2626; --redl:#fdecec; --amber:#b45309; --amberl:#fff4e2;
+  --sh:0 1px 2px rgba(15,30,51,.05),0 6px 20px rgba(15,30,51,.06); --r:16px;
+  --sans:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* Top */
+.top{position:sticky;top:0;z-index:20}
+.bar{background:rgba(11,42,82,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;padding:10px 14px;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.crest{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#60a5fa,#2563eb);color:#fff;display:grid;place-items:center;font-weight:800;font-size:16px;flex:none;box-shadow:0 4px 12px rgba(37,99,235,.45)}
+.brand b{display:block;font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.brand small{display:block;font-size:11.5px;color:#a9bddb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mailbtn{position:relative;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;
+  padding:8px 12px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;flex:none}
+#mailbtn .ic{font-size:15px;line-height:1}
+#mailbtn.urgent{background:var(--red);border-color:var(--red);animation:pulse 1s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(220,38,38,.3)}}
+.badge{min-width:20px;height:20px;border-radius:10px;background:#fff;color:var(--navy);font-size:11.5px;font-weight:700;display:none;align-items:center;justify-content:center;padding:0 6px}
+.badge.on{display:inline-flex}
+#mailbtn.urgent .badge{color:var(--red)}
+
+.status{padding:10px 12px 0;background:linear-gradient(var(--navy) 0 50%,transparent 50%)}
+.inner{max-width:560px;margin:0 auto;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 70%,#3b82f6 100%);color:#fff;border-radius:20px;padding:14px 16px 12px;
+  box-shadow:0 12px 30px -10px rgba(37,99,235,.55)}
+.balrow{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.lbl{font-size:11px;color:#c7d7f5;font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+.bal{font-weight:800;font-size:clamp(28px,8.5vw,36px);letter-spacing:-.03em;line-height:1.1}
+.bal small{font-size:.45em;font-weight:600;margin-left:5px;color:#c7d7f5}
+.rate{font-size:12.5px;color:#fff;font-weight:600;background:rgba(255,255,255,.16);padding:5px 10px;border-radius:999px;white-space:nowrap}
+.rate.boost{background:#fbbf24;color:#422006}
+.payout{margin-top:10px;font-size:12.5px}
+.payout .row{display:flex;justify-content:space-between;gap:8px}
+.payout .row span:first-child{color:#c7d7f5}
+.payout .amt{font-weight:700}
+.payout .amt.zero{color:#86efac}
+.pbar{height:6px;background:rgba(255,255,255,.18);margin-top:6px;border-radius:99px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:#fff;border-radius:99px}
+.payout .sub{color:#c7d7f5;margin-top:6px;font-size:11.5px;min-height:15px;line-height:1.4}
+
+.wrap{max-width:560px;margin:0 auto;padding:14px 14px 80px}
+.rankline{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.rankline b{color:var(--ink)}
+
+/* Hovedknap */
+#stamp{width:100%;margin-top:14px;border:0;border-radius:20px;cursor:pointer;color:#fff;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);padding:24px 14px 20px;display:flex;flex-direction:column;align-items:center;gap:9px;
+  touch-action:manipulation;user-select:none;box-shadow:0 10px 24px -8px rgba(37,99,235,.6);transition:transform .07s,box-shadow .07s}
+#stamp .t1{font-size:19px;font-weight:700;letter-spacing:-.01em}
+#stamp .t2{font-size:12.5px;font-weight:600;background:rgba(255,255,255,.18);padding:4px 11px;border-radius:999px}
+#stamp:active,#stamp.thunk{transform:scale(.975);box-shadow:0 4px 12px -6px rgba(37,99,235,.6)}
+.clickinfo{font-size:12.5px;color:var(--muted);margin-top:10px;text-align:center}
+.float{position:fixed;pointer-events:none;z-index:50;font-weight:800;color:var(--blue);font-size:16px;animation:fl .9s ease-out forwards;text-shadow:0 0 8px #fff}
+@keyframes fl{from{opacity:1;transform:translate(-50%,-50%)}to{opacity:0;transform:translate(-50%,-150%)}}
+#blanket{position:fixed;z-index:40;font-size:32px;cursor:pointer;display:none;width:60px;height:60px;border-radius:18px;border:0;
+  background:#fff;box-shadow:0 0 0 2px #fbbf24,0 10px 26px rgba(0,0,0,.18);animation:wob 1.2s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg) scale(1.08)}}
+
+/* Faner */
+nav{display:flex;margin-top:18px;background:#e7edf6;border-radius:14px;padding:4px;gap:4px}
+nav button{flex:1;border:0;background:none;padding:9px 2px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-radius:10px;white-space:nowrap}
+nav button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,30,51,.12)}
+nav .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue);margin-left:5px;vertical-align:2px;visibility:hidden}
+nav .dot.on{visibility:visible}
+.panel{display:none;padding-top:12px}
+.panel.on{display:block}
+.buyamt{display:flex;gap:6px;justify-content:flex-end;margin-bottom:10px;font-size:12.5px;align-items:center;color:var(--muted)}
+.buyamt button{border:1px solid var(--line);background:#fff;padding:5px 12px;font-size:12.5px;cursor:pointer;border-radius:999px;font-weight:600}
+.buyamt button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+#genlist,#uplist{display:flex;flex-direction:column;gap:10px}
+.item{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px;background:var(--card);
+  border-radius:var(--r);box-shadow:var(--sh);cursor:pointer;user-select:none;transition:transform .08s}
+.item .em{font-size:22px;width:44px;height:44px;display:grid;place-items:center;border-radius:12px;background:var(--bluel)}
+.item h4{margin:0;font-size:14.5px;font-weight:700;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;letter-spacing:-.01em}
+.item h4 .own{font-size:11.5px;color:var(--blue);font-weight:700;background:var(--bluel);padding:1px 7px;border-radius:999px}
+.item h4 .own:empty{display:none}
+.item p{margin:3px 0 0;font-size:12.5px;color:var(--muted);line-height:1.4}
+.item .meta{font-size:11.5px;color:var(--green);margin-top:4px;font-weight:600}
+.item .cost{font-weight:700;font-size:13px;text-align:center;white-space:nowrap;background:var(--blue);color:#fff;padding:8px 11px;border-radius:12px}
+.item .cost small{display:block;font-weight:500;font-size:10.5px;opacity:.8}
+.item.no .cost{background:#eef2f7;color:var(--muted)}
+.item.no{opacity:.7}
+.item.locked{opacity:.45;cursor:default}
+.item:not(.no):not(.locked):active{transform:scale(.985)}
+.empty{font-size:13px;color:var(--muted);padding:18px 8px;text-align:center;background:var(--card);border-radius:var(--r);box-shadow:var(--sh)}
+.bought{font-size:12px;color:var(--muted);padding:10px 4px 0;text-align:center}
+.box{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:16px}
+.box h3{margin:0 0 8px;font-size:17px;letter-spacing:-.01em}
+.box p{font-size:14px;line-height:1.55;margin:0 0 12px}
+.bignum{font-weight:800;font-size:26px;color:var(--blue)}
+.btn{border:0;background:var(--blue);color:#fff;font-weight:600;padding:11px 18px;font-size:14px;cursor:pointer;border-radius:12px}
+.btn.ghost{background:#eef2f7;color:var(--ink)}
+.btn.red{background:var(--red)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.stats{font-size:13.5px;width:100%;border-collapse:collapse}
+.stats td{padding:9px 2px;border-bottom:1px solid var(--line);color:var(--muted)}
+.stats td:last-child{text-align:right;font-weight:600;color:var(--ink)}
+footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:22px;line-height:1.5}
+
+/* Digital Post */
+#inbox{position:fixed;inset:0;z-index:60;background:var(--bg);display:none;flex-direction:column}
+#inbox.on{display:flex}
+.ibar{background:var(--navy);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.ibar button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer}
+.ibar h2{margin:0;font-size:16px;flex:1;font-weight:700}
+.itabs{display:flex;gap:4px;margin:10px 12px 0;background:#e7edf6;border-radius:12px;padding:4px}
+.itabs button{flex:1;border:0;background:none;padding:8px 4px;border-radius:9px;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer}
+.itabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(15,30,51,.12)}
+.itabs .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--blue);color:#fff;font-size:11px;line-height:18px}
+.itabs .n:empty{display:none}
+.iscroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px}
+.mlist{margin:10px 12px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.mrow{display:grid;grid-template-columns:10px 1fr auto;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer;align-items:start}
+.mrow:last-child{border-bottom:0}
+.mrow .ud{width:8px;height:8px;border-radius:50%;background:transparent;margin-top:6px}
+.mrow.unread .ud{background:var(--blue)}
+.mrow .from{font-size:12px;color:var(--muted)}
+.mrow .subj{font-size:14.5px;margin-top:2px}
+.mrow.unread .subj{font-weight:700}
+.mrow .dt{font-size:11.5px;color:var(--muted);text-align:right;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;margin-top:6px}
+.tag.frist{background:var(--redl);color:var(--red)}
+.tag.ok{background:var(--greenl);color:var(--green)}
+.tag.bad{background:#eef2f7;color:var(--muted)}
+.tag.afg{background:var(--amberl);color:var(--amber)}
+.letter{background:var(--card);margin:12px;border-radius:var(--r);box-shadow:var(--sh);padding:18px}
+.letter .meta{font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.letter h3{font-size:18px;margin:12px 0 10px;letter-spacing:-.01em}
+.letter p{font-size:14px;line-height:1.6;margin:0 0 11px}
+.letter table{width:100%;border-collapse:collapse;font-size:13.5px;margin:4px 0 12px}
+.letter td{padding:7px 0;border-bottom:1px solid var(--line)}
+.letter td:last-child{text-align:right;font-weight:600}
+.letter tr.sum td{border-top:2px solid var(--ink);border-bottom:0;font-weight:700}
+.act{background:var(--bluel);border-radius:12px;padding:12px;margin:6px 0 12px}
+.act .fr{font-size:12.5px;font-weight:700;color:var(--red);margin-bottom:8px}
+.act .opts{display:flex;flex-direction:column;gap:8px}
+.act .opts .btn{text-align:left;background:#fff;color:var(--ink);box-shadow:0 0 0 1.5px var(--blue) inset}
+.act .res{font-size:13.5px;line-height:1.5}
+.act.done{background:#f3f6fb}
+.fine{font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:6px;line-height:1.5}
+.empty-in{padding:40px 20px;text-align:center;color:var(--muted)}
+
+/* Ark */
+.ov{position:fixed;inset:0;z-index:80;background:rgba(11,42,82,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center}
+.ov.on{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;border-radius:22px 22px 0 0;overflow:hidden;animation:up .25s ease-out;box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.shead{background:var(--navy);color:#fff;padding:14px 16px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.shead .pill{background:var(--red);font-size:11px;padding:3px 8px;border-radius:999px}
+.sbody{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+.sbody .letter{margin:12px}
+.sfoot{padding:12px 14px 16px;display:flex;gap:8px;justify-content:flex-end;background:var(--card);border-top:1px solid var(--line)}
+.search{margin:12px;width:calc(100% - 24px);padding:12px 14px;border:1px solid var(--line);border-radius:12px;font:inherit;font-size:15px;background:#fff}
+#plist{margin:0 12px 12px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.krow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;background:var(--card);border-bottom:1px solid var(--line);cursor:pointer}
+.krow:active{background:var(--bluel)}
+.krow b{font-weight:600}
+.krow small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.lvl{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.lvl.l0{background:var(--redl);color:var(--red)}.lvl.l1{background:var(--amberl);color:var(--amber)}
+.lvl.l2{background:var(--bluel);color:var(--blue)}.lvl.l3{background:var(--greenl);color:var(--green)}
+.grp{padding:14px 16px 6px;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.opt{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;margin:0 12px 8px;background:var(--card);border-radius:14px;box-shadow:var(--sh);cursor:pointer;border:2px solid transparent}
+.opt.on{border-color:var(--blue);background:#f5f8ff}
+.opt b{font-weight:600}.opt small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.opt .v{font-weight:700;white-space:nowrap;font-size:13px}
+.chips{display:flex;gap:8px;padding:2px 12px 10px}
+.chips button{flex:1;border:2px solid transparent;background:#fff;padding:10px 0;border-radius:12px;font-weight:700;cursor:pointer;box-shadow:var(--sh)}
+.chips button.on{border-color:var(--blue);color:var(--blue)}
+.sumbox{margin:10px 12px 14px;background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:12px 14px;font-size:13px}
+.sumbox table{width:100%;border-collapse:collapse}.sumbox td{padding:4px 0}.sumbox td:last-child{text-align:right;font-weight:600}
+.sumbox tr.sum td{border-top:2px solid var(--ink);font-weight:700;padding-top:6px}
+.src{font-size:11.5px;color:var(--muted);padding:0 16px 16px;line-height:1.5}
+.pintro{padding:14px 16px 0;font-size:13.5px;line-height:1.5;color:var(--muted)}
+/* Finpudsning */
+.sec{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:18px 4px 8px}
+.sec:first-child{margin-top:0}
+.tgl{display:flex;justify-content:space-between;align-items:center;padding:12px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.tgl:last-child{border-bottom:0}
+.sw{width:46px;height:28px;border-radius:99px;background:#cbd5e1;border:0;position:relative;cursor:pointer;transition:background .2s;flex:none}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.sw.on{background:var(--blue)}.sw.on::after{transform:translateX(18px)}
+.ach{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.badge2{background:var(--card);border-radius:14px;box-shadow:var(--sh);padding:12px;display:flex;gap:10px;align-items:center}
+.badge2 .i{font-size:22px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--bluel);flex:none}
+.badge2 b{display:block;font-size:13px;line-height:1.25}.badge2 small{display:block;font-size:11px;color:var(--muted);line-height:1.3;margin-top:2px}
+.badge2.lock{opacity:.45}.badge2.lock .i{filter:grayscale(1)}
+#achip{position:fixed;left:50%;top:76px;transform:translate(-50%,-20px);opacity:0;z-index:85;pointer-events:none;background:var(--ink);color:#fff;
+  padding:9px 14px;border-radius:999px;font-size:13px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:all .35s cubic-bezier(.2,1.4,.4,1);white-space:nowrap}
+#achip.on{transform:translate(-50%,0);opacity:1}
+.intro{padding:22px 20px 8px;text-align:center}
+.intro .big{font-size:52px;line-height:1;margin-bottom:12px}
+.intro h2{margin:0 0 10px;font-size:21px;letter-spacing:-.02em}
+.intro p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:#334155;text-align:left}
+.dots{display:flex;gap:6px;justify-content:center;padding:6px 0 14px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#cbd5e1}.dots i.on{background:var(--blue);width:20px;border-radius:99px}
+.item.buy{animation:buy .35s}
+@keyframes buy{40%{transform:scale(1.02);box-shadow:0 0 0 3px rgba(37,99,235,.35),var(--sh)}}
+.pbar.late i{background:#fbbf24}
+#bigstamp{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:90;background:rgba(243,246,251,.7);backdrop-filter:blur(3px);pointer-events:none}
+#bigstamp span{font-weight:800;font-size:clamp(24px,8vw,42px);color:#fff;padding:14px 24px;border-radius:20px;
+  background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 20px 50px rgba(22,163,74,.4);animation:slam .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes slam{from{transform:scale(1.8);opacity:0}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="bar">
+    <div class="brand"><div class="crest">J</div><div><b id="jcname">Jobcentret</b><small>Min side · Sagsnr. <span id="caseno">—</span></small></div></div>
+    <button id="mailbtn" aria-label="Digital Post"><span class="ic">✉</span><span id="mailtxt">Digital Post</span><span class="badge" id="badge"></span></button>
+  </div>
+  <div class="status"><div class="inner">
+    <div class="balrow">
+      <div><div class="lbl">Saldo på din konto</div><div class="bal num"><span id="money">0</span><small>kr.</small></div></div>
+      <div class="rate num" id="rate">0 kr./sek</div>
+    </div>
+    <div class="payout">
+      <div class="row"><span id="paylabel">Næste udbetaling</span><span class="amt num" id="payamt">–</span></div>
+      <div class="pbar"><i id="paybar"></i></div>
+      <div class="sub" id="paysub"></div>
+    </div>
+  </div></div>
+</div>
+
+<main class="wrap">
+  <div class="rankline"><span>Status: <b id="rank">Ny i systemet</b></span><span id="datetxt"></span></div><div class="rankline" style="margin-top:2px"><span id="surv"></span><span id="cwtxt"></span></div>
+  <button id="stamp" aria-label="Registrér jobsøgning">
+    <span class="t1">📝 Registrér jobsøgning</span>
+    <span class="t2 num" id="clickval">+5 kr.</span>
+  </button>
+  <div class="clickinfo" id="clickinfo"></div>
+
+  <nav>
+    <button data-tab="gens" class="on">Indtægter</button>
+    <button data-tab="ups">Opgraderinger<span class="dot" id="updot"></span></button>
+    <button data-tab="xp">Fast job<span class="dot" id="xpdot"></span></button>
+    <button data-tab="stats">Min sag</button>
+  </nav>
+  <div class="panel on" id="p-gens">
+    <div class="buyamt">Køb: <button data-n="1" class="on">×1</button><button data-n="10">×10</button><button data-n="max">Max</button></div>
+    <div id="genlist"></div>
+  </div>
+  <div class="panel" id="p-ups"><div id="uplist"></div><div class="bought" id="upbought"></div></div>
+  <div class="panel" id="p-xp"></div>
+  <div class="panel" id="p-stats"></div>
+  <footer>Satser og regler for kontanthjælp er 2026-niveau fra borger.dk. Spillet forenkler reglerne.<br>Spillet gemmes automatisk på din enhed.<br>Al lighed med virkelige jobcentre er tilfældig. Det er et spil.</footer>
+</main>
+
+<button id="blanket" aria-label="Blanket">📄</button>
+
+<div id="inbox">
+  <div class="ibar"><button id="iback">← Tilbage</button><h2 id="ititle">Digital Post</h2><button id="iread">Markér læst</button></div>
+  <div class="iscroll" id="iscroll"></div>
+</div>
+<div class="ov" id="modal"><div class="sheet"><div class="shead"><span>✉ Digital Post</span><span class="pill">Vigtig</span></div>
+  <div class="sbody" id="mbody"></div><div class="sfoot" id="mfoot"></div></div></div>
+<div class="ov" id="picker"><div class="sheet" style="height:92vh"><div class="shead" id="ptitle">Vælg din kommune</div>
+  <div class="pintro" id="pintro"></div><input class="search" id="psearch" placeholder="Søg kommune …" autocomplete="off">
+  <div class="sbody" id="plist"></div><div class="sfoot" id="pfoot"></div></div></div>
+<div class="ov" id="profile"><div class="sheet" style="height:92vh"><div class="shead" id="prtitle">Din situation</div>
+  <div class="sbody" id="prbody"></div><div class="sfoot" id="prfoot"></div></div></div>
+<div class="ov" id="over"><div class="sheet"><div class="shead">Sagen er lukket</div>
+  <div class="sbody" id="ovbody"></div><div class="sfoot"><button class="btn" id="ovnew">Søg om hjælp igen</button></div></div></div>
+<div class="ov" id="introov"><div class="sheet"><div class="sbody" id="introbody"></div><div class="sfoot" id="introfoot"></div></div></div>
+<div id="achip"></div>
+<div id="bigstamp"><span id="bigstamptxt">SELVFORSØRGENDE</span></div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const SAVE='kontanthjaelp-idle-v2';
+const MONTH=60, FLYT=8000, STREAK=12, GROW=1.17;
+const jobkrav=()=>S.jobkrav||10;
+const KOM={
+ 0:'København,Frederiksberg,Gentofte,Lyngby-Taarbæk,Rudersdal,Hørsholm,Dragør,Tårnby,Gladsaxe,Furesø,Allerød',
+ 1:'Aarhus,Aalborg,Odense,Roskilde,Albertslund,Ballerup,Brøndby,Egedal,Fredensborg,Frederikssund,Glostrup,Gribskov,Halsnæs,Helsingør,Herlev,Hillerød,Hvidovre,Høje-Taastrup,Ishøj,Rødovre,Vallensbæk,Greve,Solrød,Køge,Lejre,Skanderborg,Vejle,Kolding,Horsens,Silkeborg,Odder,Favrskov',
+ 2:'Faxe,Holbæk,Kalundborg,Næstved,Odsherred,Ringsted,Slagelse,Sorø,Stevns,Vordingborg,Assens,Billund,Esbjerg,Fredericia,Faaborg-Midtfyn,Haderslev,Kerteminde,Middelfart,Nordfyns,Nyborg,Svendborg,Sønderborg,Varde,Vejen,Aabenraa,Hedensted,Herning,Holstebro,Ikast-Brande,Norddjurs,Randers,Ringkøbing-Skjern,Skive,Struer,Syddjurs,Viborg,Brønderslev,Frederikshavn,Hjørring,Jammerbugt,Mariagerfjord,Rebild,Thisted',
+ 3:'Bornholm,Lolland,Guldborgsund,Langeland,Ærø,Læsø,Samsø,Fanø,Morsø,Lemvig,Tønder,Vesthimmerlands'};
+const TIERS=[{rent:11000,lvl:'Meget svær'},{rent:10000,lvl:'Svær'},{rent:9000,lvl:'Normal'},{rent:7500,lvl:'Lettere'}];
+const KOMMUNER=[];for(const t in KOM)KOM[t].split(',').forEach(n=>KOMMUNER.push({n,t:+t}));
+KOMMUNER.sort((a,b)=>a.n.localeCompare(b.n,'da'));
+const komTier=n=>{const k=KOMMUNER.find(x=>x.n===n);return k?k.t:2};
+function udg(){const pr=S.prof||{sats:'forh',enlig:true,born:0};
+  const base=pr.sats==='hjem'?2500:TIERS[komTier(S.kommune)].rent*(pr.enlig?1:0.6);
+  return Math.round((base+pr.born*BORNUDG)/100)*100;}
+const jcName=()=>'Jobcenter '+(S.kommune||'');
+/* Kontanthjælp 2026 (borger.dk / Beskæftigelsesministeriets satsvejledning) */
+const SATS={
+ forh:{n:'Forhøjet sats',d:'30 år eller ældre',v:13060,fri:2700,loft:22041},
+ grund:{n:'Grundsats',d:'Under 30 år',v:7529,fri:5400,loft:18735},
+ hjem:{n:'Hjemmeboende',d:'Under 30 år og bor hos dine forældre',v:3057,fri:0,loft:18735},
+ mindst:{n:'Mindstesats',d:'Opfylder ikke opholds- og beskæftigelseskravet',v:7095,fri:5400,loft:18735}};
+const BORNTIL=2909, ENLIG_U=1141, ENLIG_M=1712, FORMUE=16200, MODPCT=0.65, BORNUDG=1500;
+/* Jobcentret finder altid en grund */
+const UNDSK=[
+ ['Efterregulering af indtægt','Ved samkøring med indkomstregistret er der konstateret en forskel mellem din oplyste og din indberettede indtægt.'],
+ ['Manglende lønsedler','Jobcentret har ikke modtaget lønsedler for den forrige periode. Indtægten er derfor fastsat skønsmæssigt.'],
+ ['Feriepenge','Der er indberettet feriepenge, som skal modregnes i den periode, de vedrører.'],
+ ['Rådighed under arbejde','I de timer, du har arbejdet, har du ikke stået til rådighed for Jobcentrets tilbud.'],
+ ['Fejludbetaling','Der er sket en fejl i udbetalingssystemet. Det for meget udbetalte beløb kræves tilbagebetalt. Fejlen skyldes ikke dig, men beløbet skal tilbagebetales.'],
+ ['Afrundingsdifference','Ved genberegning af din ydelse er der opstået en afrundingsdifference.'],
+ ['Hobbyvirksomhed','Din indtægt fra pantflasker og loppemarked betragtes som selvstændig virksomhed. Der foreligger ikke et godkendt regnskab.'],
+ ['Formueopgørelse','Ved opgørelse af din formue er værdien af dit indbo vurderet højere end tidligere oplyst.'],
+ ['Genberegning','Som følge af ændrede regler er din ydelse genberegnet med tilbagevirkende kraft.'],
+ ['Samkøring af registre','Ved samkøring af registre er der fundet oplysninger, som ikke stemmer overens. Af hensyn til kontrolarbejdet kan det ikke oplyses hvilke.'],
+ ['For sent indberettet','Din ændring af indtægt er modtaget efter fristen. Ydelsen er derfor udbetalt med et for højt beløb.'],
+ ['Befordringsgodtgørelse','Befordringsgodtgørelse udbetalt i forbindelse med samtaler betragtes som en indtægt.']];
+const BREAK=[
+ 'Ved efterkontrol er det konstateret, at din indtægt i en af månederne var 14 kr. under grænsen. Perioden er derfor afbrudt.',
+ 'Din arbejdsgiver har indberettet lønnen for en af månederne i den forkerte periode. Perioden kan derfor ikke medregnes.',
+ 'Din sag er overgået til en ny sagsbehandler, som ikke har adgang til dokumentationen for de tidligere måneder. Perioden skal derfor påbegyndes forfra.',
+ 'Det er konstateret, at du i en af månederne ikke har registreret tilstrækkelig jobsøgning, selvom du var i arbejde.',
+ 'Din indtægt anses ikke for stabil, da den stammer fra flere forskellige kilder.',
+ 'Ved en fornyet vurdering af din sag er det konstateret, at perioden skal opgøres på en anden måde. Den nye opgørelse betyder, at perioden er afbrudt.',
+ 'Du har i perioden modtaget befordringsgodtgørelse fra Jobcentret. Du har dermed ikke været uden offentlig forsørgelse.'];
+const SURV=[[0,'Ny i systemet'],[3,'Kender ventemusikken'],[6,'Har et fast sæde i venteværelset'],[12,'Kan klagevejledningen udenad'],
+ [24,'Sagsbehandlerne hilser på dig'],[36,'Har overlevet tre reformer'],[60,'Systemets ældste sag'],[100,'Del af inventaret']];
+const MON=['januar','februar','marts','april','maj','juni','juli','august','september','oktober','november','december'];
+
+const GENS=[
+ {e:'🍾',n:'Pantflasker',d:'Du samler flasker i parken. Hver tredje er en Faxe Kondi.',c:150,r:2,u:['Indkøbsvogn','Fast rute forbi festivalpladsen']},
+ {e:'🧺',n:'Loppemarkedsbod',d:'Sælger dine gamle DVD’er. Ingen vil have dem. Alligevel.',c:1650,r:12,u:['Fast stadeplads','“Vintage” på alle skilte']},
+ {e:'🗞️',n:'Avisrute',d:'Omdeler reklamer kl. 05.30 til folk med “Nej tak”-skilt.',c:18000,r:60,u:['Elcykel','Ruten uden trapper']},
+ {e:'🐕',n:'Hundeluftning',d:'Otte hunde, én snor, nul kontrol.',c:195000,r:350,u:['Hundeposer i bulk','Instagram-profil for hundene']},
+ {e:'📚',n:'Lektiehjælp',d:'Forklarer brøker til 7.-klasser. Lærer det selv undervejs.',c:2.1e6,r:2000,u:['Facitlisten','Venteliste af nervøse forældre']},
+ {e:'💻',n:'Freelance-gigs',d:'Laver hjemmesider for frisører, der hedder noget med “Hår”.',c:3e7,r:12000,u:['Ny bærbar','Kunder der betaler til tiden']},
+ {e:'🚚',n:'Foodtruck',d:'Pølser med trøffelmayo. 85 kr. stykket. Der er kø.',c:4.95e8,r:80000,u:['Plads på festivalen','Viral anmeldelse']},
+ {e:'🏢',n:'Eget ApS',d:'Du har nu en revisor. Og en kaffemaskine med app.',c:7.65e9,r:5e5,u:['Revisor med humor','Grøn omstillingspulje']},
+ {e:'📈',n:'Børsnoteret A/S',d:'Jobcentret ringer nu til DIG for at få praktikanter.',c:1.125e11,r:3.5e6,u:['Aktietilbagekøb','Kapitalmarkedsdag med sushi']},
+];
+const MILES=[25,50,100,200];
+const UPS=[
+ {id:'cv',n:'Nyt CV',d:'Skiftet fra Comic Sans til noget, en voksen ville bruge. Tryk ×2.',c:500,t:'click',v:2,req:s=>s.clicks>=15},
+ {id:'foto',n:'Professionelt profilbillede',d:'Ikke det fra julefrokosten. Tryk ×2.',c:6000,t:'click',v:2,req:s=>s.clicks>=60},
+ {id:'bisid',n:'Bisidder til samtaler',d:'Din moster går med. Befordringsgodtgørelse ×3.',c:20000,t:'samtale',v:3,req:s=>s.samtaler>=1},
+ {id:'li',n:'LinkedIn: “Open to work”',d:'Grøn ring om hovedet. Tryk giver +2 % af din kr./sek.',c:60000,t:'clickpct',v:.02,req:s=>s.clicks>=150},
+ {id:'klub',n:'Jobklub hver tirsdag',d:'Gratis kaffe og kringle. Tryk ×3.',c:6e5,t:'click',v:3,req:s=>s.clicks>=300},
+ {id:'morgen',n:'God morgenrutine',d:'Du står op før 9. Alle indtægter ×1,5.',c:2.5e6,t:'all',v:1.5,req:(s,r)=>r>=500},
+ {id:'kursus',n:'Kursus: Sådan går man på kursus',d:'Meta, men det virker. Tryk +5 % af kr./sek.',c:3e7,t:'clickpct',v:.05,req:s=>s.clicks>=600},
+ {id:'mentor',n:'Mentor fra virksomhedspraktik',d:'Han siger “synergi” meget. Alle indtægter ×2.',c:5e8,t:'all',v:2,req:(s,r)=>r>=2e4},
+ {id:'netv',n:'Netværk i kantinen',d:'Du ved, hvem der bestemmer over kagen. Tryk ×5.',c:2e9,t:'click',v:5,req:s=>s.clicks>=1000},
+ {id:'kaffe',n:'Kaffe der faktisk virker',d:'Alle indtægter ×2.',c:1.5e11,t:'all',v:2,req:(s,r)=>r>=1e6},
+];
+GENS.forEach((g,i)=>{
+  UPS.push({id:'g'+i+'a',n:g.u[0],d:g.n+' ×2.',c:g.c*12,t:'gen',g:i,v:2,req:s=>s.g[i]>=10});
+  UPS.push({id:'g'+i+'b',n:g.u[1],d:g.n+' ×3.',c:g.c*220,t:'gen',g:i,v:3,req:s=>s.g[i]>=40});
+});
+const UPMAP=Object.fromEntries(UPS.map(u=>[u.id,u]));
+const RANKS=[[0,'Ny ansøger'],[1e4,'Flaskesamler'],[1e5,'Lokal hustler'],[1e6,'Bijob-mester'],[1e7,'Selvstændig'],
+ [1e8,'Iværksætter'],[1e9,'Direktør'],[1e10,'Erhvervsprofil'],[1e11,'Børs-darling'],[1e12,'Kan købe Jobcentret']];
+
+/* ---------- Brevskabeloner ---------- */
+const KLAGE='Klagevejledning: Du kan klage over afgørelsen inden 4 uger. Klagen sendes til kommunen, som genvurderer sagen. Fastholder kommunen afgørelsen, sendes klagen videre til Ankestyrelsen. En klage har ikke opsættende virkning.';
+const NOREPLY='Denne meddelelse kan ikke besvares. Har du spørgsmål, kan du kontakte Jobcentret i telefontiden tirsdag og torsdag kl. 10.00–11.00.';
+const CASEWORKERS=['Birgitte','Henrik','Mette','Lars','Sanne','Jesper','Pia','Thomas','Lone','Kasper'];
+const EMPLOYERS=['Kontor Kontor ApS','Lager & Logistik Nord A/S','Synergi Solutions ApS','Byens Bageri','Rengøringsservice Plus','Fremtidens Lager A/S','Callcenter Danmark ApS'];
+const AFSLAG=[
+ 'Tak for din ansøgning. Vi har modtaget mange kvalificerede ansøgninger, og vi har valgt at gå videre med andre kandidater. Vi ønsker dig held og lykke med jobsøgningen.',
+ 'Tak for din interesse. Stillingen er besat internt. Vi gemmer din ansøgning i 6 måneder, men forventer ikke at vende tilbage.',
+ 'Vi har desværre valgt en kandidat med 5 års erfaring til vores trainee-stilling. Tak for din ansøgning.',
+ 'Din ansøgning er modtaget. Den vil blive læst. Dette er en automatisk besked.',
+ 'Tak for din ansøgning. Vi søger en profil, der i højere grad matcher vores behov. Hvilket behov, kan vi desværre ikke uddybe.'];
+const SETBACKS=[
+ {f:'Elselskabet',s:'Efterregning for perioden',b:'Ved årsopgørelsen er der konstateret et merforbrug. Efterregningen trækkes automatisk.'},
+ {f:'Tandklinikken',s:'Faktura',b:'Faktura for behandling. Beløbet forfalder straks.'},
+ {f:'Viceværten',s:'Vaskemaskinen',b:'Din vaskemaskine har lækket ned til underboen. Udgiften til udbedring påhviler dig.'},
+ {f:'Cykelsmeden',s:'Kvittering',b:'Ny slange, nyt dæk og ny kæde. Vi tog også bremserne, de var helt væk.'},
+ {f:'Børnehaven',s:'Påmindelse',b:'Husk at give tøj til udflugten og 14 gaver til fødselsdagen på fredag.'},
+ {f:'Telefonbutikken',s:'Kvittering',b:'Ny telefon. Den gamle ligger stadig i toilettet.'},
+ {f:'Optikeren',s:'Kvittering',b:'Nye briller. De gamle kunne ikke limes igen.'}];
+const VALG=[
+ {s:'Partshøring: Sammenfald mellem aftaler',b:['Jobcentret er blevet opmærksom på, at du har en jobsamtale hos en arbejdsgiver på samme dag og tidspunkt som din samtale i Jobcentret.','Du bedes oplyse, hvilken aftale du vil overholde. Vi gør opmærksom på, at du har pligt til at deltage i samtaler i Jobcentret, og at du samtidig skal stå til rådighed for arbejdsmarkedet.'],
+  o:[['Jeg går til jobsamtalen','Du er udeblevet fra en samtale i Jobcentret uden rimelig grund. En jobsamtale kan kun betragtes som rimelig grund, hvis Jobcentret har modtaget dokumentation senest dagen før.'],
+     ['Jeg møder op i Jobcentret','Du har ikke udnyttet dine muligheder for at opnå arbejde, idet du har fravalgt en jobsamtale.'],
+     ['Jeg ringer og flytter mødet','Din henvendelse er registreret uden for telefontiden og kan derfor ikke tillægges betydning.']]},
+ {s:'Partshøring: Tilbud om arbejde',b:['Du har fået tilbud om arbejde 4 timer om ugen som opvasker. Transporttiden er 1 time og 50 minutter hver vej. Arbejdet vurderes som rimeligt.','Du bedes oplyse, om du tager imod tilbuddet.'],
+  o:[['Ja, jeg tager imod det','Arbejdet ligger i samme tidsrum som dit aktiveringstilbud. Du har dermed ikke stået til rådighed for tilbuddet.'],
+     ['Nej, transporttiden er for lang','Den samlede transporttid ligger inden for, hvad der anses for rimeligt. Du har afvist et rimeligt tilbud om arbejde.']]},
+ {s:'Anmodning om oplysninger: Indbetaling på din konto',b:['Ved kontrol er der konstateret en indbetaling på 500 kr. fra en privatperson med teksten “Til julegaver”.','Du bedes oplyse indbetalingens karakter.'],
+  o:[['Det er en gave','Gaven er ikke oplyst forud. Beløbet betragtes som en indtægt, der skal modregnes.'],
+     ['Det er et lån','Der foreligger ikke en skriftlig låneaftale. Beløbet betragtes derfor som en indtægt.'],
+     ['Det er tilbagebetaling af et lån, jeg gav','Når du har kunnet låne penge ud, har du haft en formue, som skulle have været oplyst.']]},
+ {s:'Partshøring: Fravær fra aktiveringstilbud',b:['Du har meldt afbud til dit aktiveringstilbud, fordi dit barn er sygt.','Du bedes oplyse, hvordan du fremover vil sikre, at du står til rådighed.'],
+  o:[['Jeg bliver hjemme, når mit barn er sygt','Første fraværsdag er godkendt. De efterfølgende dage betragtes som fravær uden rimelig grund, da der ikke er fremsendt dokumentation inden kl. 8.00.'],
+     ['Jeg finder pasning','Du har ikke oplyst navn og adresse på den person, der passer dit barn. Din rådighed kan derfor ikke vurderes.'],
+     ['Jeg tager barnet med','Børn kan af sikkerhedsmæssige hensyn ikke deltage i aktiveringstilbud. Du har dermed ikke stået til rådighed.']]},
+ {s:'Påbud: Dokumentation for jobsøgning',b:['Du bedes indsende dokumentation for dine jobsøgninger. Dokumentationen skal være i PDF-format.','Bemærk: Selvbetjeningen kan i øjeblikket ikke modtage PDF-filer.'],
+  o:[['Upload som PDF','Filen kunne ikke modtages. Dokumentationen anses for ikke at være indsendt.'],
+     ['Send det med almindelig post','Brevet blev registreret 3 dage efter fristen.'],
+     ['Mød op med papirerne','Personligt fremmøde kræver forudgående tidsbestilling via selvbetjeningen.']]},
+ {s:'Partshøring: Arv',b:['Du har arvet en bil med en handelsværdi på ca. 18.000 kr.','Du bedes oplyse, hvad du agter at gøre med bilen.'],
+  o:[['Jeg sælger den','Salgssummen betragtes som formue, der skal bruges, før du kan modtage kontanthjælp.'],
+     ['Jeg beholder den til jobsøgning','Det er ikke dokumenteret, at bilen er nødvendig for at opnå arbejde. Værdien medregnes som formue.']]},
+ {s:'Valg af tilbud',b:['Du skal deltage i et tilbud. Du kan vælge mellem nedenstående muligheder. Tilbuddene starter samme dag.'],
+  o:[['Kursus: “Find din indre motivation” (6 uger)','Kurset er fuldt booket. Du har derfor ikke valgt et tilbud inden fristen.'],
+     ['Virksomhedspraktik i genbrugsbutik (13 uger)','Praktikstedet har først plads om 8 uger. Du har ikke valgt et tilbud, der kan starte straks.'],
+     ['Nytteindsats: Fejning af parkeringsplads','Du har tidligere deltaget i nytteindsats. Tilbuddet vurderes ikke at bringe dig nærmere arbejdsmarkedet.']]},
+ {s:'Anmodning om oplysninger: Joblog',b:['Du har registreret dine jobsøgninger i joblog. Kravet er, at du søger et passende antal job.','Du bedes oplyse, om du selv vurderer, at antallet er passende.'],
+  o:[['Ja, det er passende','Jobcentret vurderer, at antallet ikke er passende.'],
+     ['Nej, jeg bør søge flere','Du har selv oplyst, at din jobsøgning ikke har været tilstrækkelig.']]},
+ {s:'Partshøring: Ferie',b:['Du har ansøgt om ferie i uge 29.','Du bedes bekræfte, om du ønsker at holde ferien.'],
+  o:[['Ja, jeg holder ferien','Du har ikke optjent ret til ferie med kontanthjælp i den ønskede periode. Perioden behandles som ferie uden ydelse.'],
+     ['Nej, jeg aflyser ferien','Ferien var allerede registreret. Aflysningen er modtaget efter fristen, og perioden behandles som ferie uden ydelse.']]},
+ {s:'Partshøring: Deltidsarbejde',b:['Det er oplyst, at du har haft 3 timers arbejde i weekenden.','Du bedes oplyse, hvornår lønnen udbetales.'],
+  o:[['Den er udbetalt','Lønnen skulle have været oplyst før udbetalingen. Der modregnes et skønnet beløb.'],
+     ['Den bliver udbetalt næste måned','Lønnen modregnes i den måned, arbejdet er udført. Der modregnes et skønnet beløb.']]},
+];
+
+function fresh(){return{money:0,run:0,life:0,g:GENS.map(()=>0),ups:[],xp:0,clicks:0,clicksLife:0,payT:0,
+  payouts:0,paidTotal:0,streak:0,sankMonth:false,setbacks:0,setbackTotal:0,udgTotal:0,short:0,deduct:0,deductTotal:0,
+  samtaler:0,sanktion:0,halfNext:false,blanketter:0,selv:false,boostUntil:0,valgRight:0,valgWrong:0,
+  played:0,caseno:'K-'+(100000+Math.floor(Math.random()*899999)),last:Date.now(),resets:0,
+  nextEvent:70,cut:1,jobkrav:10,reforms:0,shortStreak:0,cwCount:1,klager:0,klagerVundet:0,best:0,bestCw:0,dead:false,nearMiss:0,excuses:0,reopen:false,nextBlanket:70,nextValg:95,month:0,monthClicks:0,jobWarn:false,cw:CASEWORKERS[0],cwT:8,
+  mail:[],mailSeq:1,lastAfslag:0,kommune:null,prof:null}}
+let S=fresh();
+try{const raw=localStorage.getItem(SAVE);if(raw){S=Object.assign(fresh(),JSON.parse(raw));while(S.g.length<GENS.length)S.g.push(0);
+  if(!Array.isArray(S.mail))S.mail=[];if(S.selv){S.selv=false;S.streak=0;S.reopen=true;}}}catch(e){}
+function save(){S.last=Date.now();try{localStorage.setItem(SAVE,JSON.stringify(S))}catch(e){}}
+
+/* ---------- Indstillinger, lyd og vibration ---------- */
+const SET=(()=>{try{return Object.assign({sound:true,vib:true,intro:false},JSON.parse(localStorage.getItem('kh-settings')||'{}'))}catch(e){return{sound:true,vib:true,intro:false}}})();
+function saveSet(){try{localStorage.setItem('kh-settings',JSON.stringify(SET))}catch(e){}}
+let AC=null;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){AC=null}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});return AC}
+function tone(f,d,type='sine',vol=.12,delay=0,slide=0){if(!SET.sound)return;const a=ac();if(!a)return;try{
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02);}catch(e){}}
+const SFX={
+  click:()=>tone(520+Math.random()*80,.05,'triangle',.07),
+  buy:()=>{tone(660,.08,'sine',.1);tone(990,.12,'sine',.08,.06)},
+  mail:()=>{tone(880,.12,'sine',.09);tone(1320,.18,'sine',.07,.1)},
+  urgent:()=>{tone(740,.12,'square',.05);tone(740,.12,'square',.05,.18)},
+  bad:()=>tone(300,.35,'sawtooth',.06,0,140),
+  good:()=>{tone(523,.1,'sine',.09);tone(659,.1,'sine',.09,.09);tone(784,.18,'sine',.09,.18)},
+  pay:()=>{tone(1200,.06,'triangle',.06);tone(1500,.1,'triangle',.06,.06)}};
+function vib(p){if(SET.vib&&navigator.vibrate){try{navigator.vibrate(p)}catch(e){}}}
+
+let booted=false;
+/* ---------- Format ---------- */
+const NF=new Intl.NumberFormat('da-DK',{maximumFractionDigits:0});
+const NF1=new Intl.NumberFormat('da-DK',{maximumFractionDigits:1});
+const NF2=new Intl.NumberFormat('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2});
+const UNITS=[[1e18,'trill.'],[1e15,'billiard'],[1e12,'bill.'],[1e9,'mia.'],[1e6,'mio.']];
+function fmt(n){if(!isFinite(n))return'∞';for(const[u,l]of UNITS)if(n>=u)return NF2.format(n/u)+' '+l;return NF.format(Math.floor(n))}
+const fmtR=n=>n<100?NF1.format(n):fmt(n);
+function fmtT(s){s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?`${h} t ${m} min`:`${m} min ${s%60} s`}
+const monthName=m=>`${MON[m%12]} ${2027+Math.floor(m/12)}`;
+function dateNow(){const d=Math.min(28,1+Math.floor(S.payT/MONTH*28));return `${d}. ${monthName(S.month)}`}
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const round100=x=>Math.round(x/100)*100;
+
+/* ---------- Beregninger ---------- */
+let C={};
+function recompute(){
+  let click=1,cpct=0,all=1,sam=1;const gm=GENS.map(()=>1);
+  for(const id of S.ups){const u=UPMAP[id];if(!u)continue;
+    if(u.t==='click')click*=u.v;else if(u.t==='clickpct')cpct+=u.v;else if(u.t==='all')all*=u.v;
+    else if(u.t==='samtale')sam*=u.v;else if(u.t==='gen')gm[u.g]*=u.v;}
+  all*=1+0.05*S.xp;
+  let gen=0;const per=[];
+  GENS.forEach((g,i)=>{let m=gm[i];for(const t of MILES)if(S.g[i]>=t)m*=2;per[i]=g.r*m*all;gen+=per[i]*S.g[i];});
+  C={click,cpct,all,sam,per,gen};
+}
+const boostOn=()=>Date.now()<S.boostUntil;
+const rps=()=>C.gen*(boostOn()?5:1);
+const clickVal=()=>(5*C.click*(1+0.05*S.xp)+rps()*C.cpct)*(boostOn()?5:1);
+const sats=()=>SATS[(S.prof||{}).sats||'forh'];
+function payParts(pr){pr=pr||S.prof||{sats:'forh',enlig:true,born:0};const st=SATS[pr.sats];const rows=[[st.n,st.v]];
+  if(pr.enlig&&pr.born===0&&(pr.sats==='grund'||pr.sats==='forh'))rows.push(['Tillæg til enlige uden børn',ENLIG_U]);
+  if(pr.enlig&&pr.born>0&&(pr.sats==='grund'||pr.sats==='mindst'))rows.push(['Tillæg til enlige forsørgere',ENLIG_M]);
+  if(pr.born>0)rows.push([`Børnetillæg (${pr.born} × ${fmt(BORNTIL)})`,BORNTIL*pr.born]);
+  const cut=S.cut||1;if(cut<1){const sum=rows.reduce((a,r)=>a+r[1],0);rows.push([`Reformbesparelse (${NF.format(Math.round((1-cut)*100))} %)`,-Math.round(sum*(1-cut))]);}
+  return rows;}
+const fullPay=pr=>payParts(pr).reduce((a,r)=>a+r[1],0);
+/* Fribeløb, derefter 65 % fradrag – og krone for krone over indkomstloftet */
+function incomeMod(G){const st=sats(),full=fullPay();let p=full-MODPCT*Math.max(0,G-st.fri);if(p+G>st.loft)p-=p+G-st.loft;return Math.min(full,full-Math.max(0,p));}
+const modAmount=()=>incomeMod(C.gen*MONTH);
+const rawPay=()=>Math.max(0,fullPay()-modAmount());
+const formueOver=()=>Math.max(0,S.money-FORMUE);
+function payAmount(){let p=rawPay();if(S.halfNext)p/=2;return p}
+function earn(x){S.money+=x;S.run+=x;S.life+=x}
+function costOf(i,n){const b=GENS[i].c*Math.pow(GROW,S.g[i]);return b*(Math.pow(GROW,n)-1)/(GROW-1)}
+function maxBuy(i){const b=GENS[i].c*Math.pow(GROW,S.g[i]);return Math.max(0,Math.floor(Math.log(S.money*(GROW-1)/b+1)/Math.log(GROW)))}
+const xpPotential=()=>Math.floor(Math.sqrt(S.life/2.5e5));
+const xpGain=()=>Math.max(0,xpPotential()-S.xp);
+
+/* ---------- Digital Post ---------- */
+function mail(m){
+  m.id=S.mailSeq++;m.date=dateNow();m.read=false;
+  S.mail.unshift(m);
+  if(booted&&!m.act&&(m.afg||m.jc))SFX.mail();
+  if(S.mail.length>60){ // ryd ældste læste breve uden åben frist
+    // Ryd de ældste breve – aldrig et med åben frist, en igangværende klage eller det brev, der er åbent lige nu
+    const keep=x=>(x.act&&!x.act.done)||(x.klage&&(x.klage.st==='kommune'||x.klage.st==='anke'))||x.id===openId||x.id===modalId;
+    for(let pass=0;pass<2&&S.mail.length>60;pass++)
+      for(let i=S.mail.length-1;i>=0&&S.mail.length>60;i--){const x=S.mail[i];if(keep(x))continue;if(pass===0&&!(x.read||!isImp(x)))continue;S.mail.splice(i,1);}
+  }
+  updMailBtn();if(inboxOpen&&openId===null)renderInbox();
+  return m;
+}
+const jc=(subj,body,extra={})=>mail(Object.assign({from:jcName(),subj,body,jc:true},extra));
+function pending(){return S.mail.filter(m=>m.act&&!m.act.done)}
+const isImp=m=>!!(m.act||m.afg||m.jc||m.klage);
+let itab='imp';
+function updMailBtn(){
+  const un=S.mail.filter(m=>!m.read&&isImp(m)).length;const b=$('badge');
+  b.textContent=un>99?'99+':un;b.classList.toggle('on',un>0);
+  const p=pending();const btn=$('mailbtn');
+  if(p.length){const dl=Math.min(...p.map(m=>m.act.dl));btn.classList.add('urgent');$('mailtxt').textContent=`Frist ${Math.ceil(dl)} s`;}
+  else{btn.classList.remove('urgent');$('mailtxt').textContent='Digital Post';}
+}
+let inboxOpen=false,openId=null;
+$('mailbtn').onclick=()=>{inboxOpen=true;openId=null;$('inbox').classList.add('on');renderInbox();};
+$('iback').onclick=()=>{if(openId!==null){openId=null;renderInbox();}else{inboxOpen=false;$('inbox').classList.remove('on');}};
+$('iread').onclick=()=>{S.mail.forEach(m=>{if(!(m.act&&!m.act.done)&&(itab==='imp')===isImp(m))m.read=true});updMailBtn();renderInbox();};
+function tagFor(m){
+  if(m.act&&!m.act.done)return `<span class="tag frist" data-fr="${m.id}">Frist: ${Math.ceil(m.act.dl)} sek.</span>`;
+  if(m.act&&m.act.done)return m.act.ok?'<span class="tag ok">Besvaret</span>':'<span class="tag bad">Afsluttet</span>';
+  if(m.klage)return `<span class="tag ${m.klage.st==='medhold'?'ok':m.klage.st==='kommune'||m.klage.st==='anke'?'afg':'bad'}">Klage: ${{kommune:'i kommunen',anke:'i Ankestyrelsen',afvist:'afvist',fastholdt:'fastholdt',medhold:'medhold'}[m.klage.st]}</span>`;
+  if(m.afg)return '<span class="tag afg">Afgørelse</span>';
+  return '';
+}
+function letterHTML(m){
+  return `<div class="letter"><div class="meta"><span>Fra: <b>${m.from}</b></span><span>${m.date}</span></div>
+      <h3>${m.subj}</h3>${m.body}${actHTML(m)}${klageHTML(m)}${m.jc?`<div class="fine">${m.cw?`Med venlig hilsen<br>${m.cw}, sagsbehandler<br>${m.from}<br><br>`:''}${NOREPLY}</div>`:''}</div>`;
+}
+function klageHTML(m){
+  if(!m.afg||!m.amt)return'';
+  const k=m.klage;
+  if(!k)return `<div class="act"><div class="res" style="margin-bottom:8px">Er du uenig i afgørelsen om ${fmt(m.amt)} kr.?</div><button class="btn" data-klage="1">Klag over afgørelsen</button></div>`;
+  const st={kommune:'Klagen er under behandling i kommunen',anke:'Klagen er sendt til Ankestyrelsen',afvist:'Klagen er afvist',fastholdt:'Afgørelsen er fastholdt',medhold:'Du har fået medhold'}[k.st];
+  return `<div class="act done"><div class="res"><b>Klage:</b> ${st}${k.st==='kommune'||k.st==='anke'?` · forventet svar ${monthName(k.due)}`:''}</div></div>`;
+}
+function bindLetter(root,m){
+  root.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>answer(m,+b.dataset.opt));
+  root.querySelectorAll('[data-klage]').forEach(b=>b.onclick=()=>fileKlage(m));
+}
+function fileKlage(m){
+  if(m.klage)return;const due=S.month+2+Math.floor(Math.random()*2);
+  m.klage={st:'kommune',due};S.klager++;
+  jc('Kvittering for modtagelse af klage',`<p>Vi har modtaget din klage over afgørelsen “${m.subj.replace(/^Afgørelse: /,'')}”.</p>
+    <p>Kommunen genvurderer sagen. Den forventede sagsbehandlingstid er op til ${due-S.month} måneder. Du vil modtage svar i Digital Post.</p>
+    <p>Vi gør opmærksom på, at en klage ikke har opsættende virkning. Beløbet modregnes som varslet.</p>`,{cw:S.cw});
+  save();if(inboxOpen)renderInbox();if(modalId!==null)renderModal();
+}
+function processKlager(){
+  for(const m of S.mail){const k=m.klage;if(!k||(k.st!=='kommune'&&k.st!=='anke')||S.month<k.due)continue;
+    const sag=m.subj.replace(/^Afgørelse: /,'');const r=Math.random();
+    if(k.st==='kommune'){
+      if(r<0.2){k.st='afvist';jc('Afvisning af klage',`<p>Din klage over afgørelsen “${sag}” kan ikke behandles, da den er modtaget efter klagefristen.</p><p>Klagefristen regnes fra den dato, afgørelsen blev registreret i kommunens system, og ikke fra den dato, du modtog den.</p>`,{afg:true,cw:S.cw});}
+      else if(r<0.3){k.st='fastholdt';jc('Svar på klage',`<p>Kommunen har genvurderet afgørelsen “${sag}”.</p><p>Kommunen er enig i, at begrundelsen i den oprindelige afgørelse ikke var korrekt. Afgørelsen fastholdes dog med en anden begrundelse, som ikke kan oplyses af hensyn til kontrolarbejdet.</p>`,{afg:true,cw:S.cw});}
+      else{k.st='anke';k.due=S.month+3+Math.floor(Math.random()*4);jc('Klage sendt til Ankestyrelsen',`<p>Kommunen har genvurderet afgørelsen “${sag}” og fastholder den.</p><p>Din klage er derfor sendt videre til Ankestyrelsen. Ankestyrelsens sagsbehandlingstid er i øjeblikket op til ${k.due-S.month} måneder.</p>`,{cw:S.cw});}
+    }else{
+      if(r<0.85){k.st='fastholdt';jc('Ankestyrelsens afgørelse',`<p>Ankestyrelsen har behandlet din klage over afgørelsen “${sag}”.</p><p><b>Resultat:</b> Ankestyrelsen er enig i kommunens afgørelse. Afgørelsen stadfæstes.</p><p>Ankestyrelsens afgørelse er endelig og kan ikke indbringes for anden administrativ myndighed.</p>`,{afg:true});}
+      else{k.st='medhold';S.klagerVundet++;earn(m.amt);const mod=round100(m.amt*MODPCT);S.deduct+=mod;
+        jc('Ankestyrelsens afgørelse',`<p>Ankestyrelsen har behandlet din klage over afgørelsen “${sag}”.</p><p><b>Resultat:</b> Du får medhold. Kommunens afgørelse ændres.</p><p>Beløbet på ${fmt(m.amt)} kr. er udbetalt til din konto.</p>`,{afg:true});
+        jc('Afgørelse: Efterbetaling betragtes som indtægt',`<p>Du har modtaget en efterbetaling på ${fmt(m.amt)} kr. efter en afgørelse fra Ankestyrelsen.</p><p><b>Begrundelse:</b> Efterbetalingen vedrører en tidligere periode og betragtes som en indtægt i den måned, den er udbetalt.</p><p>Der modregnes <b>${fmt(mod)} kr.</b> i din næste udbetaling.</p><p>${KLAGE}</p>`,{afg:true,cw:S.cw,amt:mod});}
+    }}
+}
+/* Pop-up for vigtig post */
+let modalId=null;
+function openModal(m){SFX.urgent();vib([60,60,120]);m.popped=true;modalId=m.id;$('modal').classList.add('on');renderModal();}
+function closeModal(){modalId=null;$('modal').classList.remove('on');
+  const next=pending().find(x=>!x.popped);if(next)setTimeout(()=>openModal(next),250);}
+function renderModal(){
+  const m=S.mail.find(x=>x.id===modalId);if(!m){closeModal();return}
+  m.read=true;$('mbody').innerHTML=letterHTML(m);$('mbody').scrollTop=0;
+  bindLetter($('mbody'),m);
+  const open=m.act&&!m.act.done;
+  $('mfoot').innerHTML=open?'<button class="btn ghost" id="mlater">Læs senere</button>':'<button class="btn" id="mclose">Luk</button>';
+  ($('mlater')||$('mclose')).onclick=closeModal;
+  updMailBtn();
+}
+function renderInbox(){
+  const sc=$('iscroll');
+  if(openId!==null){const m=S.mail.find(x=>x.id===openId);if(!m){openId=null;return renderInbox()}
+    m.read=true;$('ititle').textContent=m.from;$('iread').style.visibility='hidden';
+    sc.innerHTML=letterHTML(m);
+    bindLetter(sc,m);
+    updMailBtn();return;}
+  $('ititle').textContent='Digital Post';$('iread').style.visibility='visible';
+  const ni=S.mail.filter(m=>!m.read&&isImp(m)).length,no=S.mail.filter(m=>!m.read&&!isImp(m)).length;
+  const list=S.mail.filter(m=>itab==='imp'?isImp(m):!isImp(m));
+  sc.innerHTML=`<div class="itabs"><button data-t="imp" class="${itab==='imp'?'on':''}">Vigtige<span class="n">${ni||''}</span></button><button data-t="oth" class="${itab==='oth'?'on':''}">Øvrige<span class="n" style="background:#94a3b8">${no||''}</span></button></div>`+
+    (list.length?`<div class="mlist">${list.map(m=>`<div class="mrow ${m.read?'':'unread'}" data-id="${m.id}"><div class="ud"></div>
+    <div><div class="from">${m.from}</div><div class="subj">${m.subj}</div>${tagFor(m)}</div><div class="dt">${m.date}</div></div>`).join('')}</div>`
+    :'<div class="empty-in">Ingen post her. Endnu.</div>');
+  sc.querySelectorAll('.itabs button').forEach(b=>b.onclick=()=>{itab=b.dataset.t;renderInbox();});
+  sc.querySelectorAll('.mrow').forEach(r=>r.onclick=()=>{openId=+r.dataset.id;renderInbox();sc.scrollTop=0;});
+  updMailBtn();
+}
+function actHTML(m){
+  const a=m.act;if(!a)return'';
+  if(a.done)return `<div class="act done"><div class="res">${a.res}</div></div>`;
+  const fr=`<div class="fr">⏱ Frist for svar: ${Math.ceil(a.dl)} sek.</div>`;
+  if(a.type==='valg')return `<div class="act">${fr}<div class="opts">${a.opts.map((o,i)=>`<button class="btn" data-opt="${i}">${o}</button>`).join('')}</div></div>`;
+  return `<div class="act">${fr}<div class="opts"><button class="btn" data-opt="0" style="text-align:center;background:var(--blue);color:#fff">${a.type==='kunde'?'Tag mødet':'Bekræft fremmøde'}</button></div></div>`;
+}
+function answer(m,i){
+  const a=m.act;if(!a||a.done)return;
+  if(a.type==='samtale'||a.type==='kunde'){
+    const r=a.type==='kunde'?round100(Math.max(500,C.gen*60)*(1+0.05*S.xp)):round100(Math.max(200,C.gen*15)*C.sam*(1+0.05*S.xp));earn(r);S.samtaler++;a.done=true;a.ok=true;
+    a.res=a.type==='kunde'?`Mødet gik godt. Kunden betalte ${fmt(r)} kr. for rådgivningen.`:
+      `Dit fremmøde er registreret. Samtalen varede 7 minutter. Der er udbetalt befordringsgodtgørelse på ${fmt(r)} kr.`;
+  }else if(a.type==='valg'){
+    a.done=true;a.picked=i;
+    if(i===a.c){a.ok=true;S.valgRight++;SFX.good();a.res=`Du svarede: <b>${a.opts[i]}</b><br><br>Svar modtaget. Jobcentret har ingen bemærkninger på nuværende tidspunkt. Sagen kan blive genoptaget, hvis der fremkommer nye oplysninger.`;}
+    else{a.ok=false;SFX.bad();vib(200);wrongValg(m,a.whys[i],`Du svarede: <b>${a.opts[i]}</b>`);}
+  }
+  save();if(inboxOpen)renderInbox();if(modalId!==null)renderModal();updMailBtn();
+}
+function wrongValg(m,why,lead){
+  const a=m.act;S.valgWrong++;S.deduct+=a.amt;
+  a.res=`${lead}<br><br>Dit svar er modtaget og indgår i sagens behandling. Der er sendt en afgørelse til din Digital Post: <b>${fmt(a.amt)} kr. modregnes</b> i din næste udbetaling.`;
+  jc('Afgørelse: Modregning i din kontanthjælp',
+   `<p>Jobcentret har behandlet sagen “${m.subj.replace(/^[^:]*: /,'')}”.</p><p><b>Begrundelse:</b> ${why}</p>
+    <p>Der modregnes derfor <b>${fmt(a.amt)} kr.</b> i din næste udbetaling efter reglerne i lov om aktiv socialpolitik. Modtager du ikke udbetaling, opkræves beløbet som tilbagebetaling.</p><p>${KLAGE}</p>`,{afg:true,cw:S.cw,amt:a.amt});
+}
+function expire(m){
+  const a=m.act;a.done=true;a.ok=false;
+  if(a.type==='samtale'){
+    S.halfNext=true;S.sanktion++;S.sankMonth=true;const had=S.streak;
+    a.res='Fristen er overskredet. Du er registreret som udeblevet.';
+    jc('Afgørelse: Nedsættelse af kontanthjælp',`<p>Du er udeblevet fra en samtale i Jobcentret uden at have bekræftet dit fremmøde.</p>
+      <p>Jobcentret har vurderet, at du ikke har haft en rimelig grund til udeblivelsen. Din næste udbetaling nedsættes derfor med 50 %.</p>
+      ${had>0?`<p>Din periode på ${had} måned${had>1?'er':''} uden kontanthjælp er afbrudt og skal påbegyndes forfra.</p>`:''}<p>${KLAGE}</p>`,{afg:true,cw:S.cw,amt:round100(rawPay()/2)||500});
+  }else if(a.type==='valg'){
+    wrongValg(m,'Du har ikke besvaret henvendelsen inden fristen. Sagen er derfor afgjort på det foreliggende grundlag.','Fristen er overskredet.');
+  }else a.res='Fristen er overskredet. Kunden gik videre til en konkurrent.';
+  if(inboxOpen)renderInbox();if(modalId===m.id)renderModal();
+}
+function sendSamtale(){
+  let m;
+  if(S.selv)m=mail({from:rnd(EMPLOYERS),subj:'Forespørgsel om møde',body:'<p>Vi vil gerne høre, om du kan tage et møde i dag om et større projekt.</p>',act:{type:'kunde',dl:30}});
+  else m=jc('Indkaldelse til samtale',`<p>Du er indkaldt til samtale i Jobcentret om din jobsøgning og din rådighed. Samtalen er obligatorisk.</p>
+    <p>Du skal bekræfte dit fremmøde inden fristen. Hvis du udebliver uden rimelig grund, nedsættes din ydelse, og en eventuel periode uden kontanthjælp afbrydes.</p>
+    <p>Medbring gyldig legitimation, dit CV og dokumentation for de seneste 3 måneders jobsøgning.</p>`,{act:{type:'samtale',dl:30},cw:S.cw});
+  if(modalId===null)openModal(m);
+}
+function sendValg(){
+  const v=rnd(VALG);const amt=round100((1500+Math.random()*2500)*Math.min(1,fullPay()/14201)*(1+S.month/36));
+  const m=jc(v.s,v.b.map(p=>`<p>${p}</p>`).join('')+'<p>Hvis du ikke svarer inden fristen, træffes afgørelsen på det foreliggende grundlag. Et forkert svar kan få betydning for din ydelse.</p>',
+    {act:{type:'valg',dl:45,opts:v.o.map(o=>o[0]),whys:v.o.map(o=>o[1]),c:Math.floor(Math.random()*v.o.length),amt},cw:S.cw});
+  if(modalId===null)openModal(m);
+}
+
+/* ---------- Klik ---------- */
+const stamp=$('stamp');
+function doClick(x,y){
+  SFX.click();
+  const v=clickVal();earn(v);S.clicks++;S.clicksLife++;S.monthClicks++;
+  stamp.classList.add('thunk');setTimeout(()=>stamp.classList.remove('thunk'),70);
+  const f=document.createElement('div');f.className='float';f.textContent='+'+fmt(v)+' kr.';
+  f.style.left=x+(Math.random()*30-15)+'px';f.style.top=y+'px';document.body.appendChild(f);setTimeout(()=>f.remove(),900);
+  if(Math.random()<1/30&&S.played-S.lastAfslag>25){S.lastAfslag=S.played;S.afslag=(S.afslag||0)+1;mail({from:rnd(EMPLOYERS),subj:'Vedr. din ansøgning',body:`<p>${rnd(AFSLAG)}</p>`})}
+}
+stamp.addEventListener('pointerdown',e=>{e.preventDefault();doClick(e.clientX,e.clientY)});
+stamp.addEventListener('click',e=>{if(e.detail===0){const r=stamp.getBoundingClientRect();doClick(r.left+r.width/2,r.top+r.height/2)}});
+
+/* ---------- Faner ---------- */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+b.dataset.tab));
+  if(b.dataset.tab==='xp')renderXP();if(b.dataset.tab==='stats')renderStats();
+});
+let buyN='1';
+document.querySelectorAll('.buyamt button').forEach(b=>b.onclick=()=>{buyN=b.dataset.n;
+  document.querySelectorAll('.buyamt button').forEach(x=>x.classList.toggle('on',x===b));updGens()});
+
+/* ---------- Indtægter ---------- */
+const genRows=[];
+GENS.forEach((g,i)=>{
+  const el=document.createElement('div');el.className='item';
+  el.innerHTML=`<div class="em">${g.e}</div><div><h4><span class="nm"></span><span class="own"></span></h4><p class="ds"></p><div class="meta"></div></div><div class="cost num"></div>`;
+  el.onclick=()=>buyGen(i);$('genlist').appendChild(el);
+  genRows.push({el,nm:el.querySelector('.nm'),own:el.querySelector('.own'),ds:el.querySelector('.ds'),meta:el.querySelector('.meta'),cost:el.querySelector('.cost')});
+});
+const visibleGen=i=>i===0||S.g[i-1]>0||S.g[i]>0;
+const buyAmount=i=>buyN==='max'?Math.max(1,maxBuy(i)):+buyN;
+function buyGen(i){
+  if(!visibleGen(i))return;const n=buyAmount(i),c=costOf(i,n);if(S.money<c)return;
+  S.money-=c;S.g[i]+=n;recompute();updGens();updUps(true);SFX.buy();vib(15);flash(genRows[i].el);
+}
+function updGens(){
+  GENS.forEach((g,i)=>{const r=genRows[i];const vis=visibleGen(i),prevVis=i===0||visibleGen(i-1);
+    r.el.style.display=(vis||prevVis)?'':'none';
+    if(!vis){r.el.className='item locked';r.nm.textContent='???';r.own.textContent='';r.ds.textContent='Køb den forrige for at låse op.';
+      r.meta.textContent='';r.cost.innerHTML=fmt(g.c)+' kr.';return;}
+    const n=buyAmount(i),c=costOf(i,n);
+    r.el.className='item'+(S.money<c?' no':'');
+    r.nm.textContent=g.n;r.own.textContent=S.g[i]?'× '+S.g[i]:'';r.ds.textContent=g.d;
+    const nx=MILES.find(t=>S.g[i]<t);
+    r.meta.textContent=`+${fmtR(C.per[i])} kr./sek pr. stk.`+(S.g[i]?` · i alt ${fmtR(C.per[i]*S.g[i])}`:'')+(nx?` · ×2 ved ${nx}`:'');
+    r.cost.innerHTML=`${fmt(c)} kr.<small>${buyN==='max'?'køb '+n:'køb ×'+n}</small>`;
+  });
+}
+
+/* ---------- Opgraderinger ---------- */
+let upKey='';
+const has=id=>S.ups.includes(id);
+function availUps(){const r=C.gen;return UPS.filter(u=>!has(u.id)&&(u.req(S,r)||S.money>=u.c)).sort((a,b)=>a.c-b.c)}
+function updUps(force){
+  const list=availUps();const key=list.map(u=>u.id).join(',');
+  if(force||key!==upKey){upKey=key;const box=$('uplist');box.innerHTML='';
+    if(!list.length)box.innerHTML='<div class="empty">Ingen nye opgraderinger lige nu. Søg flere job, køb flere indtægter.</div>';
+    list.forEach(u=>{const el=document.createElement('div');el.className='item';el.dataset.id=u.id;
+      const em=u.t==='gen'?GENS[u.g].e:u.t==='all'?'⭐':u.t==='samtale'?'🤝':'🖋️';
+      el.innerHTML=`<div class="em">${em}</div><div><h4>${u.n}</h4><p>${u.d}</p></div><div class="cost num">${fmt(u.c)} kr.</div>`;
+      el.onclick=()=>{if(S.money<u.c)return;S.money-=u.c;S.ups.push(u.id);recompute();updUps(true);updGens();SFX.buy();vib(15)};
+      box.appendChild(el);});
+    $('upbought').textContent=S.ups.length?`Købt: ${S.ups.length} af ${UPS.length}`:'';
+  }
+  let any=false;$('uplist').querySelectorAll('.item').forEach(el=>{const ok=S.money>=UPMAP[el.dataset.id].c;el.classList.toggle('no',!ok);if(ok)any=true});
+  $('updot').classList.toggle('on',any);
+}
+
+/* ---------- Fast job ---------- */
+let confirmReset=false;
+function renderXP(){
+  const g=xpGain();
+  $('p-xp').innerHTML=`<div class="box"><h3>Tag et fast job</h3>
+  <p>Når du har tjent nok i alt, kan du tage et fast job. Det ophører altid i prøvetiden, og så starter du forfra med en ny sag. Du mister penge, indtægter og opgraderinger, men beholder din <b>erfaring</b> – og dine måneder i systemet tæller videre. Hvert erfaringspoint giver <b>+5 %</b> på alle indtægter.</p>
+  <p>Erfaring nu: <span class="bignum">${S.xp}</span> (+${S.xp*5} %)</p>
+  <p>Du får <b>${g}</b> nye point, hvis du starter forfra nu.${g<1?` Første point kræver 250.000 kr. tjent i alt (du har ${fmt(S.life)} kr.). Næste kræver 1 mio., derefter 2,25 mio. osv.`:''}</p>
+  <button class="btn ${confirmReset?'red':''}" id="xpbtn" ${g<1?'disabled':''}>${confirmReset?'Tryk igen for at bekræfte':'Tag fast job (+'+g+' erfaring)'}</button></div>`;
+  $('xpbtn').onclick=()=>{if(xpGain()<1)return;
+    if(!confirmReset){confirmReset=true;renderXP();setTimeout(()=>{confirmReset=false;if($('p-xp').classList.contains('on'))renderXP()},4000);return}
+    confirmReset=false;
+    const keep={xp:xpPotential(),life:S.life,clicksLife:S.clicksLife,payouts:S.payouts,paidTotal:S.paidTotal,samtaler:S.samtaler,sanktion:S.sanktion,
+      blanketter:S.blanketter,played:S.played,resets:S.resets+1,setbacks:S.setbacks,setbackTotal:S.setbackTotal,udgTotal:S.udgTotal,
+      deductTotal:S.deductTotal,nearMiss:S.nearMiss,excuses:S.excuses,valgRight:S.valgRight,valgWrong:S.valgWrong,klager:S.klager,klagerVundet:S.klagerVundet,best:S.best,bestCw:S.bestCw,ach:S.ach,afslag:S.afslag,evictions:S.evictions,moves:S.moves,richOnce:S.richOnce,month:S.month,cwCount:S.cwCount,cw:S.cw,cut:S.cut,jobkrav:S.jobkrav,reforms:S.reforms,kommune:S.kommune,prof:S.prof,mail:S.mail.filter(m=>!(m.act&&!m.act.done)),mailSeq:S.mailSeq};
+    S=Object.assign(fresh(),keep);recompute();updUps(true);updGens();renderXP();bigStamp('ANSAT … NÆSTEN');
+    jc('Genoptagelse af din sag',`<p>Jobcentret har modtaget oplysning om, at dit faste job er ophørt i prøvetiden.</p><p>Du er derfor igen tilmeldt som jobsøgende. Din sag er oprettet med sagsnummer ${S.caseno}. Din erfaring er noteret i dit CV.</p>`,{afg:true});
+    save();};
+}
+
+/* ---------- Præstationer ---------- */
+const ACH=[
+ ['first','📝','Første ansøgning','Registrér din første jobsøgning',s=>s.clicksLife>=1],
+ ['joblog','🗂️','Joblog-helt','1.000 jobsøgninger registreret',s=>s.clicksLife>=1000],
+ ['afslag','📭','Afslag nr. 50','Modtag 50 afslag',s=>(s.afslag||0)>=50],
+ ['wrong','🎲','Forkert igen','Svar forkert på 10 partshøringer',s=>s.valgWrong>=10],
+ ['right','🍀','Held i uheld','Svar rigtigt på 10 partshøringer',s=>s.valgRight>=10],
+ ['near','🚪','Næsten ude','Bliv stoppet lige før målet',s=>s.nearMiss>=1],
+ ['klage','📨','Klagemur','Send 10 klager',s=>s.klager>=10],
+ ['won','🏆','Vundet og tabt','Vind en klage – og bliv modregnet',s=>s.klagerVundet>=1],
+ ['cw3','👥','Tre sagsbehandlere','Få din tredje sagsbehandler',s=>s.cwCount>=3],
+ ['reform','📜','Reformoverlever','Overlev 3 reformer',s=>s.reforms>=3],
+ ['y1','🎂','Et år i systemet','Overlev 12 måneder',s=>s.best>=12],
+ ['y3','🪑','Del af inventaret','Overlev 36 måneder',s=>s.best>=36],
+ ['rich','💰','Formuende (et øjeblik)','Hav over 16.200 kr. på kontoen',s=>s.money>16200||s.richOnce],
+ ['job','💼','Ansat … næsten','Tag et fast job',s=>s.resets>=1],
+ ['out','📦','Sat ud','Bliv sat ud af din bolig',s=>(s.evictions||0)>=1],
+ ['flyt','🚚','Flyttet','Flyt til en anden kommune',s=>(s.moves||0)>=1]];
+function checkAch(){if(!S.ach)S.ach=[];if(S.money>16200)S.richOnce=true;
+  for(const a of ACH)if(!S.ach.includes(a[0])&&a[4](S)){S.ach.push(a[0]);showChip(`${a[1]} Præstation: ${a[2]}`);}}
+let chipT=null;
+function showChip(t){const c=$('achip');c.textContent=t;c.classList.add('on');SFX.good();vib(30);clearTimeout(chipT);chipT=setTimeout(()=>c.classList.remove('on'),2600)}
+
+/* ---------- Min sag ---------- */
+let confirmWipe=false;
+function renderStats(){
+  const rows=[['Kommune',S.kommune||'—'],['Sats',S.prof?sats().n:'—'],['Kontanthjælp før fradrag',fmt(fullPay())+' kr./md.'],['Fribeløb / indkomstloft',fmt(sats().fri)+' / '+fmt(sats().loft)+' kr.'],['Husleje m.m.',fmt(udg())+' kr./md.'],['Sagsnr.',S.caseno],['Sagsbehandler',S.cw],['Status',S.selv?'Selvforsørgende':'Modtager kontanthjælp'],['Måneder i træk uden hjælp',S.selv?'—':S.streak+' / '+STREAK],
+   ['Tjent i denne sag',fmt(S.run)+' kr.'],['Tjent i alt',fmt(S.life)+' kr.'],['Jobsøgninger registreret',fmt(S.clicksLife)],
+   ['Udbetalinger modtaget',fmt(S.payouts)],['Kontanthjælp i alt',fmt(S.paidTotal)+' kr.'],['Husleje m.m. betalt',fmt(S.udgTotal)+' kr.'],
+   ['Samtaler mødt op til',fmt(S.samtaler)],['Sanktioner',fmt(S.sanktion)],['Partshøringer: rigtige svar',fmt(S.valgRight)],
+   ['Partshøringer: forkerte svar',fmt(S.valgWrong)],['Modregnet efter afgørelser',fmt(S.deductTotal)+' kr.'],
+   ['Uforudsete udgifter',fmt(S.setbacks)+' stk. · '+fmt(S.setbackTotal)+' kr.'],['Blanketter udfyldt',fmt(S.blanketter)],
+   ['Faste job taget (og mistet)',fmt(S.resets)],['Reformer overlevet',S.reforms+' (ydelse −'+NF.format(Math.round((1-(S.cut||1))*100))+' %)'],['Måneder overlevet',S.month+' (rekord '+S.best+')'],['Sagsbehandlere',fmt(S.cwCount)],['Klager sendt / vundet',S.klager+' / '+S.klagerVundet],['Måneder med restance i træk',S.shortStreak+' / 3'],['Gange tæt på at slippe ud',fmt(S.nearMiss)],['Undskyldninger fundet',fmt(S.excuses)],['Spilletid',fmtT(S.played)]];
+  const got=S.ach||[];
+  $('p-stats').innerHTML=`<div class="sec">Indstillinger</div><div class="box" style="padding:4px 16px">
+    <div class="tgl"><span>🔊 Lyd</span><button class="sw ${SET.sound?'on':''}" data-set="sound" aria-label="Lyd"></button></div>
+    <div class="tgl"><span>📳 Vibration</span><button class="sw ${SET.vib?'on':''}" data-set="vib" aria-label="Vibration"></button></div>
+    <div class="tgl"><span>❓ Vis introduktion igen</span><button class="btn ghost" id="reintro" style="padding:7px 12px;font-size:13px">Vis</button></div></div>
+  <div class="sec">Præstationer · ${got.length} af ${ACH.length}</div>
+  <div class="ach">${ACH.map(a=>`<div class="badge2 ${got.includes(a[0])?'':'lock'}"><div class="i">${a[1]}</div><div><b>${a[2]}</b><small>${a[3]}</small></div></div>`).join('')}</div>
+  <div class="sec">Din sag</div>
+  <div class="box"><table class="stats">${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+  <div style="margin-top:14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="flyt">Flyt kommune</button><button class="btn ghost" id="sit">Ændr situation</button></span><button class="btn ghost" id="wipe">${confirmWipe?'Sikker? Tryk igen':'Luk sagen (nulstil alt)'}</button></div></div>`;
+  $('p-stats').querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{const k=b.dataset.set;SET[k]=!SET[k];saveSet();b.classList.toggle('on',SET[k]);if(k==='sound'&&SET.sound)SFX.click();if(k==='vib')vib(30);});
+  $('reintro').onclick=()=>showIntro(false);
+  $('flyt').onclick=()=>openPicker(true);
+  $('sit').onclick=()=>openProfile(true);
+  $('wipe').onclick=()=>{if(!confirmWipe){confirmWipe=true;renderStats();setTimeout(()=>{confirmWipe=false;if($('p-stats').classList.contains('on'))renderStats()},4000);return}
+    confirmWipe=false;S=fresh();recompute();updUps(true);updGens();renderStats();save();openPicker(false);};
+}
+
+function flash(el){el.classList.remove('buy');void el.offsetWidth;el.classList.add('buy')}
+function bigStamp(txt){$('bigstamptxt').textContent=txt;const b=$('bigstamp');b.style.display='flex';
+  const s=$('bigstamptxt');s.style.animation='none';void s.offsetWidth;s.style.animation='';setTimeout(()=>b.style.display='none',1800)}
+
+/* ---------- Blanket ---------- */
+const bl=$('blanket');let blT=0;
+function showBlanket(){bl.style.left=(10+Math.random()*70)+'vw';bl.style.top=(30+Math.random()*50)+'vh';bl.style.display='block';blT=8}
+bl.onclick=()=>{bl.style.display='none';blT=0;S.blanketter++;S.boostUntil=Date.now()+30000;S.nextBlanket=60+Math.random()*90};
+
+/* ---------- Månedsskifte ---------- */
+function monthEnd(){
+  const mName=monthName(S.month);
+  const full=fullPay(),mod=Math.min(full,modAmount()),raw=rawPay(),half=S.halfNext;
+  let p=payAmount();const halfCut=raw-p;
+  const fo=formueOver(),foCut=Math.min(p,fo);p-=foCut;
+  const ded=S.deduct;const fromPay=Math.min(p,ded);p-=fromPay;const rest=ded-fromPay;
+  S.deduct=0;S.deductTotal+=ded;
+  if(p>0){earn(p);S.payouts++;S.paidTotal+=p;SFX.pay();}
+  let tilbage=0;if(rest>0){tilbage=Math.min(S.money,rest);S.money-=tilbage;}
+  const paid=Math.min(S.money,udg());S.money-=paid;S.udgTotal+=paid;
+  if(paid<udg()){S.short++;S.shortStreak++;}else S.shortStreak=0;
+  if(!S.selv){
+    const rows=payParts().map(r=>[r[0],fmt(r[1])]);
+    rows.push([`Fradrag for arbejdsindtægt`,mod>0?'−'+fmt(mod):'0']);
+    if(foCut>0)rows.push([`Formue over ${fmt(FORMUE)} kr.`,'−'+fmt(foCut)]);
+    if(half)rows.push(['Nedsættelse (sanktion)','−'+fmt(halfCut)]);
+    if(ded>0)rows.push(['Modregning efter afgørelse','−'+fmt(fromPay)]);
+    let extra=mod>0?`<p>Din arbejdsindtægt var ${fmt(C.gen*MONTH)} kr. Der ses bort fra et fribeløb på ${fmt(sats().fri)} kr. Af resten fradrages 65 %. Overstiger kontanthjælp og løn tilsammen ${fmt(sats().loft)} kr., fradrages lønnen krone for krone.</p>`:'';
+    if(foCut>0)extra+=`<p>Du havde ved månedens udgang ${fmt(fo+FORMUE)} kr. på din konto. Formue over ${fmt(FORMUE)} kr. skal bruges, før du kan få kontanthjælp.</p>`;
+    if(rest>0)extra+=`<p>Restbeløb efter afgørelse på ${fmt(rest)} kr. er opkrævet som tilbagebetaling${tilbage<rest?` (${fmt(rest-tilbage)} kr. kunne ikke opkræves og er bortfaldet)`:''}.</p>`;
+    extra+=`<p>Husleje m.m. på ${fmt(udg())} kr. er trukket fra din konto.${paid<udg()?` <b>Der manglede ${fmt(udg()-paid)} kr.</b>`:''}</p>`;
+    mail({from:'Ydelseskontoret, '+S.kommune,subj:`Udbetalingsspecifikation for ${mName}`,jc:false,
+      body:`<table>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]} kr.</td></tr>`).join('')}<tr class="sum"><td>Udbetalt</td><td>${fmt(p)} kr.</td></tr></table>${extra}`});
+  }
+  // Uforudsete udgifter
+  if(Math.random()<(S.selv?0.15:0.3)){
+    const sb=rnd(SETBACKS);const amt=round100((3000+Math.random()*12000)*(S.selv?Math.max(1,C.gen*MONTH/40000):1));
+    const x=Math.min(S.money,amt);S.money-=x;S.setbacks++;S.setbackTotal+=x;
+    mail({from:sb.f,subj:sb.s,body:`<p>${sb.b}</p><table><tr class="sum"><td>Beløb</td><td>${fmt(amt)} kr.</td></tr></table>${x<amt?`<p>Der manglede ${fmt(amt-x)} kr. på din konto. Restbeløbet er sendt til inkasso. Det sker der ikke mere ved. I spillet.</p>`:''}`});
+  }
+  // Joblog
+  if(!S.selv){
+    if(S.monthClicks<jobkrav()){
+      if(!S.jobWarn){S.jobWarn=true;jc('Påmindelse: Manglende registrering i joblog',`<p>Du har registreret ${S.monthClicks} jobsøgninger i ${mName}. Du skal løbende registrere din jobsøgning i joblog.</p><p>Vi gør opmærksom på, at manglende registrering kan få betydning for din ydelse.</p>`,{cw:S.cw});}
+      else{S.deduct+=1000;jc('Afgørelse: Manglende jobsøgning',`<p>Du har registreret ${S.monthClicks} jobsøgninger i ${mName}, selvom du tidligere er blevet vejledt om kravet.</p><p>Der modregnes <b>1.000 kr.</b> i din næste udbetaling.</p><p>${KLAGE}</p>`,{afg:true,cw:S.cw,amt:1000});}
+    }else S.jobWarn=false;
+  }
+  // Vejen til selvforsørgelse
+  if(!S.selv){
+    if(raw<=0&&!S.sankMonth){S.streak++;
+      if(S.streak>=STREAK-1){ // Altid lige før målet
+        const had=S.streak;S.streak=0;S.nearMiss++;const amt=round100(fullPay()*(0.5+Math.random()));S.deduct+=amt;
+        jc('Afgørelse: Perioden uden kontanthjælp er afbrudt',`<p>Jobcentret har gennemgået din sag i forbindelse med en eventuel afslutning.</p>
+          <p><b>Begrundelse:</b> ${rnd(BREAK)}</p><p>Din periode på ${had} måneder uden kontanthjælp er derfor afbrudt og skal påbegyndes forfra.</p>
+          <p>Der er samtidig rejst krav om tilbagebetaling af <b>${fmt(amt)} kr.</b>, som modregnes i din næste udbetaling eller opkræves.</p><p>${KLAGE}</p>`,{afg:true,cw:S.cw,amt});}
+      else if(S.streak===1)jc('Ingen udbetaling denne måned',`<p>Din egen indtægt overstiger kontanthjælpen. Der udbetales derfor ikke kontanthjælp for ${mName}.</p><p>Hvis din indtægt fortsat overstiger kontanthjælpen i ${STREAK} måneder i træk, kan din sag afsluttes. Udeblivelse fra samtaler afbryder perioden.</p>`,{cw:S.cw});
+    }else{
+      if(S.streak>0&&raw>0)jc('Din indtægt er faldet',`<p>Din egen indtægt er faldet under kontanthjælpen. Perioden uden kontanthjælp er afbrudt.</p>`,{cw:S.cw});
+      S.streak=0;
+    }
+  }
+  // Månedens undskyldning – der er altid en
+  if(!S.selv){const u=rnd(UNDSK);const amt=round100((300+Math.random()*900)*(1+S.month/12)*Math.min(1,fullPay()/14201)+Math.min(1.3,0.08+S.month*0.015)*C.gen*MONTH*(0.6+0.8*Math.random()));
+    S.deduct+=amt;S.excuses++;
+    jc('Afgørelse: '+u[0],`<p><b>Begrundelse:</b> ${u[1]}</p><p>Der modregnes <b>${fmt(amt)} kr.</b> i din næste udbetaling. Modtager du ikke udbetaling, opkræves beløbet som tilbagebetaling.</p><p>${KLAGE}</p>`,{afg:true,cw:S.cw,amt});}
+  // Ny sagsbehandler
+  if(!S.selv&&--S.cwT<=0){S.cwT=6+Math.floor(Math.random()*6);const old=S.cw;S.cw=rnd(CASEWORKERS.filter(n=>n!==old));
+    S.cwCount++;jc('Ny sagsbehandler',`<p>Din sag er overgået til en ny sagsbehandler. Din nye sagsbehandler er ${S.cw}.</p><p>Aftaler indgået med din tidligere sagsbehandler kan ikke forventes overholdt. Din jobplan skal udarbejdes på ny.</p>`,{cw:S.cw});}
+  processKlager();
+  // Årlig reform
+  if(S.month%12===11){S.reforms++;S.cut=Math.max(0.6,(S.cut||1)*0.95);S.jobkrav=(S.jobkrav||10)+3;
+    jc('Ændring af reglerne for kontanthjælp',`<p>Folketinget har vedtaget en ændring af reglerne for kontanthjælp. Ændringen træder i kraft fra næste måned.</p>
+      <p><b>Det betyder for dig:</b></p><p>• Din ydelse nedsættes med 5 %. Samlet er din ydelse nu nedsat med ${NF.format(Math.round((1-S.cut)*100))} %.<br>• Kravet til jobsøgning øges til ${S.jobkrav} jobsøgninger om måneden.</p>
+      <p>Ændringen har til formål at gøre det mere attraktivt at arbejde.</p>`,{afg:true,cw:S.cw});}
+  // Husleje-restance
+  if(S.shortStreak===1)mail({from:'Din udlejer',subj:'Rykker for husleje',body:`<p>Vi har ikke modtaget den fulde husleje for ${mName}. Beløbet bedes indbetalt hurtigst muligt.</p><p>Der er pålagt et rykkergebyr.</p>`});
+  else if(S.shortStreak===2)mail({from:'Din udlejer',subj:'Påkrav – sidste frist',body:`<p>Huslejen er nu ikke betalt i 2 måneder. Betales restancen ikke inden næste måned, vil lejemålet blive ophævet.</p>`});
+  S.halfNext=false;S.sankMonth=false;S.monthClicks=0;S.month++;
+  if(S.month>S.best){S.best=S.month;S.bestCw=S.cwCount;}
+  if(S.shortStreak>=3)gameOver();
+}
+
+/* ---------- Udsættelse ---------- */
+function survTitle(m){let t=SURV[0][1];for(const[a,l]of SURV)if(m>=a)t=l;return t}
+function gameOver(){
+  if(!S.dead){S.evictions=(S.evictions||0)+1;}SFX.bad();vib([300,100,300]);
+  S.dead=true;save();updHead();
+  $('ovbody').innerHTML=`<div class="letter"><div class="meta"><span>Fra: <b>Fogedretten</b></span><span>${dateNow()}</span></div>
+    <h3>Udsættelse</h3><p>Huslejen er ikke betalt i 3 måneder. Lejemålet er ophævet, og du er sat ud af din bolig.</p>
+    <p>Jobcentret har noteret, at du ikke længere har en fast adresse. Din sag er derfor lukket, da breve ikke kan forkyndes.</p>
+    <table><tr><td>Overlevet i systemet</td><td>${S.month} måneder</td></tr><tr><td>Titel</td><td>${survTitle(S.month)}</td></tr>
+    <tr><td>Sagsbehandlere</td><td>${S.cwCount}</td></tr><tr><td>Undskyldninger fundet</td><td>${fmt(S.excuses)}</td></tr>
+    <tr><td>Modregnet i alt</td><td>${fmt(S.deductTotal)} kr.</td></tr><tr><td>Klager vundet</td><td>${S.klagerVundet} af ${S.klager}</td></tr>
+    <tr class="sum"><td>Din rekord</td><td>${S.best} måneder</td></tr></table></div>`;
+  $('over').classList.add('on');
+}
+$('ovnew').onclick=()=>{
+  const keep={xp:S.xp,life:S.life,clicksLife:S.clicksLife,payouts:S.payouts,paidTotal:S.paidTotal,samtaler:S.samtaler,sanktion:S.sanktion,
+    blanketter:S.blanketter,played:S.played,resets:S.resets,setbacks:S.setbacks,setbackTotal:S.setbackTotal,udgTotal:S.udgTotal,
+    deductTotal:S.deductTotal,nearMiss:S.nearMiss,excuses:S.excuses,valgRight:S.valgRight,valgWrong:S.valgWrong,klager:S.klager,klagerVundet:S.klagerVundet,
+    best:S.best,bestCw:S.bestCw,ach:S.ach,afslag:S.afslag,evictions:S.evictions,moves:S.moves,richOnce:S.richOnce,kommune:S.kommune,prof:S.prof,mailSeq:S.mailSeq};
+  S=Object.assign(fresh(),keep);recompute();updUps(true);updGens();$('over').classList.remove('on');
+  jc('Ny sag oprettet',`<p>Du har henvendt dig om hjælp og er oprettet med en ny sag. Din tidligere sag kan ikke genfindes.</p><p>Du skal påregne at indsende alle oplysninger på ny.</p>`,{cw:S.cw});save();
+};
+
+/* ---------- Loop ---------- */
+let lastT=performance.now(),uiAcc=0,acc=0,saveAcc=0;
+function tick(now){
+  const dt=Math.min(1,Math.max(0,(now-lastT)/1000));lastT=now;
+  if(!S.kommune||!S.prof||S.dead){requestAnimationFrame(tick);return}
+  earn(rps()*dt);S.played+=dt;
+  S.payT+=dt;if(S.payT>=MONTH){S.payT-=MONTH;monthEnd();}
+  for(const m of pending()){m.act.dl-=dt;if(m.act.dl<=0)expire(m);}
+  if(!pending().some(m=>m.act.type==='samtale'||m.act.type==='kunde')){S.nextEvent-=dt;
+    if(S.nextEvent<=0){sendSamtale();S.nextEvent=S.selv?120+Math.random()*80:70+Math.random()*60;}}
+  if(!S.selv&&!pending().some(m=>m.act.type==='valg')){S.nextValg-=dt;
+    if(S.nextValg<=0){sendValg();S.nextValg=100+Math.random()*60;}}
+  if(blT>0){blT-=dt;if(blT<=0){bl.style.display='none';S.nextBlanket=60+Math.random()*90}}
+  else{S.nextBlanket-=dt;if(S.nextBlanket<=0)showBlanket();}
+  uiAcc+=dt;if(uiAcc>=.1){uiAcc=0;updHead();}
+  acc+=dt;if(acc>=.35){acc=0;checkAch();updGens();updUps();$('xpdot').classList.toggle('on',xpGain()>0);updMailBtn();
+    if(inboxOpen&&pending().length){if(openId===null){document.querySelectorAll('#iscroll [data-fr]').forEach(el=>{const m=S.mail.find(x=>x.id===+el.dataset.fr);if(m&&m.act&&!m.act.done)el.textContent=`Frist: ${Math.ceil(m.act.dl)} sek.`;});}else{const m=S.mail.find(x=>x.id===openId);
+      const fr=document.querySelector('#iscroll .act .fr');if(fr&&m&&m.act&&!m.act.done)fr.textContent=`⏱ Frist for svar: ${Math.ceil(m.act.dl)} sek.`;}}
+    if(modalId!==null){const m=S.mail.find(x=>x.id===modalId);const fr=document.querySelector('#mbody .act .fr');if(fr&&m&&m.act&&!m.act.done)fr.textContent=`⏱ Frist for svar: ${Math.ceil(m.act.dl)} sek.`;}}
+  saveAcc+=dt;if(saveAcc>=5){saveAcc=0;save();}
+  requestAnimationFrame(tick);
+}
+function updHead(){
+  $('money').textContent=fmt(S.money);
+  const r=rps(),b=boostOn();
+  $('rate').textContent=(b?`⚡ ×5 (${Math.ceil((S.boostUntil-Date.now())/1000)} s) `:'')+fmtR(r)+' kr./sek';$('rate').classList.toggle('boost',b);
+  const sec=Math.ceil(MONTH-S.payT),mod=Math.min(fullPay(),modAmount());
+  $('paybar').style.width=(S.payT/MONTH*100)+'%';$('paybar').parentNode.classList.toggle('late',S.payT>MONTH-10);
+  const fo=formueOver(),net=Math.max(0,payAmount()-S.deduct-fo);
+  if(S.selv){$('paylabel').textContent='Selvforsørgende 💪';$('payamt').textContent=`Husleje −${fmt(udg())} kr.`;$('payamt').className='amt zero num';
+    $('paysub').textContent=`Ny måned om ${sec} sek.`;}
+  else if(rawPay()<=0){$('paylabel').textContent=`Ny måned om ${sec} sek.`;$('payamt').textContent=`${S.streak}/${STREAK} mdr. uden hjælp`;$('payamt').className='amt zero num';
+    $('paysub').textContent=`Husleje −${fmt(udg())} kr./md.`+(S.deduct?` · Tilbagebetaling −${fmt(S.deduct)} kr.`:'')+(S.sankMonth?' · Sanktion: perioden afbrydes':'');}
+  else{$('paylabel').textContent=`Kontanthjælp om ${sec} sek.`;$('payamt').textContent=fmt(net)+' kr.';$('payamt').className='amt num';
+    $('paysub').textContent=(mod>0?`Fradrag for løn −${fmt(mod)} kr.`:`Fribeløb ${fmt(sats().fri)} kr./md.`)+(fo>0?` · ⚠ Formue over ${fmt(FORMUE)}: −${fmt(Math.min(fo,payAmount()))} kr.`:'')+(S.deduct?` · Afgørelser −${fmt(S.deduct)} kr.`:'')+(S.halfNext?' · Sanktion −50 %':'')+` · Husleje −${fmt(udg())} kr.`;}
+  $('clickval').textContent='+'+fmt(clickVal())+' kr.';
+  $('rank').textContent=survTitle(S.month);$('surv').textContent=`Overlevet ${S.month} mdr. · rekord ${S.best}`;
+  $('caseno').textContent=S.caseno;$('jcname').textContent=S.kommune?jcName():'Jobcentret';$('datetxt').textContent=dateNow();$('cwtxt').textContent=`Sagsbehandler nr. ${S.cwCount}`;
+  $('clickinfo').textContent=S.selv?`${fmt(S.clicks)} jobsøgninger registreret`:`Joblog denne måned: ${S.monthClicks} / ${jobkrav()} jobsøgninger`;
+}
+function welcome(){
+  jc('Velkommen til Jobcentret',`<p>Du er nu tilmeldt som jobsøgende og modtager kontanthjælp.</p>
+   <p><b>Målet:</b> Hold ud så længe som muligt – og bliv selvforsørgende, hvis du kan. Det er du, når din egen indtægt har været højere end kontanthjælpen i ${STREAK} måneder i træk uden sanktioner.</p>
+   <p>Du skal registrere mindst ${jobkrav()} jobsøgninger om måneden i joblog, møde op til samtaler og besvare henvendelser fra Jobcentret inden fristen. Forkerte svar kan blive modregnet i din kontanthjælp.</p>
+   <p><b>Din kontanthjælp (2026):</b></p><table>${payParts().map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])} kr.</td></tr>`).join('')}<tr class="sum"><td>I alt pr. måned før skat</td><td>${fmt(fullPay())} kr.</td></tr></table>
+   <p>Du må tjene ${fmt(sats().fri)} kr. om måneden uden fradrag. Af det, du tjener derudover, fradrages 65 %. Når løn og kontanthjælp tilsammen når ${fmt(sats().loft)} kr., fradrages lønnen krone for krone.</p>
+   <p>Du må højst have ${fmt(FORMUE)} kr. i formue. Har du mere ved månedens udgang, fradrages det i din kontanthjælp.</p>
+   <p>Husleje m.m. i ${S.kommune}: ${fmt(udg())} kr. om måneden.</p>
+   <p>Al kommunikation foregår via Digital Post. Du har pligt til at holde dig orienteret.</p>`,{cw:S.cw});
+}
+function awayEarn(sec){
+  sec=Math.min(7200,sec);if(sec>30&&C.gen>0){const g=C.gen*sec;earn(g);
+    mail({from:'Din bank',subj:'Indbetalinger på din konto',body:`<p>Mens du var væk (${fmtT(sec)}), er der indgået ${fmt(g)} kr. på din konto fra dine indtægter.</p>`});}
+}
+
+/* ---------- Introduktion ---------- */
+const INTRO=[
+ ['🏛️','Velkommen til systemet','<p>Du er netop blevet tilmeldt som jobsøgende og modtager kontanthjælp.</p><p>Målet er at blive selvforsørgende. Det kræver, at din egen indtægt er højere end kontanthjælpen i 12 måneder i træk.</p><p>I praksis handler det om at <b>holde ud så længe som muligt</b>, før du bliver sat ud.</p>'],
+ ['📝','Sådan tjener du penge','<p><b>Tryk på knappen</b> for at registrere jobsøgninger. Kravet stiger med hver reform.</p><p><b>Køb indtægter</b> som pantflasker og avisrute. Men pas på: Over fribeløbet modregnes 65 %, og har du over <b>16.200 kr.</b> ved månedens udgang, modregnes det også.</p><p>Hver måned betaler du husleje. Mangler du penge 3 måneder i træk, bliver du sat ud.</p>'],
+ ['✉️','Hold øje med Digital Post','<p>Indkaldelser og partshøringer dukker op med en <b>frist</b>. Svarer du ikke, bliver du sanktioneret.</p><p>Afgørelser kan du <b>klage</b> over. Det tager måneder.</p><p>Fang en svævende <b>📄 blanket</b> for at tjene ×5 i 30 sekunder.</p>']];
+let introStep=0,introThen=null;
+function showIntro(first){introStep=0;introThen=first;$('introov').classList.add('on');renderIntro();}
+function renderIntro(){const st=INTRO[introStep];
+  $('introbody').innerHTML=`<div class="intro"><div class="big">${st[0]}</div><h2>${st[1]}</h2>${st[2]}</div><div class="dots">${INTRO.map((_,i)=>`<i class="${i===introStep?'on':''}"></i>`).join('')}</div>`;
+  const last=introStep===INTRO.length-1;
+  $('introfoot').innerHTML=`${introStep>0?'<button class="btn ghost" id="iprev">Tilbage</button>':''}<button class="btn" id="inext">${last?(introThen?'Vælg kommune':'Luk'):'Næste'}</button>`;
+  if($('iprev'))$('iprev').onclick=()=>{introStep--;renderIntro()};
+  $('inext').onclick=()=>{if(!last){introStep++;renderIntro();return}
+    $('introov').classList.remove('on');SET.intro=true;saveSet();if(introThen)openPicker(false);};
+}
+
+/* ---------- Android tilbage-knap ---------- */
+window.appBack=function(){
+  const on=id=>$(id).classList.contains('on');
+  if(on('introov')){if(introStep>0){introStep--;renderIntro();}return true}
+  if(on('modal')){const m=S.mail.find(x=>x.id===modalId);if(m&&m.act&&!m.act.done)closeModal();else closeModal();return true}
+  if(on('profile')){if(prMove)$('profile').classList.remove('on');return true}
+  if(on('picker')){if(pMove)$('picker').classList.remove('on');return true}
+  if(on('over'))return true;
+  if(inboxOpen){$('iback').click();return true}
+  const t=document.querySelector('nav button.on');if(t&&t.dataset.tab!=='gens'){document.querySelector('nav button[data-tab="gens"]').click();return true}
+  save();return false;
+};
+
+/* ---------- Kommunevælger ---------- */
+let pMove=false;
+function openPicker(move){
+  pMove=move;$('picker').classList.add('on');$('psearch').value='';
+  $('ptitle').textContent=move?'Flyt kommune':'Vælg din kommune';
+  $('pintro').innerHTML=move?`Flytning koster ${fmt(FLYT)} kr. Din sag overflyttes, og du får en ny sagsbehandler. Husleje m.m. afhænger af kommunen.`
+    :'Hvor bor du? Kontanthjælpen er den samme overalt, men husleje m.m. afhænger af kommunen – og dermed hvor svært det er at blive selvforsørgende.';
+  $('pfoot').innerHTML=move?'<button class="btn ghost" id="pcancel">Annullér</button>':'';
+  if(move)$('pcancel').onclick=()=>$('picker').classList.remove('on');
+  renderPicker();
+}
+function renderPicker(){
+  const q=$('psearch').value.trim().toLowerCase();
+  const list=KOMMUNER.filter(k=>k.n.toLowerCase().includes(q));
+  $('plist').innerHTML=list.map(k=>`<div class="krow" data-k="${k.n}"><div><b>${k.n}</b><small>Husleje m.m. ${fmt(TIERS[k.t].rent)} kr./md.${k.n===S.kommune?' · nuværende':''}</small></div><span class="lvl l${k.t}">${TIERS[k.t].lvl}</span></div>`).join('')
+    ||'<div class="empty-in">Ingen kommune matcher.</div>';
+  $('plist').querySelectorAll('.krow').forEach(r=>r.onclick=()=>chooseKommune(r.dataset.k));
+}
+$('psearch').addEventListener('input',renderPicker);
+function chooseKommune(n){
+  if(pMove){
+    if(n===S.kommune)return;
+    if(S.money<FLYT){$('pintro').innerHTML=`<b style="color:var(--red)">Du har ikke råd til at flytte. Det koster ${fmt(FLYT)} kr.</b>`;return}
+    S.money-=FLYT;S.cwCount++;S.moves=(S.moves||0)+1;const old=S.kommune;S.kommune=n;S.cw=rnd(CASEWORKERS.filter(x=>x!==S.cw));S.cwT=6+Math.floor(Math.random()*6);
+    jc('Overflytning af sag',`<p>Din sag er overflyttet fra Jobcenter ${old}. Din nye sagsbehandler er ${S.cw}.</p><p>Oplysninger fra din tidligere kommune er modtaget. Der kan gå op til 8 uger, før de er registreret. Indtil da bedes du indsende dem igen.</p><p>Husleje m.m.: ${fmt(udg())} kr. om måneden.</p>`,{cw:S.cw});
+  }else{S.kommune=n;$('picker').classList.remove('on');if(!S.prof){openProfile(false);return}if(!S.mail.length||S.life===0)welcome();}
+  $('picker').classList.remove('on');updHead();save();
+  if($('p-stats').classList.contains('on'))renderStats();
+}
+
+/* ---------- Din situation ---------- */
+let prMove=false,draft=null;
+function openProfile(move){prMove=move;draft=Object.assign({sats:'forh',enlig:true,born:0},S.prof||{});
+  $('prtitle').textContent=move?'Ændr din situation':'Din situation';$('profile').classList.add('on');renderProfile();}
+function renderProfile(){
+  const d=draft;
+  const satsRows=Object.entries(SATS).map(([k,v])=>`<div class="opt ${d.sats===k?'on':''}" data-s="${k}"><div><b>${v.n}</b><small>${v.d} · fribeløb ${fmt(v.fri)} kr.</small></div><span class="v">${fmt(v.v)} kr.</span></div>`).join('');
+  const parts=payParts(d);
+  $('prbody').innerHTML=`<div class="pintro">Din kontanthjælp afhænger af din alder, hvor du bor, og om du har børn. Satserne er 2026-niveau før skat.</div>
+   <div class="grp">Sats</div>${satsRows}
+   <div class="grp">Husstand</div>
+   <div class="opt ${d.enlig?'on':''}" data-e="1"><div><b>Enlig</b><small>Du betaler hele huslejen selv</small></div></div>
+   <div class="opt ${!d.enlig?'on':''}" data-e="0"><div><b>Bor sammen med en partner</b><small>I deler huslejen · ingen enligtillæg</small></div></div>
+   <div class="grp">Børn under 18 år</div>
+   <div class="chips">${[0,1,2,3].map(n=>`<button data-b="${n}" class="${d.born===n?'on':''}">${n}</button>`).join('')}</div>
+   <div class="sumbox"><table>${parts.map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])} kr.</td></tr>`).join('')}
+     <tr class="sum"><td>Kontanthjælp i alt</td><td>${fmt(fullPay(d))} kr.</td></tr>
+     <tr><td>Husleje m.m.${d.sats==='hjem'?' (kostpenge)':''}${d.born?' inkl. børn':''}</td><td>−${fmt((()=>{const o=S.prof;S.prof=d;const u=udg();S.prof=o;return u})())} kr.</td></tr></table></div>
+   <div class="src">Kilde: borger.dk og Beskæftigelsesministeriets satser for 2026. Tillæg: børnetillæg ${fmt(BORNTIL)} kr. pr. barn, enligtillæg ${fmt(ENLIG_U)} kr. (uden børn) / ${fmt(ENLIG_M)} kr. (forsørger på grund- eller mindstesats). Husleje er spillets eget skøn.</div>`;
+  $('prbody').querySelectorAll('[data-s]').forEach(e=>e.onclick=()=>{d.sats=e.dataset.s;renderProfile()});
+  $('prbody').querySelectorAll('[data-e]').forEach(e=>e.onclick=()=>{d.enlig=e.dataset.e==='1';renderProfile()});
+  $('prbody').querySelectorAll('[data-b]').forEach(e=>e.onclick=()=>{d.born=+e.dataset.b;renderProfile()});
+  $('prfoot').innerHTML=(prMove?'<button class="btn ghost" id="prcancel">Annullér</button>':'')+`<button class="btn" id="prok">${prMove?'Gem ændring':'Start sagen'}</button>`;
+  if(prMove)$('prcancel').onclick=()=>$('profile').classList.remove('on');
+  $('prok').onclick=()=>{const first=!S.prof;S.prof=Object.assign({},d);$('profile').classList.remove('on');
+    if(prMove)jc('Ændring i din sag',`<p>Jobcentret har registreret ændrede oplysninger om din situation. Din ydelse er genberegnet.</p><p>Ny ydelse: ${fmt(fullPay())} kr. om måneden før fradrag. Husleje m.m.: ${fmt(udg())} kr.</p><p>Bemærk, at ændringen kan medføre krav om tilbagebetaling for tidligere perioder.</p>`,{cw:S.cw});
+    else if(first&&(S.life===0||!S.mail.length))welcome();
+    updHead();save();if($('p-stats').classList.contains('on'))renderStats();};
+}
+
+/* ---------- Start ---------- */
+recompute();
+if(!S.kommune){if(!SET.intro&&S.life===0)showIntro(true);else openPicker(false);}
+else if(!S.prof)openProfile(false);
+if(S.dead)gameOver();
+if(S.reopen){S.reopen=false;jc('Genoptagelse af din sag',`<p>Ved en efterkontrol er det konstateret, at din sag blev afsluttet på et forkert grundlag.</p><p>Din sag er derfor genoptaget, og du er igen omfattet af reglerne for kontanthjælp.</p><p>${KLAGE}</p>`,{afg:true,cw:S.cw});}
+else awayEarn((Date.now()-S.last)/1000);
+updGens();updUps(true);updHead();updMailBtn();
+document.addEventListener('pointerdown',()=>ac(),{once:true});
+let hiddenAt=0;
+document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=Date.now();save()}else if(hiddenAt){awayEarn((Date.now()-hiddenAt)/1000);hiddenAt=0;lastT=performance.now();}});
+addEventListener('pagehide',save);
+booted=true;
+requestAnimationFrame(t=>{lastT=t;requestAnimationFrame(tick)});
+})();
+</script>
+</body>
+</html>

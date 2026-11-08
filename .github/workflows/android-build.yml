@@ -86,7 +86,7 @@ jobs:
               fi
             done < <(find "$root" -type f \
               \( -name settings.gradle.kts -o -name settings.gradle \) \
-              -not -path '*/.git/*' -not -path '*/.gradle/*' -not -path '*/build/*' -print)
+              -not -path '*/.git/*' -not -path '*/.gradle/*' -not -path '*/build/*' -not -path '*/kontanthjaelp/*' -print)
             return 1
           }
 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Brev/blanket -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,28 L64,28 L74,38 L74,78 Q74,80 72,80 L36,80 Q34,80 34,78 L34,30 Q34,28 36,28 Z" />
+    <path
+        android:fillColor="#C7D7F5"
+        android:pathData="M64,28 L74,38 L66,38 Q64,38 64,36 Z" />
+    <!-- Tekstlinjer -->
+    <path android:fillColor="#93A9D1" android:pathData="M40,42 L60,42 L60,45 L40,45 Z" />
+    <path android:fillColor="#93A9D1" android:pathData="M40,49 L68,49 L68,52 L40,52 Z" />
+    <path android:fillColor="#93A9D1" android:pathData="M40,56 L64,56 L64,59 L40,59 Z" />
+    <!-- Rødt stempel -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#DC2626"
+        android:strokeWidth="3"
+        android:pathData="M56,62 m-10,0 a10,10 0,1 1,20 0 a10,10 0,1 1,-20 0" />
+    <path
+        android:fillColor="#DC2626"
+        android:pathData="M51,61 L61,61 L61,64 L51,64 Z" />
+</vector>

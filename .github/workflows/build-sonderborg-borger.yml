@@ -1,0 +1,62 @@
+name: Build Sønderborg Borger
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'SonderborgBorger/**'
+      - '.github/workflows/build-sonderborg-borger.yml'
+  pull_request:
+    paths:
+      - 'SonderborgBorger/**'
+      - '.github/workflows/build-sonderborg-borger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: SonderborgBorger
+    steps:
+      - name: Hent repository
+        uses: actions/checkout@v4
+
+      - name: Opsæt Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Opsæt Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
+      - name: Opsæt Gradle 8.14.3
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Test og byg debug-APK
+        run: gradle testDebugUnitTest assembleDebug --no-daemon --stacktrace
+
+      - name: Klargør APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/release"
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/release/Sonderborg-Borger-1.0.0-debug.apk"
+          (cd "$GITHUB_WORKSPACE/release" && sha256sum *.apk > SHA256SUMS.txt)
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sonderborg-Borger-Android-APK
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
